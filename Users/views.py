@@ -100,6 +100,17 @@ class LoginView(APIView):
                             "user":{
                                 "id":user.id,
                                 "email":user.email,
+                                "can_create_company":user.can_create_company,
+                                "can_edit_company":user.can_edit_company,
+                                "can_delete_company":user.can_delete_company,
+                                "can_create_user":user.can_create_user,
+                                "can_edit_user":user.can_edit_user,
+                                "can_delete_user":user.can_delete_user,
+                                "can_view_user":user.can_view_user,
+                                "can_create_user_groups":user.can_create_user_groups,
+                                "can_edit_user_groups":user.can_edit_user_groups,
+                                "can_delete_user_groups":user.can_delete_user_groups,
+                                "can_view_user_groups":user.can_view_user_groups
                                 }
                             
                             }

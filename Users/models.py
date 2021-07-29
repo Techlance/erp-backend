@@ -10,6 +10,18 @@ from django.utils import timezone
 class User(AbstractUser):
     name = models.TextField(max_length=200, null=False)
     email = models.EmailField(unique=True, null=False)
+    can_create_company = models.BooleanField(null=False, default=False)
+    can_edit_company = models.BooleanField(null=False, default=False)
+    can_delete_company = models.BooleanField(null=False, default=False)
+    can_view_company = models.BooleanField(null=False, default=False)
+    can_create_user = models.BooleanField(null=False, default=False)
+    can_edit_user = models.BooleanField(null=False, default=False)
+    can_delete_user = models.BooleanField(null=False, default=False)
+    can_view_user = models.BooleanField(null=False, default=False)
+    can_create_user_groups = models.BooleanField(null=False, default=False)
+    can_edit_user_groups = models.BooleanField(null=False, default=False)
+    can_delete_user_groups = models.BooleanField(null=False, default=False)
+    can_view_user_groups = models.BooleanField(null=False, default=False)
     created_by = models.TextField(default="primary",max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
     username = None

@@ -1,3 +1,4 @@
+from re import T
 from django.db import models
 from django.utils import timezone
 from Users.models import *
@@ -55,7 +56,7 @@ class company_master_docs(models.Model):
 
 
 class year_master(models.Model):
-    year_no = models.IntegerField(null=False)
+    year_no = models.IntegerField(null=False, default=1)
     start_date = models.DateField(null=False)
     end_date = models.DateField(null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
@@ -69,7 +70,7 @@ class voucher_type(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
     voucher_class = models.TextField(max_length=500, null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
-    authorization_id = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
+    authorization_id = models.ForeignKey(to=User, null=True, on_delete=models.CASCADE)
     auto_numbering = models.BooleanField(default=False)
     prefix = models.TextField(max_length=200, null=True)
     restart = models.TextField(max_length=50, null=True)
