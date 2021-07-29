@@ -117,6 +117,7 @@ class LoginView(APIView):
                         }
         return response
 
+
 # API to add user
 # request : POST
 # PENDING
@@ -129,18 +130,13 @@ class AddUserView(APIView):
         except:
             return payload
         
-        #checks user is superadmin or not
-        # user_company_row = user_company.objects.filter(user=user.id).filter(company_master_id=company_id)
-        # user_group_id = user_company_row.user_group_id
-        # user_right_row = user_right.objects.filter(user_group_id=user_group_id).filter(transaction_id=9)
-        # print(user_right_row.can_create)
-        # if user_right_row.can_create:
+        if user.can_create_user:
             serializer = UserSerializer(data=request.data)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                # "data": user.email
+                "data": user.email
                 })
 
             serializer.save()
@@ -150,15 +146,116 @@ class AddUserView(APIView):
                 "data":serializer.data
                 })
 
-        # else:
-        #     return Response({
-        #         "success":False,
-        #         "message":"Not authorized to create user",
-        #         "data":{
-        #             "email":user.email
-        #         }
-        #     })
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to create user",
+                "data":{
+                    "email":user.email
+                }
+            })
 
+
+# API For editing user
+# request : PUT
+class EditUserView(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_edit_user:
+            selected_user = User.objects.get(id=id)
+            serializer = UserSerializer(selected_user, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'User Edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit User',
+                })
+
+# API For deleting user
+# request : DELETE
+class DeleteUserView(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        if user.can_delete_user:
+            selected_user = User.objects.get(id=id)
+            selected_user.delete()
+            return Response({
+                'success': True,
+                'message': 'User deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to User Company',
+                })
+# API For get all user
+# request : GET
+class GetUserView(APIView):
+    def get(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_view_user:
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': {
+                'data': serializer.data
+            }
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View user Details',
+            })
+
+# API For getting particular user
+# request : GET      
+class DetailUserView(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_view_user:
+            user_details = User.objects.get(id=id)
+            serializer = UserSerializer(user_details)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': {
+                'data': serializer.data
+            }
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View User Details',
+            })
 
 
 

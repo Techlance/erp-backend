@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from rest_framework import response
+from rest_framework.serializers import Serializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -108,7 +110,8 @@ def acc_group_insert(acc_group_fields, company_id, user_email):
 
 def ledger_master_insert(ledger_master_fields, company_id, user_email):
     for i in ledger_master_fields:
-        new_ledger_master = ledger_master()
+        new_ledger_master = ledger_master(ledger_id=i[0], ledger_name=i[1], acc_group_id=i[2], maintain_billwise=i[3], company_master_id=company_id, created_by=user_email)
+        new_ledger_master.save()
           
 
 
@@ -134,31 +137,44 @@ class CreateCompanyView(APIView):
             added_company = company_master.objects.latest('id')
 
             # Trigger data to year master
-            year_master_insert(added_company.start_date, added_company.end_date, added_company.id, user.email)
+            year_master_insert(added_company.year_start_date, added_company.year_end_date, added_company, user.email)
 
             # Trigger data to voucher type
             voucher_name = ["Cash Sales", "Credit Sales", "Cash Purchase" ,"Credit Purchase" ,"Journal" ,"Contra" ,"Cash Receipt" ,"Bank Receipt" ,"Cash Payment" ,"Bank Payment" ,"memo" ,"planning" ,"debit note" ,"credit note"]
             voucher_class = ["Cash Sales", "Credit Sales", "Cash Purchase" ,"Credit Purchase" ,"Journal" ,"Contra" ,"Cash Receipt" ,"Bank Receipt" ,"Cash Payment" ,"Bank Payment" ,"memo" ,"planning" ,"debit note" ,"credit note"]
-            voucher_type_insert(voucher_name, voucher_class, added_company.id, user.email)
+            voucher_type_insert(voucher_name, voucher_class, added_company, user.email)
 
             # Trigger data to account head
             
             account_head = [["Non - Current Assets", "ASSETS", True, 1], ["Current Assets", "ASSETS", True, 2], ["Equity", "EQUITY AND LIABILITIES", False, 3], ["Non-Current Liabilities",	"EQUITY AND LIABILITIES", False, 4], ["Current Liabilities", "EQUITY AND LIABILITIES",	False,	5],
              ["Income", "income",False,	6], ["Cost of Sales", "expenses", False, 7], ["Expenses", "expenses", False, 8]]
-            acc_head_insert(account_head, added_company.id, user.email)
+            acc_head_insert(account_head, added_company, user.email)
             
             # Trigger data to account group 
 
-            account_group = [ ["Property, Plant & Equipment", "Non - Current Assets", "PPEx"], ["Inventory"	"Current Assets", "INV"],["Trade and other receivables", "Current Assets", "TOR"],["Cash and bank equivalents",	"Current Assets", "CB"], 
-            ["Capital", "Equity","CAP"],["Retained Earnings",	"Equity", "RE"],["Borrowings",	"Non-Current Liabilities", "BO"],["Employees end of service benefit",	"Non-Current Liabilities",	"ESB"],["Trade Payables and Others"	"Current Liabilities",	"TOP"],
-            ["Borrowings-ShortTerm",	"Current Liabilities", "BOS"],["Cash in Hand",	"Current Assets	Cash and bank equivalents",	"CAS"],["Cash at Bank",	"Current Assets",	"Cash and bank equivalents",	"BNK"],["Receivables",	"Current Assets",	"Trade and other receivables",	"DR"],
-            ["Payables",	"Current Liabilities", "Trade Payables and Others",	"CR"],["Revenue",	"Income", 	"REV"],["cost of sales",	"Expenses",		"COS"],["Other gains and losses	Expenses",	"OGI"],["Administrative & Selling Expenses",	"Expenses",	 "AOS"],["Finance costs",	"Expenses",		 "FC"],
-            ["Opening Stock",	"cost of sales",  "OS",],["Closing Stock",	"cost of sales",  "CS"],["Bank OD",	"Current Liabilities",  "BOD"]]
-            acc_group_insert(account_group, added_company.id, user.email)
+            non_current_assests = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Non - Current Assets")
+            current_assests = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Current Assets")
+            equity = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Equity")
+            non_current_liabilities = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Non-Current Liabilities")
+            current_liabilities = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Current Liabilities")
+            income = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Income")
+            cost_of_sales = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Cost of Sales")
+            expenses = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Expenses")
+            
+            account_group = [ ["Property, Plant & Equipment", non_current_assests, "PPE"], ["Inventory", current_assests, "INV"],["Trade and other receivables", current_assests, "TOR"],["Cash and bank equivalents",	current_assests, "CB"], 
+            ["Capital", equity,"CAP"],["Retained Earnings",	equity, "RE"],["Borrowings", non_current_liabilities, "BO"],["Employees end of service benefit",non_current_liabilities,	"ESB"],["Trade Payables and Others", current_liabilities, "TOP"],
+            ["Borrowings-ShortTerm", current_liabilities, "BOS"],["Cash in Hand", current_assests, "Cash and bank equivalents",	"CAS"],["Cash at Bank",	current_assests, "Cash and bank equivalents", "BNK"],["Receivables",	current_assests, "Trade and other receivables",	"DR"],
+            ["Payables", current_liabilities, "Trade Payables and Others", "CR"],["Revenue",	income, "REV"],["cost of sales",expenses, "COS"],["Other gains and losses", expenses,	"OGI"],["Administrative & Selling Expenses", expenses, "AOS"],["Finance costs", expenses, "FC"],
+            ["Opening Stock", cost_of_sales, "OS",],["Closing Stock", cost_of_sales, "CS"],["Bank OD", current_liabilities, "BOD"]]
+            acc_group_insert(account_group, added_company, user.email)
 
             # Trigger data to ledger master
+            cash_in_hand = acc_group.objects.get(company_master_id=added_company.id, group_name="Cash in Hand")
+            reatained_earnings = acc_group.objects.get(company_master_id=added_company.id, group_name="Retained Earnings")
 
-            ledger_master = [["CAS-1", "cash", "Cash in Hand", False], ["P&L", "Profit & Loss A/c"	"Retained Earnings"	, False]]
+
+            ledger_master = [["CAS-1", "cash", cash_in_hand, False], ["P&L", "Profit & Loss A/c" , reatained_earnings, False]]
+            ledger_master_insert(ledger_master, added_company, user.email)
             
             #trigger all tables data
             return Response({
@@ -172,4 +188,86 @@ class CreateCompanyView(APIView):
             "message":"Not Allowed to Create Company",
             "data":user.email
             })
+
+
+
+# API For editing company
+# request : PUT
+class EditCompanyView(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_edit_company:
+            company_instance = company_master.objects.get(id=id)
+            serializer = CompanySerializer(company_instance, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Company Edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit Company',
+                })
+        
+
+# API for deleting company
+# request : DELETE        
+class DeleteCompanyView(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_delete_company:
+            company_master_record = company_master.objects.get(id=id)
+            company_master_record.delete()
+            return Response({
+                'success': True,
+                'message': 'Company deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete Company',
+                })
+
+
+class DetailCompanyView(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_view_company:
+            company_master_record = company_master.objects.get(id=id)
+            serializer = CompanySerializer(company_master_record)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': {
+                'data': serializer.data
+            }
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View Company Details',
+            })
+
+
+
+
 

@@ -36,13 +36,13 @@ class company_master(models.Model):
     def __str__(self):
         return self.company_name
 
+
 class user_company(models.Model):
     user = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
     user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
-
 
 
 class company_master_docs(models.Model):
@@ -65,6 +65,7 @@ class year_master(models.Model):
     created_on = models.DateTimeField(default=timezone.now())
     def __str__(self):
         return self.year_no
+
 
 class voucher_type(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
