@@ -10,8 +10,8 @@ from django.utils import timezone
 class User(AbstractUser):
     name = models.TextField(max_length=200, null=False)
     email = models.EmailField(unique=True, null=False)
-    created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_by = models.TextField(default="primary",max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
     username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -22,26 +22,29 @@ class User(AbstractUser):
 
 class user_group(models.Model):
     user_group_name = models.TextField(max_length=200, null=False)
+    backdated_days = models.IntegerField(default=60,null=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.user_group_name
 
 
 class transaction_right(models.Model):
     transactions = models.TextField(max_length=200, null=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
-
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.transactions
 
 class user_right(models.Model):
     user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.CASCADE)
     transaction_id = models.ForeignKey(to=transaction_right, null=False, on_delete=models.CASCADE)
-    backdated_days = models.IntegerField(null=True)
     can_create = models.BooleanField(default=False)
     can_alter = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)
     can_view = models.BooleanField(default=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
 
 
 

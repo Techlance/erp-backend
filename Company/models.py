@@ -4,12 +4,14 @@ from Users.models import *
 # Create your models here.
 
 
-
 class currency(models.Model):
     currency = models.TextField(max_length=50, null=False, unique=True)
     currency_name = models.TextField(max_length=100, null=False, unique=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+
+    def __str__(self):
+        return self.currency
 
 
 class company_master(models.Model):
@@ -29,14 +31,17 @@ class company_master(models.Model):
     year_end_date = models.DateField(null=False)
     logo = models.ImageField(upload_to="logo", null=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.company_name
 
 class user_company(models.Model):
     user = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
     user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+
 
 
 class company_master_docs(models.Model):
@@ -44,7 +49,9 @@ class company_master_docs(models.Model):
     file = models.FileField(upload_to="files", null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.doc_name
 
 
 class year_master(models.Model):
@@ -54,8 +61,9 @@ class year_master(models.Model):
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     status = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
-
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.year_no
 
 class voucher_type(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
@@ -67,7 +75,9 @@ class voucher_type(models.Model):
     restart = models.TextField(max_length=50, null=True)
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.voucher_name
 
 
 class acc_head(models.Model):
@@ -78,7 +88,9 @@ class acc_head(models.Model):
     schedule_no = models.IntegerField(null=False)
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.acc_head_name
 
 
 class acc_group(models.Model):
@@ -89,7 +101,9 @@ class acc_group(models.Model):
     child_of = models.TextField(max_length=1000, null=True)
     is_fixed = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.group_name
 
 
 class ledger_master(models.Model):
@@ -123,7 +137,9 @@ class ledger_master(models.Model):
     payment_terms = models.TextField(max_length=1500, null=True)
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateField(default=timezone.now())
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.ledger_name
 
 
     
