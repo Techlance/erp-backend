@@ -564,7 +564,7 @@ class GetUserRight(APIView):
             
         if user.can_view_user:
             user_groups = user_right.objects.all()
-            serializer = UserRightSerializer(user_groups, many=True)
+            serializer = GetUserRightSerializer(user_groups, many=True)
             return Response({
             'success': True,
             'message':'',

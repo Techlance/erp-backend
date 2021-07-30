@@ -184,7 +184,7 @@ class CreateCompanyView(APIView):
             #trigger all tables data
             return Response({
                 "success":True,
-                "message":"company created successfully",
+                "message":"Company created successfully",
                 "data":serializer.data
                 })
         else:
@@ -258,7 +258,7 @@ class DetailCompanyView(APIView):
             return payload
         if user.can_view_company:
             company_master_record = company_master.objects.get(id=id)
-            serializer = CompanySerializer(company_master_record)
+            serializer = GetCompanySerializer(company_master_record)
             return Response({
             'success': True,
             'message':'',
@@ -273,12 +273,222 @@ class DetailCompanyView(APIView):
             })
 
 
+class AddCompanyDocument(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_create_company:
+            serializer = CompanyDocumentSerializer(data = request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": serializer.errors,
+                "data": user.email
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Company Document added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to Add Company Documents",
+                "data":{
+                    "email":user.email
+                }
+            })
+
+
+
+# API For editing company document
+# request : PUT
+class EditCompanyDocumentView(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_edit_company:
+            company_document_instance = company_master_docs.objects.get(id=id)
+            serializer = CompanyDocumentSerializer(company_document_instance, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Company Edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit Company Document',
+                })
+
+
+class DeleteCompanyDocument(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_delete_company:
+            company_master_documents = company_master_docs.objects.get(id=id)
+            company_master_documents.delete()
+            return Response({
+                'success': True,
+                'message': 'Company Document deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete Company Document',
+                })
+    
+
 
         
 
 
 
+# API For getting company document
+# request : GET
+class GetCompanyDocumentView(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_view_company:
+            company_master_record = company_master_docs.objects.filter(company_master_id=id)
+            serializer = GetCompanyDocumentSerializer(company_master_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': {
+                'data': serializer.data
+            }
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View Company Document',
+            })
 
 
+class AddCurrency(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_create_company:
+            serializer = CurrencySerializer(data = request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": serializer.errors,
+                "data": user.email
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Currency added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to Add currency",
+                "data":{
+                    "email":user.email
+                }
+            })
 
 
+# API For editing currency
+# request : PUT
+class EditCurrency(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_edit_company:
+            currency_instance = currency.objects.get(id=id)
+            serializer = CurrencySerializer(currency_instance, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Currency Edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit Currency',
+                })
+
+class DeleteCurrency(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_delete_company:
+            company_master_documents = currency.objects.get(id=id)
+            company_master_documents.delete()
+            return Response({
+                'success': True,
+                'message': 'Currency deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Currency',
+                })
+
+class GetCurrency(APIView):
+    def get(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_view_company:
+            all_currency = currency.objects.all()
+            serializer = CurrencySerializer(all_currency, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': {
+                'data': serializer.data
+            }
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View Company Document',
+            })
+    

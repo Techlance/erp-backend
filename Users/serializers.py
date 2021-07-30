@@ -59,6 +59,7 @@ class UserGroupSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class UserRightSerializer(serializers.ModelSerializer):
     class Meta:
         model = user_right
@@ -81,7 +82,10 @@ class UserRightSerializer(serializers.ModelSerializer):
         return instance
 
 
-class TransactionRightSerializer(APIView):
+
+
+
+class TransactionRightSerializer(serializers.ModelSerializer):
     class Meta:
         model = transaction_right
         fields = '__all__'
@@ -90,15 +94,17 @@ class TransactionRightSerializer(APIView):
             'created_on':{'read_only': True}
         }
     
-    def create(self, validated_data): 
-        instance = self.Meta.model(**validated_data)
-        instance.save()
-        return instance
-    
-    def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+
+class GetUserRightSerializer(serializers.ModelSerializer):
+    user_group_id = UserGroupSerializer()
+    transaction_id = TransactionRightSerializer()
+    class Meta:
+        model = user_right
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True}
+        }
 
     
