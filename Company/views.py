@@ -71,7 +71,7 @@ class GetUserCompanyView(APIView):
         user_company_query = user_company.objects.filter(user=user.id)
         companies=[]
         for i in user_company_query:
-            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "created_on": i.company_master_id.created_on})
+            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "logo": str(i.company_master_id.logo), "created_on": i.company_master_id.created_on})
         # print(companies)
         return Response({
                 "success":True,

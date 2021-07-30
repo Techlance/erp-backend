@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import AddUserRight, AddUserView, GetUserView, LoginView, LogoutView, EditUserView, DeleteUserView, DetailUserView, AddUserGroup, EditUserGroup, GetUserGroup, DeleteUserGroup, GetUserRight, EditUserRight, DeleteUserRight
+from .views import AddUserRight, AddUserView, GetUserView, LoginView, LogoutView, EditUserView, DeleteUserView, DetailUserView, AddUserGroup, EditUserGroup, GetUserGroup, DeleteUserGroup, GetUserRight, EditUserRight, DeleteUserRight, VerifyUser
 
 
 urlpatterns = [
-    
+    path('me', VerifyUser.as_view()),
     path('add-user', AddUserView.as_view()),                            # Create
     path('get-users', GetUserView.as_view()),                           # Retrieve
     path('edit-user/<int:id>', EditUserView.as_view()),                 # Update

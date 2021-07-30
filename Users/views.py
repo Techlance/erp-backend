@@ -18,7 +18,6 @@ def verify_token(request):
     except:
         if not (request.COOKIES.get('token') == "null"):
             token = request.COOKIES.get('token')
-
     else:
         context = {
             "success":False,
@@ -52,6 +51,39 @@ def get_error(serializerErr):
         err = serializerErr[i][0]
         break    
     return err
+
+
+class VerifyUser(APIView):
+    def get(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        return Response({
+                        "success":True,
+                        "message":"User logged in successfully",
+                        "data":
+                            {
+                            "user":{
+                                "id":user.id,
+                                "email":user.email,
+                                "can_create_company":user.can_create_company,
+                                "can_edit_company":user.can_edit_company,
+                                "can_delete_company":user.can_delete_company,
+                                "can_create_user":user.can_create_user,
+                                "can_edit_user":user.can_edit_user,
+                                "can_delete_user":user.can_delete_user,
+                                "can_view_user":user.can_view_user,
+                                "can_create_user_groups":user.can_create_user_groups,
+                                "can_edit_user_groups":user.can_edit_user_groups,
+                                "can_delete_user_groups":user.can_delete_user_groups,
+                                "can_view_user_groups":user.can_view_user_groups
+                                }
+                            
+                            }
+                        })
+    
 
 
 # Login API 
@@ -113,7 +145,6 @@ class LoginView(APIView):
                                 "can_delete_user_groups":user.can_delete_user_groups,
                                 "can_view_user_groups":user.can_view_user_groups
                                 }
-                            
                             }
                         }
         return response
