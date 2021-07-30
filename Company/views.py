@@ -71,7 +71,7 @@ class GetUserCompanyView(APIView):
         user_company_query = user_company.objects.filter(user=user.id)
         companies=[]
         for i in user_company_query:
-            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name})
+            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "created_on": i.company_master_id.created_on})
         # print(companies)
         return Response({
                 "success":True,
@@ -84,21 +84,24 @@ class GetUserCompanyView(APIView):
         })
 
 
+# Reusable function to insert data into year master
 def year_master_insert(start_date, end_date, company_id, user_email):
     new_year_master= year_master(start_date=start_date, end_date=end_date, company_master_id=company_id, created_by=user_email)
     new_year_master.save()
 
+# Reusable function to insert data into year voucher type
 def voucher_type_insert(voucher_name, voucher_class, company_id, user_email):
-
     for i in range(len(voucher_name)):
         new_voucher_type = voucher_type(voucher_name=voucher_name[i], voucher_class=voucher_class[i], company_master_id = company_id, created_by = user_email)
         new_voucher_type.save()
 
+# Reusable function to insert data into year account head
 def acc_head_insert(acc_head_fields, company_id, user_email):
     for i in acc_head_fields:
         new_acc_head = acc_head(acc_head_name=i[0], title=i[1], company_master_id=company_id, bs=i[2],schedule_no=i[3],created_by=user_email )
         new_acc_head.save()
 
+# Reusable function to insert data into year account group
 def acc_group_insert(acc_group_fields, company_id, user_email):
     for i in acc_group_fields:
         try:
@@ -108,6 +111,8 @@ def acc_group_insert(acc_group_fields, company_id, user_email):
             new_acc_group = acc_group(group_name=i[0], acc_head_id = i[1], group_code=i[2], company_master_id=company_id, created_by=user_email)
             new_acc_group.save()
 
+
+# Reusable function to insert data into year legder master
 def ledger_master_insert(ledger_master_fields, company_id, user_email):
     for i in ledger_master_fields:
         new_ledger_master = ledger_master(ledger_id=i[0], ledger_name=i[1], acc_group_id=i[2], maintain_billwise=i[3], company_master_id=company_id, created_by=user_email)
@@ -266,6 +271,12 @@ class DetailCompanyView(APIView):
                 'success': False,
                 'message': 'You are not allowed to View Company Details',
             })
+
+
+
+        
+
+
 
 
 

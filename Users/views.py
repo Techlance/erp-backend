@@ -8,6 +8,8 @@ import jwt, datetime
 from django.http import JsonResponse
 from .serializers import *
 
+
+# Function to verify the accessToken
 def verify_token(request):
 
     try:
@@ -42,7 +44,7 @@ def verify_token(request):
         payload =  JsonResponse(context)
     return payload
 
-# function getting error from serializer
+# Function getting error from serializer
 def get_error(serializerErr):
 
     err = ''
@@ -52,8 +54,7 @@ def get_error(serializerErr):
     return err
 
 
-
-# API For Login
+# Login API 
 # request : POST
 class LoginView(APIView):
     def post(self, request):
@@ -118,13 +119,14 @@ class LoginView(APIView):
         return response
 
 
-# API to add user
+# API for creating a user
 # request : POST
-# PENDING
 class AddUserView(APIView):
+
     def post(self, request):
         # Verify token i.e checks user is authenticated or not
         payload = verify_token(request)
+
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
@@ -156,15 +158,19 @@ class AddUserView(APIView):
             })
 
 
-# API For editing user
+# API for editing user
 # request : PUT
 class EditUserView(APIView):
+
     def put(self, request, id):
+        
         payload = verify_token(request)
+
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
+
         if user.can_edit_user:
             selected_user = User.objects.get(id=id)
             serializer = UserSerializer(selected_user, data=request.data)
@@ -179,17 +185,22 @@ class EditUserView(APIView):
             return Response({
                 'success': True,
                 'message': 'User Edited successfully'})
+
         else:
             return Response({
                 'success': False,
                 'message': 'You are not allowed to edit User',
                 })
 
-# API For deleting user
+
+# API for deleting user
 # request : DELETE
 class DeleteUserView(APIView):
+
     def delete(self, request, id):
+
         payload = verify_token(request)
+        
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
@@ -202,20 +213,27 @@ class DeleteUserView(APIView):
                 'success': True,
                 'message': 'User deleted Successfully',
                 })
+        
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to User Company',
+                'message': 'You are not allowed to Delete User Company',
                 })
-# API For get all user
+
+
+# API for retrieving all user
 # request : GET
 class GetUserView(APIView):
+    
     def get(self, request):
+    
         payload = verify_token(request)
+    
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
+    
         if user.can_view_user:
             users = User.objects.all()
             serializer = UserSerializer(users, many=True)
@@ -226,21 +244,27 @@ class GetUserView(APIView):
                 'data': serializer.data
             }
             })
+    
         else:
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View user Details',
             })
 
-# API For getting particular user
+
+# API for retrieving particular user
 # request : GET      
 class DetailUserView(APIView):
+    
     def get(self, request, id):
+    
         payload = verify_token(request)
+    
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
+    
         if user.can_view_user:
             user_details = User.objects.get(id=id)
             serializer = UserSerializer(user_details)
@@ -251,6 +275,7 @@ class DetailUserView(APIView):
                 'data': serializer.data
             }
             })
+    
         else:
             return Response({
                 'success': False,
@@ -258,7 +283,273 @@ class DetailUserView(APIView):
             })
 
 
+# API For creating a user group
+# request : POST  
+class AddUserGroup(APIView):
+    
+     def post(self, request):
+    
+        payload = verify_token(request)
+    
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+    
+        if user.can_create_user_groups:
+            serializer = UserGroupSerializer(data=request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message":get_error(serializer.errors),
+                "data": user.email
+                })
 
+            serializer.save()
+    
+            return Response({
+                "success":True,
+                "message":"User Groups added successfully",
+                "data":serializer.data
+                })
+
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to create User Groups",
+                "data":{
+                    "email":user.email
+                }
+            })
+
+
+# API For updating a user group
+# request : PUT
+class EditUserGroup(APIView):
+    
+    def put(self, request, id):
+    
+        payload = verify_token(request)
+    
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+    
+        if user.can_edit_user_groups:
+            selected_group = user_group.objects.get(id=id)
+            serializer = UserGroupSerializer(selected_group, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+    
+            return Response({
+                'success': True,
+                'message': 'User Group Edited successfully'})
+    
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit User Group',
+                })
+
+
+# API For deleting a user group
+# request : DELETE
+class DeleteUserGroup(APIView):
+    
+    def delete(self, request, id):
+    
+        payload = verify_token(request)
+    
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        if user.can_delete_user_groups:
+            selected_group = user_group.objects.get(id=id)
+            selected_group.delete()
+            return Response({
+                'success': True,
+                'message': 'User Group deleted Successfully',
+                })
+    
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete User Group',
+                })
+
+
+# API For retrieving a user group
+# request : GET
+class GetUserGroup(APIView):
+    
+    def get(self, request):
+    
+        payload = verify_token(request)
+    
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+    
+        if user.can_view_user_groups:
+            user_groups = user_group.objects.all()
+            serializer = UserGroupSerializer(user_groups, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': {
+                'data': serializer.data
+            }
+            })
+    
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View User Groups',
+            })
+
+
+# API For creating user rights
+# request : POST
+class AddUserRight(APIView):
+    
+    def post(self, request):
+    
+        payload = verify_token(request)
+    
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+    
+        if user.can_create_user:
+            serializer = UserRightSerializer(data=request.data)
+    
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message":get_error(serializer.errors),
+                "data": user.email
+                })
+
+            serializer.save()
+    
+            return Response({
+                "success":True,
+                "message":"User Rights added successfully",
+                "data":serializer.data
+                })
+
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to Add User Rights",
+                "data":{
+                    "email":user.email
+                }
+            })
+
+
+# API For updating user rights
+# request : PUT
+class EditUserRight(APIView):
+    
+    def put(self, request, id):
+    
+        payload = verify_token(request)
+    
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+    
+        if user.can_edit_user:
+            selected_group = user_right.objects.get(id=id)
+            serializer = UserRightSerializer(selected_group, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+    
+            return Response({
+                'success': True,
+                'message': 'User Rights Edited successfully'})
+    
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit User Rights',
+                })
+
+
+# API For deleting user rights
+# request : DELETE
+class DeleteUserRight(APIView):
+    
+    def delete(self, request, id):
+    
+        payload = verify_token(request)
+    
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_delete_company:
+            user_rights = user_right.objects.get(id=id)
+            user_rights.delete()
+            return Response({
+                'success': True,
+                'message': 'User Right deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete User Right',
+                })
+
+
+# API For retrieving a user group
+# request : GET
+class GetUserRight(APIView):
+    def get(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+            
+        if user.can_view_user:
+            user_groups = user_right.objects.all()
+            serializer = UserRightSerializer(user_groups, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': {
+                'data': serializer.data
+            }
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View User Right',
+            })
+            
+
+# Logout API
+# request : GET
 class LogoutView(APIView):
 
     def get(self, request):
