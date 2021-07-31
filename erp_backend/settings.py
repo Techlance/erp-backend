@@ -80,13 +80,25 @@ WSGI_APPLICATION = 'erp_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'erp_software_db1',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': 'localhost'
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'erp_software_db1',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost'
+        'NAME': 'd1uqdeqisgqj3a',
+        'USER': 'knypazjdjppoai',
+        'PASSWORD': '876199f969bad405f5bea8dc58fcd4ff7e81fef2caf66aa8dd8644cfc35e9cc2',
+        'HOST': 'ec2-52-72-125-94.compute-1.amazonaws.com',
+        'PORT': 5432
     }
 }
 
