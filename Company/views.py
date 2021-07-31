@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import *
 from Company.models import user_company
+from Company.models import user_group
 import jwt, datetime
 from django.http import JsonResponse
 from django.http.response import HttpResponse
@@ -118,7 +119,10 @@ def ledger_master_insert(ledger_master_fields, company_id, user_email):
         new_ledger_master = ledger_master(ledger_id=i[0], ledger_name=i[1], acc_group_id=i[2], maintain_billwise=i[3], company_master_id=company_id, created_by=user_email)
         new_ledger_master.save()
           
-
+# Reusable function to insert data into user_company
+def user_company_insert(user, user_group_id, company_master_id, user_email):
+    new_user_company= user_company(user=user, user_group_id=user_group_id, company_master_id=company_master_id, created_by=user_email)
+    new_user_company.save()
 
 # API For creating company
 # request : POST
@@ -140,6 +144,9 @@ class CreateCompanyView(APIView):
 
             serializer.save()
             added_company = company_master.objects.latest('id')
+            company_user_group = user_group.objects.get(id=1)
+            #Trigger data to user_company table
+            user_company_insert(user,company_user_group,added_company,user.email)
 
             # Trigger data to year master
             year_master_insert(added_company.year_start_date, added_company.year_end_date, added_company, user.email)
