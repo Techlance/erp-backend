@@ -156,20 +156,20 @@ class AddUserView(APIView):
 
     def post(self, request):
         # Verify token i.e checks user is authenticated or not
-        # payload = verify_token(request)
+        payload = verify_token(request)
 
-        # try:
-        #     user = User.objects.filter(id=payload['id']).first()
-        # except:
-        #     return payload
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
         
-        # if user.can_create_user:
+        if user.can_create_user:
             serializer = UserSerializer(data=request.data)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                # "data": user.email
+                "data": user.email
                 })
 
             serializer.save()
@@ -179,14 +179,14 @@ class AddUserView(APIView):
                 "data":serializer.data
                 })
 
-        # else:
-        #     return Response({
-        #         "success":False,
-        #         "message":"Not authorized to create user",
-        #         "data":{
-        #             "email":user.email
-        #         }
-        #     })
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to create user",
+                "data":{
+                    "email":user.email
+                }
+            })
 
 
 # API for editing user
