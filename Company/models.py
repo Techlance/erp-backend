@@ -43,6 +43,8 @@ class user_company(models.Model):
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    class Meta:
+        unique_together = ('user', 'company_master_id',)
 
 
 class company_master_docs(models.Model):
@@ -78,8 +80,13 @@ class voucher_type(models.Model):
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    class Meta:
+        unique_together = ('voucher_name', 'company_master_id',)
+    
     def __str__(self):
         return self.voucher_name
+    
+
 
 
 class acc_head(models.Model):
@@ -91,6 +98,8 @@ class acc_head(models.Model):
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    class Meta:
+        unique_together = ('acc_head_name', 'company_master_id',)
     def __str__(self):
         return self.acc_head_name
 
@@ -104,6 +113,9 @@ class acc_group(models.Model):
     is_fixed = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    class Meta:
+        unique_together = ('group_code', 'company_master_id',)
+        unique_together = ('group_name', 'company_master_id',)
     def __str__(self):
         return self.group_name
 
@@ -143,6 +155,13 @@ class ledger_master(models.Model):
     def __str__(self):
         return self.ledger_name
 
+class cost_category(models.Model):
+    name = models.TextField(max_length=200, null=False)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.name
 
     
 

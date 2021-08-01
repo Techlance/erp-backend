@@ -57,7 +57,25 @@ def get_error(serializerErr):
         break    
     return err
 
+def check_user_company_right(transaction_rights, user_company_id, user_id, need_right):
+    try:
+        check_transaction_right = transaction_right.objects.filter(transactions=transaction_rights)[0].id
+        check_user_group = user_company.objects.get(user=user_id, company_master_id=user_company_id).user_group_id.id
+        transaction_right_instance = transaction_right.objects.get(id=check_transaction_right)
+        user_group_instance = user_group.objects.get(id=check_user_group)
+        check_user_right = user_right.objects.get(user_group_id=user_group_instance, transaction_id=transaction_right_instance)
+    except:
+        return False
+    if need_right=="can_create":
+        return check_user_right.can_create
+    elif need_right=="can_alter":
+        return check_user_right.can_alter
+    elif need_right=="can_delete":
+        return check_user_right.can_delete
+    else:
+        return check_user_right.can_view
 
+    
 
 # API For getting user company in which user is included
 # request : GET
@@ -72,7 +90,12 @@ class GetUserCompanyView(APIView):
         user_company_query = user_company.objects.filter(user=user.id)
         companies=[]
         for i in user_company_query:
-            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "logo": str("/media/"+str(i.company_master_id.logo)), "created_on": i.company_master_id.created_on})
+            if str(i.company_master_id.logo) == "":
+                logo_str = None
+            else:
+                logo_str = str("/media/"+str(i.company_master_id.logo))
+            
+            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "logo": logo_str, "created_on": i.company_master_id.created_on})
         # print(companies)
         return Response({
                 "success":True,
@@ -271,9 +294,7 @@ class DetailCompanyView(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                'data': serializer.data
-            }
+            'data':serializer.data
             })
         else:
             return Response({
@@ -296,7 +317,7 @@ class AddCompanyDocument(APIView):
             if not serializer.is_valid():
                 return Response({
                 "success":False,
-                "message": serializer.errors,
+                "message": get_error(serializer.errors),
                 "data": user.email
                 })
 
@@ -347,6 +368,7 @@ class EditCompanyDocumentView(APIView):
                 })
 
 
+
 # API For deleting company document
 # request : DELETE
 class DeleteCompanyDocument(APIView):
@@ -370,11 +392,6 @@ class DeleteCompanyDocument(APIView):
                 })
     
 
-
-        
-
-
-
 # API For getting company document
 # request : GET
 class GetCompanyDocumentView(APIView):
@@ -390,15 +407,14 @@ class GetCompanyDocumentView(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                'data': serializer.data
-            }
+            'data':serializer.data
             })
         else:
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View Company Document',
             })
+
 
 # API For adding Currency
 # request : POST
@@ -414,7 +430,7 @@ class AddCurrency(APIView):
             if not serializer.is_valid():
                 return Response({
                 "success":False,
-                "message": serializer.errors,
+                "message": get_error(serializer.errors),
                 "data": user.email
                 })
 
@@ -486,6 +502,7 @@ class DeleteCurrency(APIView):
                 'message': 'You are not allowed to Currency',
                 })
 
+
 # API For getting currency
 # request : GET
 class GetCurrency(APIView):
@@ -501,9 +518,7 @@ class GetCurrency(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                'data': serializer.data
-            }
+            'data': serializer.data
             })
         else:
             return Response({
@@ -526,7 +541,7 @@ class AddVoucherType(APIView):
         if not serializer.is_valid():
             return Response({
             "success":False,
-            "message": serializer.errors,
+            "message": get_error(serializer.errors),
             })
 
         serializer.save()
@@ -565,30 +580,6 @@ class EditVoucherType(APIView):
             'message': 'Voucher Type Edited successfully'})
         
 
-
-# API For deleting company document
-# request : DELETE
-class DeleteCompanyDocument(APIView):
-    def delete(self, request, id):
-        payload = verify_token(request)
-        try:
-            user = User.objects.filter(id=payload['id']).first()
-        except:
-            return payload
-        if user.can_delete_company:
-            company_master_documents = company_master_docs.objects.get(id=id)
-            company_master_documents.delete()
-            return Response({
-                'success': True,
-                'message': 'Company Document deleted Successfully',
-                })
-        else:
-            return Response({
-                'success': False,
-                'message': 'You are not allowed to Delete Company Document',
-                })
-
-
 # API For deleting vouhcer
 # request : DELETE
 class DeleteVoucherType(APIView):
@@ -621,8 +612,382 @@ class GetVoucherType(APIView):
         return Response({
         'success': True,
         'message':'',
-        'data': {
-            'data': serializer.data
-        }
+        'data': serializer.data
         })
+
+
+# API For adding Account Head
+# request : POST
+class AddAccountHead(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        user_permission = check_user_company_right("Account Head", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            print(request.data)
+            last_comp_schedule_no = acc_head.objects.filter(company_master_id=request.data['company_master_id'])
+            new_schedule_no = len(last_comp_schedule_no)+1
+            request.data.update({"schedule_no":new_schedule_no})
+            serializer = AccountHeadSerializer(data = request.data)
+            print(request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Account Head added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Add Account Head',
+            })
+
+
+# API For editing Account Head
+# request : PUT
+class EditAccountHead(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
         
+        acc_head_instance = acc_head.objects.get(id=id)
+        if acc_head_instance.is_fixed:
+             return Response({
+                'success': False,
+                'message': 'You are not allowed to Edit Account Head',
+            })
+        user_permission = check_user_company_right("Account Head", request.data['company_master_id'], user.id, "can_alter")
+        if user_permission:
+            request.data.update({"schedule_no":acc_head_instance.schedule_no})
+            serializer = AccountHeadSerializer(acc_head_instance, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Account Head Edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Add Account Head',
+            })
+        
+
+
+# API For deleting vouhcer
+# request : DELETE
+class DeleteAccountHead(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        acc_head_instance = acc_head.objects.get(id=id)
+        if acc_head_instance.is_fixed:
+             return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete Account Head',
+            })
+        user_permission = check_user_company_right("Account Head", acc_head_instance.company_master_id, user.id, "can_delete")
+        if user_permission:
+            acc_head_instance.delete()
+            return Response({
+                'success': True,
+                'message': 'Account Head deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to delete Account Head',
+            })
+
+
+
+# API For getting voucher type
+# request : GET
+class GetAccountHead(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        user_permission = check_user_company_right("Account Head", id, user.id, "can_view")
+        if user_permission:
+            acc_head_instance = acc_head.objects.filter(company_master_id=id)
+            serializer = AccountHeadSerializer(acc_head_instance, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Account Head',
+            })
+
+
+#aayush api don't touch
+# API For adding Cost Category
+# request : POST
+class AddCostCategory(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        user_permission = check_user_company_right("Cost Category", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            serializer = CostCategorySerializer(data = request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Cost Category added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                "success":False,
+                "message":"You are not allowed to add Cost Category"
+                })            
+
+
+
+#aayush api don't touch
+# API For editing Cost Category
+# request : PUT
+class EditCostCategory(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        user_permission = check_user_company_right("Cost Category", request.data['company_master_id'], user.id, "can_edit")
+        if user_permission:
+            cost_category_instance = cost_category.objects.get(id=id)
+            # print(cost_category_instance)
+            serializer = CostCategorySerializer(cost_category_instance, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Cost Category Edited successfully'})
+        else:
+            return Response({
+                "success":False,
+                "message":"You are not allowed to Edit Cost Category"
+                })        
+
+#aayush api don't touch
+# API For deleting Cost Category
+# request : DELETE
+class DeleteCostCategory(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        cost_category_instance = cost_category.objects.get(id=id)
+        user_permission = check_user_company_right("Cost Category", cost_category_instance.company_master_id, user.id, "can_delete")
+        if user_permission:
+            cost_category_instance = cost_category.objects.get(id=id)
+            cost_category_instance.delete()
+            return Response({
+                'success': True,
+                'message': 'Cost Category deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete Cost Category',
+                })
+
+#aayush api don't touch 
+# API For getting Cost Category
+# request : GET
+class GetCostCategory(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+       
+        user_permission = check_user_company_right("Cost Category", id , user.id, "can_view")
+        if user_permission:
+            cost_category_instance = cost_category.objects.filter(company_master_id=id)
+            serializer = CostCategorySerializer(cost_category_instance, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data':  serializer.data
+            
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View Cost Categories',
+            })            
+
+
+#jevin api don't touch 
+# API For adding acc_group type
+# request : POST
+class AddAccGroup(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        serializer = AccGroupSerializer(data = request.data)
+        user_permission = check_user_company_right("Account Group", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"account group added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to add Account group',
+                }) 
+
+# API For editing Voucher Type
+# request : PUT
+class EditAccGroup(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        accgroup_instance = acc_group.objects.get(id=id)
+        if(accgroup_instance.is_fixed):
+            return Response({
+            'success': False,
+            'message': 'You cannot edit Account group',
+            })
+        user_permission = check_user_company_right("Account Group", request.data['company_master_id'], user.id, "can_alter")
+        if user_permission:
+            serializer = AccGroupSerializer(accgroup_instance, data=request.data)
+            
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Account Group Edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit Account group',
+                }) 
+
+        
+
+# API For deleting account group
+# request : DELETE
+class DeleteAccGroup(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        acc_group_record = acc_group.objects.get(id=id)
+        if(acc_group_record.is_fixed):
+            return Response({
+            'success': False,
+            'message': 'You cannot delete this field',
+            })
+        user_permission = check_user_company_right("Account Group", acc_group_record.company_master_id, user.id, "can_delete")
+        if user_permission:
+            acc_group_record.delete()
+            return Response({
+                'success': True,
+                'message': 'Account group deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to delete this field',
+                }) 
+
+
+# API For getting account group
+# request : GET
+class GetAccGroup(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        user_permission = check_user_company_right("Account Group", id, user.id, "can_view")
+        if user_permission:
+            acc_group_record = acc_group.objects.filter(company_master_id=id)
+            serializer = AccGroupSerializer(acc_group_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Account group',
+                }) 
+
+# jevin api finished

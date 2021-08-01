@@ -318,9 +318,7 @@ class GetUserView(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                'data': serializer.data
-            }
+            'data': serializer.data
             })
     
         else:
@@ -355,9 +353,7 @@ class DetailUserView(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                'data': serializer.data
-            }
+            'data': serializer.data
             })
     
         else:
@@ -507,9 +503,8 @@ class GetUserGroup(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                'data': serializer.data
-            }
+            'data':serializer.data
+    
             })
     
         else:
@@ -655,9 +650,7 @@ class GetUserRight(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                'data': serializer.data
-            }
+            'data': serializer.data
             })
         else:
             return Response({
