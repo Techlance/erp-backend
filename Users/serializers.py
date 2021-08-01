@@ -1,3 +1,14 @@
+""" 
+Developed by Techlace 
+updated on : 31-07-2021
+Status : {
+    "API": done, 
+    "backend testing : done, 
+    "documentation: done,
+    "postman API added" : done,
+    }
+"""
+
 from rest_framework import serializers
 from rest_framework.views import APIView
 from .models import User, transaction_right, user_group, user_right
@@ -5,7 +16,6 @@ from .models import User, transaction_right, user_group, user_right
 
 # superAdmin serializer for saving, editing admin/superadmin
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ['id', 'name', 'email', 'password', 'created_by', 'can_create_company', 'can_edit_company', 'can_delete_company', 'can_view_user_groups', 'can_view_company', 'can_create_user', 'can_edit_user', 'can_delete_user_groups', 'can_edit_user_groups', 'can_create_user_groups', 'can_view_user', 'can_delete_user']
@@ -14,6 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
             'id':{'read_only': True},
             'created_on':{'read_only': True}
         }
+
 
     def update(self, instance, validated_data):
         if(instance.password):
@@ -30,6 +41,7 @@ class UserSerializer(serializers.ModelSerializer):
             instance.save()
             return instance
 
+
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         instance = self.Meta.model(**validated_data)
@@ -38,6 +50,11 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class UsernamesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'name', 'email']
 
 class UserGroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -48,11 +65,13 @@ class UserGroupSerializer(serializers.ModelSerializer):
             'created_on':{'read_only': True}
         }
     
+
     def create(self, validated_data): 
         instance = self.Meta.model(**validated_data)
         instance.save()
         return instance
     
+
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
@@ -70,6 +89,7 @@ class UserRightSerializer(serializers.ModelSerializer):
             'created_on':{'read_only': True}
         }
 
+
     def create(self, validated_data): 
         instance = self.Meta.model(**validated_data)
         instance.save()
@@ -80,9 +100,6 @@ class UserRightSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
-
-
-
 
 
 class TransactionRightSerializer(serializers.ModelSerializer):
@@ -100,11 +117,8 @@ class GetUserRightSerializer(serializers.ModelSerializer):
     transaction_id = TransactionRightSerializer()
     class Meta:
         model = user_right
-        fields = '__all__'
+        fields = '__all__' 
         extra_kwargs = {
-            
             'id':{'read_only': True},
             'created_on':{'read_only': True}
         }
-
-    

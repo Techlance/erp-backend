@@ -256,6 +256,8 @@ class DeleteCompanyView(APIView):
                 })
 
 
+# API For getting all details of all companies of a user
+# request : GET
 class DetailCompanyView(APIView):
     def get(self, request, id):
         payload = verify_token(request)
@@ -280,6 +282,8 @@ class DetailCompanyView(APIView):
             })
 
 
+# API For adding company document
+# request : POST
 class AddCompanyDocument(APIView):
     def post(self, request):
         payload = verify_token(request)
@@ -343,6 +347,8 @@ class EditCompanyDocumentView(APIView):
                 })
 
 
+# API For deleting company document
+# request : DELETE
 class DeleteCompanyDocument(APIView):
     def delete(self, request, id):
         payload = verify_token(request)
@@ -394,7 +400,8 @@ class GetCompanyDocumentView(APIView):
                 'message': 'You are not allowed to View Company Document',
             })
 
-
+# API For adding Currency
+# request : POST
 class AddCurrency(APIView):
     def post(self, request):
         payload = verify_token(request)
@@ -456,6 +463,9 @@ class EditCurrency(APIView):
                 'message': 'You are not allowed to edit Currency',
                 })
 
+
+# API For deleting currency
+# request : DELETE
 class DeleteCurrency(APIView):
     def delete(self, request, id):
         payload = verify_token(request)
@@ -476,6 +486,8 @@ class DeleteCurrency(APIView):
                 'message': 'You are not allowed to Currency',
                 })
 
+# API For getting currency
+# request : GET
 class GetCurrency(APIView):
     def get(self, request):
         payload = verify_token(request)
@@ -498,4 +510,119 @@ class GetCurrency(APIView):
                 'success': False,
                 'message': 'You are not allowed to View Company Document',
             })
-    
+
+
+# API For adding voucher type
+# request : POST
+class AddVoucherType(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        serializer = VoucherTypeSerializer(data = request.data)
+        if not serializer.is_valid():
+            return Response({
+            "success":False,
+            "message": serializer.errors,
+            })
+
+        serializer.save()
+        return Response({
+            "success":True,
+            "message":"Voucher Type added successfully",
+            "data":serializer.data
+            })
+
+
+
+
+# API For editing Voucher Type
+# request : PUT
+class EditVoucherType(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        voucher_type_instance = voucher_type.objects.get(id=id)
+        print(voucher_type_instance)
+        serializer = VoucherTypeSerializer(voucher_type_instance, data=request.data)
+
+        if not serializer.is_valid():
+            return Response({
+                'success': False,
+                'message': get_error(serializer.errors),
+                })
+                
+        serializer.save()
+        return Response({
+            'success': True,
+            'message': 'Voucher Type Edited successfully'})
+        
+
+
+# API For deleting company document
+# request : DELETE
+class DeleteCompanyDocument(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.can_delete_company:
+            company_master_documents = company_master_docs.objects.get(id=id)
+            company_master_documents.delete()
+            return Response({
+                'success': True,
+                'message': 'Company Document deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete Company Document',
+                })
+
+
+# API For deleting vouhcer
+# request : DELETE
+class DeleteVoucherType(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        voucher_type_record = voucher_type.objects.get(id=id)
+        voucher_type_record.delete()
+        return Response({
+            'success': True,
+            'message': 'Voucher deleted Successfully',
+            })
+
+
+# API For getting voucher type
+# request : GET
+class GetVoucherType(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        voucher_type_record = voucher_type.objects.filter(company_master_id=id)
+        serializer = GetVoucherTypeSerializer(voucher_type_record, many=True)
+        return Response({
+        'success': True,
+        'message':'',
+        'data': {
+            'data': serializer.data
+        }
+        })
+        
