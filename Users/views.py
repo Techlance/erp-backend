@@ -507,9 +507,8 @@ class GetUserGroup(APIView):
             return Response({
             'success': True,
             'message':'',
-            'data': {
-                serializer.data
-            }
+            'data': [serializer.data]
+    
             })
     
         else:

@@ -652,19 +652,40 @@ class EditAccountHead(APIView):
 
 # API For deleting vouhcer
 # request : DELETE
-class DeleteVoucherType(APIView):
+class DeleteAccountHead(APIView):
     def delete(self, request, id):
         payload = verify_token(request)
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        voucher_type_record = voucher_type.objects.get(id=id)
-        voucher_type_record.delete()
+        acc_head_instance = acc_head.objects.get(id=id)
+        acc_head_instance.delete()
         return Response({
             'success': True,
-            'message': 'Voucher deleted Successfully',
+            'message': 'Account Head deleted Successfully',
             })
+
+
+# API For getting voucher type
+# request : GET
+class GetAccountHead(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        acc_head_instance = acc_head.objects.filter(company_master_id=id)
+        serializer = GetVoucherTypeSerializer(acc_head_instance, many=True)
+        return Response({
+        'success': True,
+        'message':'',
+        'data': {
+            'data': serializer.data
+        }
+        })
         
 
 
