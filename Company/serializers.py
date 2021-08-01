@@ -134,7 +134,8 @@ class AccGroupSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'is_fixed': {'write_only': True}
         }
 
          
@@ -149,14 +150,15 @@ class AccGroupSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
 class AccountHeadSerializer(serializers.ModelSerializer):
     class Meta:
         model = acc_head
         fields = '__all__'
         extra_kwargs = {
-            
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'schedule_no':{'read_only': True},
         }
 
          
