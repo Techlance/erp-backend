@@ -387,7 +387,9 @@ class AddUserGroup(APIView):
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                "data": user.email
+                "data":{
+                    "email":user.email
+                }
                 })
 
             serializer.save()
@@ -539,7 +541,9 @@ class AddUserRight(APIView):
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                "data": user.email
+                "data":{
+                    "email":user.email
+                }
                 })
 
             serializer.save()

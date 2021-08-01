@@ -162,7 +162,9 @@ class CreateCompanyView(APIView):
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                "data": user.email
+                "data": {
+                    "email":user.email
+                }
                 })
 
             serializer.save()
@@ -221,7 +223,9 @@ class CreateCompanyView(APIView):
             return Response({
             "success":False,
             "message":"Not Allowed to Create Company",
-            "data":user.email
+            "data": {
+                    "email":user.email
+                }
             })
 
 
@@ -318,7 +322,9 @@ class AddCompanyDocument(APIView):
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
-                "data": user.email
+                "data": {
+                    "email":user.email
+                }
                 })
 
             serializer.save()
@@ -431,7 +437,9 @@ class AddCurrency(APIView):
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
-                "data": user.email
+                "data": {
+                    "email":user.email
+                }
                 })
 
             serializer.save()
