@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-arj=ae6+8xb-op111d(%hx*6$px-k9e*3xls*alr^y!54f#eu@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -53,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'erp_backend.urls'
@@ -79,15 +80,31 @@ WSGI_APPLICATION = 'erp_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'erp_software_db1',
+#         'USER': 'postgres',
+#         'PASSWORD': 'postgres',
+#         'HOST': 'localhost'
+#     }
+# }
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'erp_software_db1',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': 'localhost'
+        'NAME': 'd1uqdeqisgqj3a',
+        'USER': 'knypazjdjppoai',
+        'PASSWORD': '876199f969bad405f5bea8dc58fcd4ff7e81fef2caf66aa8dd8644cfc35e9cc2',
+        'HOST': 'ec2-52-72-125-94.compute-1.amazonaws.com',
+        'PORT': 5432
     }
 }
+
+import dj_database_url 
+prod_db  =  dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(prod_db)
 
 
 # Password validation
@@ -147,3 +164,5 @@ CORS_ORIGIN_WHITELIST = (
 AUTH_USER_MODEL = 'Users.User'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

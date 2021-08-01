@@ -5,8 +5,6 @@ from django.utils import timezone
 
 
 # Create your models here.
-
-
 class User(AbstractUser):
     name = models.TextField(max_length=200, null=False)
     email = models.EmailField(unique=True, null=False)
@@ -38,7 +36,7 @@ class user_group(models.Model):
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
     def __str__(self):
-        return self.user_group_name
+        return self.user_group_name 
 
 
 class transaction_right(models.Model):

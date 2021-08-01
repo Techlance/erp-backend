@@ -1,9 +1,18 @@
+""" 
+Developed by Techlace 
+updated on : 31-07-2021
+Status : {
+    "API": done, 
+    "backend testing : done, 
+    "documentation: done,
+    "postman API added" : done,
+    }
+"""
+
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from .models import *
-from Company.models import user_company
 import jwt, datetime
 from django.http import JsonResponse
 from .serializers import *
@@ -87,14 +96,20 @@ class VerifyUser(APIView):
 
 
 # Login API 
-# request : POST
+# Request : POST
+# Endpoint : login
 class LoginView(APIView):
+
+
     def post(self, request):
+
         email = request.data['email']
         password = request.data['password']
         user = User.objects.filter(email=email).first()
 
+        # Check if user exists or not
         if user is None:
+
             context = {
                 "success":False,
                 "message":"User not found",
@@ -103,9 +118,12 @@ class LoginView(APIView):
                     "email":email,
                 }
             }
+
             return JsonResponse(context)
 
+        # Validate password
         if not user.check_password(password):
+            
             context = {
                 "success":False,
                 "message":"In-correct password",
@@ -114,6 +132,7 @@ class LoginView(APIView):
                     "email":email,
                 }
             }
+
             return JsonResponse(context)
 
         payload = {
@@ -121,9 +140,12 @@ class LoginView(APIView):
                     'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=500),
                     'iat': datetime.datetime.utcnow()
                     }
-        token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8') #generating token
+
+        #generating token
+        token = jwt.encode(payload, 'secret', algorithm='HS256').decode('utf-8') 
         response = Response()
         response.set_cookie(key='token', value=token, httponly=True)
+
         response.data = {
                         "success":True,
                         "message":"User logged in successfully",
@@ -147,14 +169,18 @@ class LoginView(APIView):
                                 }
                             }
                         }
+        
         return response
 
 
 # API for creating a user
-# request : POST
+# Request : POST
+# Endpoint : add-user
 class AddUserView(APIView):
 
+
     def post(self, request):
+
         # Verify token i.e checks user is authenticated or not
         payload = verify_token(request)
 
@@ -163,8 +189,11 @@ class AddUserView(APIView):
         except:
             return payload
         
+        # permission : If user can create another user
         if user.can_create_user:
+
             serializer = UserSerializer(data=request.data)
+
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -173,6 +202,7 @@ class AddUserView(APIView):
                 })
 
             serializer.save()
+        
             return Response({
                 "success":True,
                 "message":"User added successfully",
@@ -190,8 +220,10 @@ class AddUserView(APIView):
 
 
 # API for editing user
-# request : PUT
+# Request : PUT
+# Endpoint : edit-user/<int:id>
 class EditUserView(APIView):
+
 
     def put(self, request, id):
         
@@ -202,7 +234,10 @@ class EditUserView(APIView):
         except:
             return payload
 
+        # permission : If user can edit another user
         if user.can_edit_user:
+            
+            # Fetch user data from the database with a specific id = "id"
             selected_user = User.objects.get(id=id)
             serializer = UserSerializer(selected_user, data=request.data)
 
@@ -225,8 +260,10 @@ class EditUserView(APIView):
 
 
 # API for deleting user
-# request : DELETE
+# Request : DELETE
+# Endpoint : delete-user/<int:id>
 class DeleteUserView(APIView):
+
 
     def delete(self, request, id):
 
@@ -237,9 +274,14 @@ class DeleteUserView(APIView):
         except:
             return payload
 
+        # permission : if user can delete another user 
         if user.can_delete_user:
+            
+            # Fetch details of user with a specific id = "id"
             selected_user = User.objects.get(id=id)
+            # Delete fetched user
             selected_user.delete()
+
             return Response({
                 'success': True,
                 'message': 'User deleted Successfully',
@@ -253,7 +295,8 @@ class DeleteUserView(APIView):
 
 
 # API for retrieving all user
-# request : GET
+# Request : GET
+# Endpoint : get-users
 class GetUserView(APIView):
     
     def get(self, request):
@@ -265,9 +308,13 @@ class GetUserView(APIView):
         except:
             return payload
     
+        # permission : If user can view other user
         if user.can_view_user:
+            
+            # Fetch user details of all existing users in database
             users = User.objects.all()
             serializer = UserSerializer(users, many=True)
+            
             return Response({
             'success': True,
             'message':'',
@@ -284,8 +331,10 @@ class GetUserView(APIView):
 
 
 # API for retrieving particular user
-# request : GET      
+# Request : GET    
+# Endpoint : get-users/<int:id>
 class DetailUserView(APIView):
+    
     
     def get(self, request, id):
     
@@ -296,9 +345,13 @@ class DetailUserView(APIView):
         except:
             return payload
     
+        # permission : If user can view another user
         if user.can_view_user:
+
+            # Fetch details of user with a specific id = "id"
             user_details = User.objects.get(id=id)
             serializer = UserSerializer(user_details)
+
             return Response({
             'success': True,
             'message':'',
@@ -316,8 +369,10 @@ class DetailUserView(APIView):
 
 # API For creating a user group
 # request : POST  
+# Endpoint : add-user-group
 class AddUserGroup(APIView):
     
+
      def post(self, request):
     
         payload = verify_token(request)
@@ -326,9 +381,12 @@ class AddUserGroup(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-    
+
+        # Permission : If user is allowed to create a user group
         if user.can_create_user_groups:
+
             serializer = UserGroupSerializer(data=request.data)
+
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -355,8 +413,10 @@ class AddUserGroup(APIView):
 
 
 # API For updating a user group
-# request : PUT
+# Request : PUT
+# Endpoint : edit-user-group/<int:id>
 class EditUserGroup(APIView):
+    
     
     def put(self, request, id):
     
@@ -366,8 +426,11 @@ class EditUserGroup(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-    
+
+        # Permission : If user is allowed to edit a user group
         if user.can_edit_user_groups:
+            
+            # Fetch user group details with a specific is = "id"
             selected_group = user_group.objects.get(id=id)
             serializer = UserGroupSerializer(selected_group, data=request.data)
 
@@ -391,8 +454,10 @@ class EditUserGroup(APIView):
 
 
 # API For deleting a user group
-# request : DELETE
+# Request : DELETE
+# Endpoint : delete-user-group/<int:id>
 class DeleteUserGroup(APIView):
+    
     
     def delete(self, request, id):
     
@@ -403,9 +468,13 @@ class DeleteUserGroup(APIView):
         except:
             return payload
 
+        # Permission : If user is allowed to delete a user group
         if user.can_delete_user_groups:
+
+            # Fetch user group with a specific id = "id"
             selected_group = user_group.objects.get(id=id)
             selected_group.delete()
+
             return Response({
                 'success': True,
                 'message': 'User Group deleted Successfully',
@@ -420,18 +489,19 @@ class DeleteUserGroup(APIView):
 
 # API For retrieving a user group
 # request : GET
+# endpoint : get-user-group
 class GetUserGroup(APIView):
-    
     def get(self, request):
-    
+        # verify token for authorization
         payload = verify_token(request)
-    
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
     
+        # perimission type : can view user groups
         if user.can_view_user_groups:
+            # Query : Get all user group data
             user_groups = user_group.objects.all()
             serializer = UserGroupSerializer(user_groups, many=True)
             return Response({
@@ -451,10 +521,13 @@ class GetUserGroup(APIView):
 
 # API For creating user rights
 # request : POST
+# endpoint : add-user-right
 class AddUserRight(APIView):
-    
+
+
     def post(self, request):
-    
+
+        # verify token for authorization
         payload = verify_token(request)
     
         try:
@@ -462,9 +535,11 @@ class AddUserRight(APIView):
         except:
             return payload
     
+        # Permission type : can create user
         if user.can_create_user:
             serializer = UserRightSerializer(data=request.data)
-    
+
+            # check serializer validation
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -492,18 +567,21 @@ class AddUserRight(APIView):
 
 # API For updating user rights
 # request : PUT
+# endpoint : edit-user-right/<int:id>
 class EditUserRight(APIView):
-    
     def put(self, request, id):
-    
+        # verify user token for authorization
         payload = verify_token(request)
     
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-    
+
+        # Permission type : can edit user
         if user.can_edit_user:
+
+            # Query : To fetch user right data by parameter id
             selected_group = user_right.objects.get(id=id)
             serializer = UserRightSerializer(selected_group, data=request.data)
 
@@ -528,17 +606,20 @@ class EditUserRight(APIView):
 
 # API For deleting user rights
 # request : DELETE
+# endpoint : delete-user-right/<int:id>
 class DeleteUserRight(APIView):
-    
     def delete(self, request, id):
-    
+        # verify user is authorized or not
         payload = verify_token(request)
     
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
+        
+        # Permission type : can delete company
         if user.can_delete_company:
+            # Fetch data using id to delete user right 
             user_rights = user_right.objects.get(id=id)
             user_rights.delete()
             return Response({
@@ -554,15 +635,21 @@ class DeleteUserRight(APIView):
 
 # API For retrieving a user group
 # request : GET
+# endpoint : get-user-right
 class GetUserRight(APIView):
     def get(self, request):
+
+        # verify token of authorized user
         payload = verify_token(request)
         try:
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-            
+        
+        # permission : can view user
         if user.can_view_user:
+
+            # Fetch all user rights data
             user_groups = user_right.objects.all()
             serializer = GetUserRightSerializer(user_groups, many=True)
             return Response({
@@ -581,10 +668,10 @@ class GetUserRight(APIView):
 
 # Logout API
 # request : GET
+# endpoint : logout
 class LogoutView(APIView):
 
     def get(self, request):
-        
         response = Response()
         response.delete_cookie('token') #delete the token
         
