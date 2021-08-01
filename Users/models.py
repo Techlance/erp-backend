@@ -55,6 +55,8 @@ class user_right(models.Model):
     can_view = models.BooleanField(default=False)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    class Meta:
+        unique_together = ('user_group_id', 'transaction_id',)
 
 
 

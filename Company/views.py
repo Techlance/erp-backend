@@ -347,6 +347,7 @@ class EditCompanyDocumentView(APIView):
                 })
 
 
+
 # API For deleting company document
 # request : DELETE
 class DeleteCompanyDocument(APIView):
@@ -369,11 +370,6 @@ class DeleteCompanyDocument(APIView):
                 'message': 'You are not allowed to Delete Company Document',
                 })
     
-
-
-        
-
-
 
 # API For getting company document
 # request : GET
@@ -399,6 +395,7 @@ class GetCompanyDocumentView(APIView):
                 'success': False,
                 'message': 'You are not allowed to View Company Document',
             })
+
 
 # API For adding Currency
 # request : POST
@@ -565,30 +562,6 @@ class EditVoucherType(APIView):
             'message': 'Voucher Type Edited successfully'})
         
 
-
-# API For deleting company document
-# request : DELETE
-class DeleteCompanyDocument(APIView):
-    def delete(self, request, id):
-        payload = verify_token(request)
-        try:
-            user = User.objects.filter(id=payload['id']).first()
-        except:
-            return payload
-        if user.can_delete_company:
-            company_master_documents = company_master_docs.objects.get(id=id)
-            company_master_documents.delete()
-            return Response({
-                'success': True,
-                'message': 'Company Document deleted Successfully',
-                })
-        else:
-            return Response({
-                'success': False,
-                'message': 'You are not allowed to Delete Company Document',
-                })
-
-
 # API For deleting vouhcer
 # request : DELETE
 class DeleteVoucherType(APIView):
@@ -625,4 +598,242 @@ class GetVoucherType(APIView):
             'data': serializer.data
         }
         })
+
+
+# API For adding Account Head
+# request : POST
+class AddAccountHead(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
         
+        serializer = AccountHeadSerializer(data = request.data)
+        if not serializer.is_valid():
+            return Response({
+            "success":False,
+            "message": serializer.errors,
+            })
+
+        serializer.save()
+        return Response({
+            "success":True,
+            "message":"Account Head added successfully",
+            "data":serializer.data
+            })
+
+
+# API For editing Account Head
+# request : PUT
+class EditAccountHead(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        acc_head_instance = acc_head.objects.get(id=id)
+        serializer = AccountHeadSerializer(acc_head_instance, data=request.data)
+
+        if not serializer.is_valid():
+            return Response({
+                'success': False,
+                'message': get_error(serializer.errors),
+                })
+                
+        serializer.save()
+        return Response({
+            'success': True,
+            'message': 'Account Head Edited successfully'})
+
+
+# API For deleting vouhcer
+# request : DELETE
+class DeleteVoucherType(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        voucher_type_record = voucher_type.objects.get(id=id)
+        voucher_type_record.delete()
+        return Response({
+            'success': True,
+            'message': 'Voucher deleted Successfully',
+            })
+        
+
+
+
+# API For adding acc_group type
+# request : POST
+class AddVoucherType(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        serializer = VoucherTypeSerializer(data = request.data)
+        if not serializer.is_valid():
+            return Response({
+            "success":False,
+            "message": serializer.errors,
+            })
+
+        serializer.save()
+        return Response({
+            "success":True,
+            "message":"Voucher Type added successfully",
+            "data":serializer.data
+            })
+
+
+# ==========================================================================
+
+
+# API For adding Cost Category
+# request : POST
+class AddCostCategory(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        serializer = VoucherTypeSerializer(data = request.data)
+        if not serializer.is_valid():
+            return Response({
+            "success":False,
+            "message": serializer.errors,
+            })
+
+        serializer.save()
+        return Response({
+            "success":True,
+            "message":"Voucher Type added successfully",
+            "data":serializer.data
+            })
+
+
+
+
+# # API For editing Voucher Type
+# # request : PUT
+# class EditVoucherType(APIView):
+#     def put(self, request, id):
+#         payload = verify_token(request)
+#         try:
+#             user = User.objects.filter(id=payload['id']).first()
+#         except:
+#             return payload
+        
+#         voucher_type_instance = voucher_type.objects.get(id=id)
+#         print(voucher_type_instance)
+#         serializer = VoucherTypeSerializer(voucher_type_instance, data=request.data)
+
+#         if not serializer.is_valid():
+#             return Response({
+#                 'success': False,
+#                 'message': get_error(serializer.errors),
+#                 })
+                
+#         serializer.save()
+#         return Response({
+#             'success': True,
+#             'message': 'Voucher Type Edited successfully'})
+        
+
+# # API For deleting vouhcer
+# # request : DELETE
+# class DeleteVoucherType(APIView):
+#     def delete(self, request, id):
+#         payload = verify_token(request)
+#         try:
+#             user = User.objects.filter(id=payload['id']).first()
+#         except:
+#             return payload
+#         voucher_type_record = voucher_type.objects.get(id=id)
+#         voucher_type_record.delete()
+#         return Response({
+#             'success': True,
+#             'message': 'Voucher deleted Successfully',
+#             })
+
+
+# # API For getting voucher type
+# # request : GET
+# class GetVoucherType(APIView):
+#     def get(self, request, id):
+#         payload = verify_token(request)
+#         try:
+#             user = User.objects.filter(id=payload['id']).first()
+#         except:
+#             return payload
+#         # id is company id
+#         voucher_type_record = voucher_type.objects.filter(company_master_id=id)
+#         serializer = GetVoucherTypeSerializer(voucher_type_record, many=True)
+#         return Response({
+#         'success': True,
+#         'message':'',
+#         'data': {
+#             'data': serializer.data
+#         }
+#         })
+
+# # API For adding voucher type
+# # request : POST
+# class AddVoucherType(APIView):
+#     def post(self, request):
+#         payload = verify_token(request)
+#         try:
+#             user = User.objects.filter(id=payload['id']).first()
+#         except:
+#             return payload
+        
+#         serializer = VoucherTypeSerializer(data = request.data)
+#         if not serializer.is_valid():
+#             return Response({
+#             "success":False,
+#             "message": serializer.errors,
+#             })
+
+#         serializer.save()
+#         return Response({
+#             "success":True,
+#             "message":"Voucher Type added successfully",
+#             "data":serializer.data
+#             })
+        
+
+
+
+# # API For adding acc_group type
+# # request : POST
+# class AddVoucherType(APIView):
+#     def post(self, request):
+#         payload = verify_token(request)
+#         try:
+#             user = User.objects.filter(id=payload['id']).first()
+#         except:
+#             return payload
+        
+#         serializer = VoucherTypeSerializer(data = request.data)
+#         if not serializer.is_valid():
+#             return Response({
+#             "success":False,
+#             "message": serializer.errors,
+#             })
+
+#         serializer.save()
+#         return Response({
+#             "success":True,
+#             "message":"Voucher Type added successfully",
+#             "data":serializer.data
+#             })

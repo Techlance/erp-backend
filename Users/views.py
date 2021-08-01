@@ -508,7 +508,7 @@ class GetUserGroup(APIView):
             'success': True,
             'message':'',
             'data': {
-                'data': serializer.data
+                serializer.data
             }
             })
     
