@@ -14,10 +14,11 @@ from django.urls import path
 from .views import AddAccountHead, CreateCompanyView, DeleteAccountHead, DeleteCompanyView, DetailCompanyView, EditAccountHead, EditCompanyView, GetAccountHead, GetUserCompanyView, AddCompanyDocument, DeleteCompanyDocument, EditCompanyDocumentView, GetCompanyDocumentView, GetCurrency, AddCurrency, EditCurrency, DeleteCurrency, AddVoucherType, EditVoucherType, GetVoucherType, DeleteVoucherType, AddCostCategory, EditCostCategory ,DeleteCostCategory ,GetCostCategory,AddAccGroup ,EditAccGroup ,DeleteAccGroup ,GetAccGroup
 urlpatterns = [
     path('get-user-company', GetUserCompanyView.as_view()),
-    path('create-company', CreateCompanyView.as_view()),
-    path('edit-company/<int:id>', EditCompanyView.as_view()),
-    path('delete-company/<int:id>', DeleteCompanyView.as_view()),
-    path('view-company/<int:id>', DetailCompanyView.as_view()),
+
+    path('create-company', CreateCompanyView.as_view()),  
+    path('edit-company/<int:id>', EditCompanyView.as_view()), #id : company id
+    path('delete-company/<int:id>', DeleteCompanyView.as_view()), # id : company id
+    path('view-company/<int:id>', DetailCompanyView.as_view()), # id : company id
 
     path('add-company-document',  AddCompanyDocument.as_view()),
     path('edit-company-document/<int:id>', EditCompanyDocumentView.as_view()), # id : Document id
