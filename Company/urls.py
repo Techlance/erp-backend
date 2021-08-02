@@ -11,7 +11,8 @@ Status : {
 
 
 from django.urls import path
-from .views import AddAccountHead, CreateCompanyView, DeleteAccountHead, DeleteCompanyView, DetailCompanyView, EditAccountHead, EditCompanyView, GetAccountHead, GetUserCompanyView, AddCompanyDocument, DeleteCompanyDocument, EditCompanyDocumentView, GetCompanyDocumentView, GetCurrency, AddCurrency, EditCurrency, DeleteCurrency, AddVoucherType, EditVoucherType, GetVoucherType, DeleteVoucherType, AddCostCategory, EditCostCategory ,DeleteCostCategory ,GetCostCategory,AddAccGroup ,EditAccGroup ,DeleteAccGroup ,GetAccGroup
+from .views import *
+#from .views import AddAccountHead, AddLedgerMaster, CreateCompanyView, DeleteAccountHead, DeleteCompanyView, DetailCompanyView, EditAccountHead, EditCompanyView, GetAccountHead, GetUserCompanyView, AddCompanyDocument, DeleteCompanyDocument, EditCompanyDocumentView, GetCompanyDocumentView, GetCurrency, AddCurrency, EditCurrency, DeleteCurrency, AddVoucherType, EditVoucherType, GetVoucherType, DeleteVoucherType, AddCostCategory, EditCostCategory ,DeleteCostCategory ,GetCostCategory,AddAccGroup ,EditAccGroup ,DeleteAccGroup ,GetAccGroup, GetLedgerMaster
 urlpatterns = [
     path('get-user-company', GetUserCompanyView.as_view()),
 
@@ -48,6 +49,11 @@ urlpatterns = [
     path('add-account-group', AddAccGroup.as_view()),
     path('edit-account-group/<int:id>', EditAccGroup.as_view()), # id : Account group id
     path('delete-account-group/<int:id>', DeleteAccGroup.as_view()), # id : Account group id
-    path('get-account-group/<int:id>', GetAccGroup.as_view()), #id : company_master_id
+    path('get-account-group/<int:id>', GetAccGroup.as_view()), # id : company_master_id
+
+    path('add-ledger-master', AddLedgerMaster.as_view()),
+    path('edit-ledger-master/<int:id>', EditLedgerMaster.as_view()), # id : ledger master id
+    path('delete-ledger-master/<int:id>', DeleteLedgerMaster.as_view()), # id : ledger master id
+    path('get-ledger-master/<int:id>', GetLedgerMaster.as_view()) # id : company_master_id
     
  ]

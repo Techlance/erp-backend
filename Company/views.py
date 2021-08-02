@@ -194,7 +194,7 @@ class CreateCompanyView(APIView):
 
             serializer.save()
             added_company = company_master.objects.latest('id')
-            company_user_group = user_group.objects.get(id=1)  # should be admin of company
+            company_user_group = user_group.objects.get(id=1)  # should be admin of company : pending
 
             # pending : store all triggered data in json
 
@@ -203,7 +203,7 @@ class CreateCompanyView(APIView):
 
             #! Trigger data to year master
             # year_master_insert(added_company.year_start_date, added_company.year_end_date, added_company, user.email)
-            year_master_insert(year_no=0,start_date=added_company.year_start_date-timedelta(days=365),end_date=added_company.year_end_date-timedelta(days=365),company_id=added_company,status=False,locked=True,user_email=user.email )
+            year_master_insert(year_no=0,start_date=added_company.year_start_date-timedelta(days=366),end_date=added_company.year_end_date-timedelta(days=366),company_id=added_company,status=False,locked=True,user_email=user.email )
             year_master_insert(year_no=1,start_date=added_company.year_start_date,end_date=added_company.year_end_date,company_id=added_company,status=True,locked=False,user_email=user.email )
             #! Trigger data to voucher type
             voucher_name=[]
@@ -1175,4 +1175,148 @@ class GetAccGroup(APIView):
                 'message': 'You are not allowed to view Account group',
                 }) 
 
-# jevin api finished
+
+############################################################################################################################
+################################################## Account LEDGER (CRUD) ###################################################
+############################################################################################################################
+
+
+# API For adding Leder master
+# request : POST
+# endpoint : add-ledger-master
+class AddLedgerMaster(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        # check user permission for Account Head from Transaction
+        user_permission = check_user_company_right("Ledger Master", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+
+            group_code = acc_group.objects.get(id=request.data['acc_group_id']).group_code
+            all_ledger_master = ledger_master.objects.filter(company_master_id=request.data['company_master_id']).count() + 1
+            new_ledger_id = str(group_code) + "-" + str(all_ledger_master)
+            request.data.update({"ledger_id":new_ledger_id})
+
+            serializer = LedgerMasterSerializer(data = request.data)
+            # validate serialize
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Ledger Master added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Add Ledger Master',
+            })
+
+# API For getting ledger master
+# request : GET
+# endpoint: get-ledger-master/id(company-id required)
+class GetLedgerMaster(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        user_permission = check_user_company_right("Ledger Master", id, user.id, "can_view")
+        if user_permission:
+            ledger_master_record = ledger_master.objects.filter(company_master_id=id)
+            serializer = LedgerMasterSerializer(ledger_master_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Ledger master',
+                }) 
+
+
+# API For editing Ledger Master
+# request : PUT
+# endpoint : edit-ledger-master/id(ledger id)
+class EditLedgerMaster(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # check user permission for Account Head from Transaction
+        user_permission = check_user_company_right("Ledger Master", request.data['company_master_id'], user.id, "can_edit")
+        ledger_master_instance = ledger_master.objects.get(id=id)
+        if(ledger_master_instance.is_fixed):
+            return Response({
+            'success': False,
+            'message': 'You cannot edit this field',
+            })
+        if user_permission:
+            
+            serializer = LedgerMasterSerializer(ledger_master_instance,data = request.data)
+            
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Ledger Master edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit this field',
+                }) 
+
+# API For deleting Ledger Master
+# request : DELETE
+# endpoint : delete-ledger-master/id(ledger master required)
+class DeleteLedgerMaster(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        ledger_master_record = ledger_master.objects.get(id=id)
+        if(ledger_master_record.is_fixed):
+            return Response({
+            'success': False,
+            'message': 'You cannot delete this field',
+            })
+        user_permission = check_user_company_right("Account Group", ledger_master_record.company_master_id, user.id, "can_delete")
+        if user_permission:
+            ledger_master_record.delete()
+            return Response({
+                'success': True,
+                'message': 'Ledger master deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to delete this field',
+                }) 
+
+
+############################################################################################################################
+################################################## Cost Center (CRUD) ###################################################
+############################################################################################################################
