@@ -15,6 +15,7 @@ from .views import *
 #from .views import AddAccountHead, AddLedgerMaster, CreateCompanyView, DeleteAccountHead, DeleteCompanyView, DetailCompanyView, EditAccountHead, EditCompanyView, GetAccountHead, GetUserCompanyView, AddCompanyDocument, DeleteCompanyDocument, EditCompanyDocumentView, GetCompanyDocumentView, GetCurrency, AddCurrency, EditCurrency, DeleteCurrency, AddVoucherType, EditVoucherType, GetVoucherType, DeleteVoucherType, AddCostCategory, EditCostCategory ,DeleteCostCategory ,GetCostCategory,AddAccGroup ,EditAccGroup ,DeleteAccGroup ,GetAccGroup, GetLedgerMaster
 urlpatterns = [
     path('get-user-company', GetUserCompanyView.as_view()),
+    path('get-transaction-right', GetTransaction.as_view()),
 
     path('create-company', CreateCompanyView.as_view()),  
     path('edit-company/<int:id>', EditCompanyView.as_view()), #id : company id
@@ -54,6 +55,5 @@ urlpatterns = [
     path('add-ledger-master', AddLedgerMaster.as_view()),
     path('edit-ledger-master/<int:id>', EditLedgerMaster.as_view()), # id : ledger master id
     path('delete-ledger-master/<int:id>', DeleteLedgerMaster.as_view()), # id : ledger master id
-    path('get-ledger-master/<int:id>', GetLedgerMaster.as_view()) # id : company_master_id
-    
- ]
+    path('get-ledger-master/<int:id>', GetLedgerMaster.as_view()) # id : company master id
+]

@@ -1,3 +1,4 @@
+from Users.models import transaction_right
 from django.db import models
 from django.db.models import fields
 from rest_framework import serializers
@@ -217,3 +218,15 @@ class CostCategorySerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+
+class GetTransactionSerializer(serializers.ModelSerializer):
+     class Meta:
+        model = transaction_right
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True}
+        }
+

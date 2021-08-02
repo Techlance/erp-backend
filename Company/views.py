@@ -88,6 +88,26 @@ def check_user_company_right(transaction_rights, user_company_id, user_id, need_
     else:
         return check_user_right.can_view
 
+
+class GetTransaction(APIView):
+    def get(self, request):
+        # verify token for authorization
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()  
+        except:
+            return payload 
+            
+        # Fetches company_document record corresponding to the document_id 
+        all_transaction_right = transaction_right.objects.all()
+        serializer = GetTransactionSerializer(all_transaction_right, many=True)
+        return Response({
+            'success': True,
+            'message':'',
+            'data':serializer.data
+        })
+
+       
     
 # API For getting user company in which user is included
 # request : GET
