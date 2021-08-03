@@ -232,8 +232,7 @@ class CreateCompanyView(APIView):
             for i in all_fixed_voucher_type:
                 voucher_name.append(i.voucher_name)
                 voucher_class.append(i.voucher_class)
-            # voucher_name = ["Cash Sales", "Credit Sales", "Cash Purchase" ,"Credit Purchase" ,"Journal" ,"Contra" ,"Cash Receipt" ,"Bank Receipt" ,"Cash Payment" ,"Bank Payment" ,"memo" ,"planning" ,"debit note" ,"credit note"]
-            # voucher_class = ["Cash Sales", "Credit Sales", "Cash Purchase" ,"Credit Purchase" ,"Journal" ,"Contra" ,"Cash Receipt" ,"Bank Receipt" ,"Cash Payment" ,"Bank Payment" ,"memo" ,"planning" ,"debit note" ,"credit note"]
+          
             voucher_type_insert(voucher_name, voucher_class, added_company, user.email)
 
             #! Trigger data to account head
@@ -243,20 +242,11 @@ class CreateCompanyView(APIView):
             for i in all_fixed_account_head:
                 account_head.append([i.acc_head_name,i.title,i.bs,schedule_no])
                 schedule_no+=1
-            # account_head = [["Non - Current Assets", "ASSETS", True, 1], ["Current Assets", "ASSETS", True, 2], ["Equity", "EQUITY AND LIABILITIES", False, 3], ["Non-Current Liabilities",	"EQUITY AND LIABILITIES", False, 4], ["Current Liabilities", "EQUITY AND LIABILITIES",	False,	5],
-            #  ["Income", "income",False,	6], ["Cost of Sales", "expenses", False, 7], ["Expenses", "expenses", False, 8]]
+         
             acc_head_insert(account_head, added_company, user.email)
             
             #! Trigger data to account group
 
-            # non_current_assests = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Non - Current Assets")
-            # current_assests = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Current Assets")
-            # equity = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Equity")
-            # non_current_liabilities = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Non-Current Liabilities")
-            # current_liabilities = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Current Liabilities")
-            # income = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Income")
-            # cost_of_sales = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Cost of Sales")
-            # expenses = acc_head.objects.get(company_master_id=added_company.id, acc_head_name="Expenses")
             account_group=[]
             all_fixed_account_group = fixed_account_group.objects.all()
             for i in all_fixed_account_group:
@@ -264,16 +254,11 @@ class CreateCompanyView(APIView):
                 acc_head_instance = acc_head.objects.get(id=i.acc_head_id.id)
                 account_group.append([i.group_name, acc_head_instance ,i.group_code,i.child_of])
                 
-            # account_group = [ ["Property, Plant & Equipment", non_current_assests, "PPE"], ["Inventory", current_assests, "INV"],["Trade and other receivables", current_assests, "TOR"],["Cash and bank equivalents",	current_assests, "CB"], 
-            # ["Capital", equity,"CAP"],["Retained Earnings",	equity, "RE"],["Borrowings", non_current_liabilities, "BO"],["Employees end of service benefit",non_current_liabilities,	"ESB"],["Trade Payables and Others", current_liabilities, "TOP"],
-            # ["Borrowings-ShortTerm", current_liabilities, "BOS"],["Cash in Hand", current_assests, "Cash and bank equivalents",	"CAS"],["Cash at Bank",	current_assests, "Cash and bank equivalents", "BNK"],["Receivables",	current_assests, "Trade and other receivables",	"DR"],
-            # ["Payables", current_liabilities, "Trade Payables and Others", "CR"],["Revenue",	income, "REV"],["cost of sales",expenses, "COS"],["Other gains and losses", expenses,	"OGI"],["Administrative & Selling Expenses", expenses, "AOS"],["Finance costs", expenses, "FC"],
-            # ["Opening Stock", cost_of_sales, "OS",],["Closing Stock", cost_of_sales, "CS"],["Bank OD", current_liabilities, "BOD"]]
+
             acc_group_insert(account_group, added_company, user.email)
 
             #! Trigger data to ledger master
-            # cash_in_hand = acc_group.objects.get(company_master_id=added_company.id, group_name="Cash in Hand")
-            # reatained_earnings = acc_group.objects.get(company_master_id=added_company.id, group_name="Retained Earnings")
+            
             ledger_master=[]
 
             # ledger_id, ledger_name, acc_group_id, maintain_billwise
@@ -282,7 +267,7 @@ class CreateCompanyView(APIView):
                 acc_group_instance = acc_group.objects.get(id=i.acc_group_id.id)
                 ledger_master.append([i.ledger_id,i.ledger_name,acc_group_instance,i.maintain_billwise])
                             
-            # ledger_master = [["CAS-1", "cash", cash_in_hand, False], ["P&L", "Profit & Loss A/c" , reatained_earnings, False]]
+           
             ledger_master_insert(ledger_master, added_company, user.email)
             
             #trigger all tables data

@@ -239,6 +239,8 @@ class EditUserView(APIView):
             
             # Fetch user data from the database with a specific id = "id"
             selected_user = User.objects.get(id=id)
+            if request.data['password']==None:
+                request.data['password'] = "null"
             serializer = UserSerializer(selected_user, data=request.data)
 
             if not serializer.is_valid():
