@@ -214,7 +214,7 @@ class CreateCompanyView(APIView):
 
             serializer.save()
             added_company = company_master.objects.latest('id')
-            company_user_group = user_group.objects.get(id=1)  # should be admin of company : pending
+            company_user_group = user_group.objects.get(id=11)  # should be admin of company : pending
 
             # pending : store all triggered data in json
 

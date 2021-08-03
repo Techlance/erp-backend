@@ -172,6 +172,10 @@ class cost_center(models.Model):
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    
+    class Meta:
+        unique_together = ('cost_category_id', 'company_master_id',)
+    
     def __str__(self):
         return self.cost_center_name
 
