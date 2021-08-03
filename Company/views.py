@@ -127,7 +127,7 @@ class GetUserCompanyView(APIView):
             if str(i.company_master_id.logo) == "":
                 logo_str = None
             else:
-                logo_str = str("/media/"+str(i.company_master_id.logo))
+                logo_str = str(i.company_master_id.logo)
             
             companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "logo": logo_str, "created_on": i.company_master_id.created_on})
         # print(companies)
@@ -385,6 +385,7 @@ class DetailCompanyView(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View Company Details',
+                'data': []
             })
 
 
@@ -536,6 +537,7 @@ class GetCompanyDocumentView(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View Company Document',
+                'data': []
             })
 
 
@@ -663,7 +665,8 @@ class GetCurrency(APIView):
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to View Company Document',
+                'message': 'You are not allowed to View Currency',
+                'data': []
             })
 
 
@@ -915,6 +918,7 @@ class GetAccountHead(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to view Account Head',
+                'data': []
             })
 
 
@@ -1044,6 +1048,7 @@ class GetCostCategory(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View Cost Categories',
+                'data': []
             })            
 
 
@@ -1177,6 +1182,7 @@ class GetAccGroup(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to view Account group',
+                'data': []
                 }) 
 
 
@@ -1250,6 +1256,7 @@ class GetLedgerMaster(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to view Ledger master',
+                'data': []
                 }) 
 
 
@@ -1317,7 +1324,7 @@ class DeleteLedgerMaster(APIView):
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to delete this field',
+                'message': 'You are not allowed to delete this Ledger Master',
                 }) 
 
 
@@ -1442,4 +1449,5 @@ class GetCostCenter(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to view cost center',
+                'data': []
                 }) 
