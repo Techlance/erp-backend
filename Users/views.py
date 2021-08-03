@@ -327,6 +327,7 @@ class GetUserView(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View user Details',
+                'data': []
             })
 
 
@@ -362,6 +363,7 @@ class DetailUserView(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View User Details',
+                'data': []
             })
 
 
@@ -515,6 +517,7 @@ class GetUserGroup(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View User Groups',
+                'data': []
             })
 
 
@@ -662,6 +665,7 @@ class GetUserRight(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View User Right',
+                'data': []
             })
             
 

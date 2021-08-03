@@ -166,3 +166,9 @@ AUTH_USER_MODEL = 'Users.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_ACCESS_KEY_ID = 'AKIAZLRYZL7UB4JNRVI5'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'roofingstorage'
+AWS_QUERYSTRING_AUTH = False
