@@ -165,6 +165,17 @@ class cost_category(models.Model):
     def __str__(self):
         return self.name
 
+class cost_center(models.Model):
+    cost_center_name = models.TextField(max_length=500, null=False)
+    cost_category_id = models.ForeignKey(to=cost_category, null=False, on_delete=models.CASCADE)
+    child_of = models.TextField(max_length=500, default="primary")
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.cost_center_name
+
+
 
 # models for default data triggered while creating company
 

@@ -1066,7 +1066,6 @@ class GetCostCategory(APIView):
 ################################################## Account Group (CRUD) #####################################################
 ############################################################################################################################
 
-#jevin api don't touch 
 # API For adding acc_group type
 # request : POST
 # endpoint : add-account-group(no id required)
@@ -1338,5 +1337,124 @@ class DeleteLedgerMaster(APIView):
 
 
 ############################################################################################################################
-################################################## Cost Center (CRUD) ###################################################
+################################################## Cost Center (CRUD) ######################################################
 ############################################################################################################################
+
+
+# API For adding Add Cost Center
+# request : POST
+# endpoint : add-cost-center(no id required)
+class AddCostCenter(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        serializer = CostCenterSerializer(data = request.data)
+        user_permission = check_user_company_right("Cost center", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Cost Center added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Add Cost Center',
+                }) 
+
+
+# API For editing cost center
+# request : PUT
+# endpoint : edit-cost-center/id(account group id required)
+class EditCostCenter(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        cost_center_instance = cost_center.objects.get(id=id)
+        user_permission = check_user_company_right("Cost center", request.data['company_master_id'], user.id, "can_alter")
+        if user_permission:
+            serializer = CostCenterSerializer(cost_center_instance, data=request.data)
+            
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Cost Center Edited successfully'})
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit Cost Center',
+                }) 
+
+        
+
+# API For deleting account group
+# request : DELETE
+# endpoint : delete-cost-center/id(account group required)
+class DeleteCostCenter(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        cost_center_record = cost_center.objects.get(id=id)
+        user_permission = check_user_company_right("Cost center", cost_center_record.company_master_id, user.id, "can_delete")
+        if user_permission:
+            cost_center_record.delete()
+            return Response({
+                'success': True,
+                'message': 'Cost Center deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to delete Cost Center',
+                }) 
+
+
+# API For getting account group
+# request : GET
+# endpoint: get-cost-center/id(company-id required)
+class GetCostCenter(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        user_permission = check_user_company_right("Cost center", id, user.id, "can_view")
+        if user_permission:
+            cost_center_record = cost_center.objects.filter(company_master_id=id)
+            serializer = CostCenterSerializer(cost_center_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view cost center',
+                }) 
