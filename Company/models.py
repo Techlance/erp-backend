@@ -58,11 +58,12 @@ class company_master_docs(models.Model):
 
 
 class year_master(models.Model):
-    year_no = models.IntegerField(null=False, default=1)
+    year_no = models.IntegerField(null=False, default=0)
     start_date = models.DateField(null=False)
     end_date = models.DateField(null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     status = models.BooleanField(default=True, null=False)
+    locked = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
     def __str__(self):
@@ -114,6 +115,7 @@ class acc_group(models.Model):
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
     class Meta:
+        # testing : pending
         unique_together = ('group_code', 'company_master_id',)
         unique_together = ('group_name', 'company_master_id',)
     def __str__(self):
@@ -162,6 +164,69 @@ class cost_category(models.Model):
     created_on = models.DateTimeField(default=timezone.now())
     def __str__(self):
         return self.name
+
+class cost_center(models.Model):
+    cost_center_name = models.TextField(max_length=500, null=False)
+    cost_category_id = models.ForeignKey(to=cost_category, null=False, on_delete=models.CASCADE)
+    child_of = models.TextField(max_length=500, default="primary")
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
+    
+    class Meta:
+        unique_together = ('cost_category_id', 'company_master_id',)
+    
+    def __str__(self):
+        return self.cost_center_name
+
+
+
+# models for default data triggered while creating company
+
+class fixed_vouchertype(models.Model):
+    voucher_name = models.TextField(max_length=500, null=False)
+    voucher_class = models.TextField(max_length=500, null=False)
+    auto_numbering = models.BooleanField(default=False)
+    is_fixed = models.BooleanField(default=True)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
+    
+    def __str__(self):
+        return self.voucher_name
+
+
+class fixed_account_head(models.Model):
+    acc_head_name = models.TextField(max_length=200, null=False)
+    title = models.TextField(max_length=200, null=False)
+    bs = models.BooleanField(default=True, null=False)
+    is_fixed = models.BooleanField(default=True)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.acc_head_name
+
+
+class fixed_account_group(models.Model):
+    group_name = models.TextField(max_length=1000, null=False)
+    acc_head_id = models.ForeignKey(to=fixed_account_head, null=False, on_delete=models.CASCADE)
+    group_code = models.TextField(max_length=4, null=False)
+    child_of = models.TextField(max_length=1000, null=True, blank=True)
+    is_fixed = models.BooleanField(default=True, null=False)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.group_name
+
+class fixed_ledger_master(models.Model):
+    acc_group_id = models.ForeignKey(to=fixed_account_group, null=False, on_delete=models.CASCADE)
+    ledger_id = models.TextField(max_length=200, null=False)
+    ledger_name = models.TextField(max_length=200, null=False)
+    maintain_billwise = models.BooleanField(default=True, null=False)
+    is_fixed = models.BooleanField(default=True)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(default=timezone.now())
+    def __str__(self):
+        return self.ledger_name
 
     
 

@@ -239,6 +239,8 @@ class EditUserView(APIView):
             
             # Fetch user data from the database with a specific id = "id"
             selected_user = User.objects.get(id=id)
+            if request.data['password']==None:
+                request.data['password'] = "null"
             serializer = UserSerializer(selected_user, data=request.data)
 
             if not serializer.is_valid():
@@ -387,7 +389,9 @@ class AddUserGroup(APIView):
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                "data": user.email
+                "data":{
+                    "email":user.email
+                }
                 })
 
             serializer.save()
@@ -539,7 +543,9 @@ class AddUserRight(APIView):
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                "data": user.email
+                "data":{
+                    "email":user.email
+                }
                 })
 
             serializer.save()

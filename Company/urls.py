@@ -11,13 +11,16 @@ Status : {
 
 
 from django.urls import path
-from .views import AddAccountHead, CreateCompanyView, DeleteAccountHead, DeleteCompanyView, DetailCompanyView, EditAccountHead, EditCompanyView, GetAccountHead, GetUserCompanyView, AddCompanyDocument, DeleteCompanyDocument, EditCompanyDocumentView, GetCompanyDocumentView, GetCurrency, AddCurrency, EditCurrency, DeleteCurrency, AddVoucherType, EditVoucherType, GetVoucherType, DeleteVoucherType, AddCostCategory, EditCostCategory ,DeleteCostCategory ,GetCostCategory,AddAccGroup ,EditAccGroup ,DeleteAccGroup ,GetAccGroup
+from .views import *
+#from .views import AddAccountHead, AddLedgerMaster, CreateCompanyView, DeleteAccountHead, DeleteCompanyView, DetailCompanyView, EditAccountHead, EditCompanyView, GetAccountHead, GetUserCompanyView, AddCompanyDocument, DeleteCompanyDocument, EditCompanyDocumentView, GetCompanyDocumentView, GetCurrency, AddCurrency, EditCurrency, DeleteCurrency, AddVoucherType, EditVoucherType, GetVoucherType, DeleteVoucherType, AddCostCategory, EditCostCategory ,DeleteCostCategory ,GetCostCategory,AddAccGroup ,EditAccGroup ,DeleteAccGroup ,GetAccGroup, GetLedgerMaster
 urlpatterns = [
     path('get-user-company', GetUserCompanyView.as_view()),
-    path('create-company', CreateCompanyView.as_view()),
-    path('edit-company/<int:id>', EditCompanyView.as_view()),
-    path('delete-company/<int:id>', DeleteCompanyView.as_view()),
-    path('view-company/<int:id>', DetailCompanyView.as_view()),
+    path('get-transaction-right', GetTransaction.as_view()),
+
+    path('create-company', CreateCompanyView.as_view()),  
+    path('edit-company/<int:id>', EditCompanyView.as_view()), #id : company id
+    path('delete-company/<int:id>', DeleteCompanyView.as_view()), # id : company id
+    path('view-company/<int:id>', DetailCompanyView.as_view()), # id : company id
 
     path('add-company-document',  AddCompanyDocument.as_view()),
     path('edit-company-document/<int:id>', EditCompanyDocumentView.as_view()), # id : Document id
@@ -47,6 +50,16 @@ urlpatterns = [
     path('add-account-group', AddAccGroup.as_view()),
     path('edit-account-group/<int:id>', EditAccGroup.as_view()), # id : Account group id
     path('delete-account-group/<int:id>', DeleteAccGroup.as_view()), # id : Account group id
-    path('get-account-group/<int:id>', GetAccGroup.as_view()), #id : company_master_id
-    
- ]
+    path('get-account-group/<int:id>', GetAccGroup.as_view()), # id : company_master_id
+
+    path('add-ledger-master', AddLedgerMaster.as_view()),
+    path('edit-ledger-master/<int:id>', EditLedgerMaster.as_view()), # id : ledger master id
+    path('delete-ledger-master/<int:id>', DeleteLedgerMaster.as_view()), # id : ledger master id
+    path('get-ledger-master/<int:id>', GetLedgerMaster.as_view()), # id : company master id
+
+    path('add-cost-center', AddCostCenter.as_view()),
+    path('edit-cost-center/<int:id>', EditCostCenter.as_view()), # id : cost center id
+    path('delete-cost-center/<int:id>', DeleteCostCenter.as_view()), # id : delete cost center id
+    path('get-cost-center/<int:id>', GetCostCenter.as_view()) # id : company master id
+
+]
