@@ -96,7 +96,7 @@ class GetTransaction(APIView):
         try:
             user = User.objects.filter(id=payload['id']).first()  
         except:
-            return payload 
+            return payload
             
         # Fetches company_document record corresponding to the document_id 
         all_transaction_right = transaction_right.objects.all()
@@ -201,7 +201,7 @@ class CreateCompanyView(APIView):
         except:
             return payload
         # check user permission
-        if user.can_create_company:
+        if user.is_superuser:
             serializer = CompanySerializer(data = request.data)
             if not serializer.is_valid():
                 return Response({
@@ -297,7 +297,7 @@ class EditCompanyView(APIView):
         except:
             return payload
         # permission : user can edit company
-        if user.can_edit_company:
+        if user.is_superuser:
             # Query : Find company instance to be edited
             company_instance = company_master.objects.get(id=id)
             serializer = CompanySerializer(company_instance, data=request.data)
@@ -335,7 +335,7 @@ class DeleteCompanyView(APIView):
             return payload
             
         # permission : can delete company
-        if user.can_delete_company:
+        if user.is_superuser:
 
             # Find company record with id above
             company_master_record = company_master.objects.get(id=id)
@@ -369,7 +369,7 @@ class DetailCompanyView(APIView):
             return payload
 
         # Permission : If user is allowed to view company
-        if user.can_view_company:
+        if user.is_superuser:
             
             # Fetches company records with company_id from company_master table
             company_master_record = company_master.objects.get(id=id)
@@ -407,7 +407,7 @@ class AddCompanyDocument(APIView):
             return payload
         
         # Permission : can create company (Inherited permission)
-        if user.can_create_company:
+        if user.is_superuser:
             serializer = CompanyDocumentSerializer(data = request.data)
             if not serializer.is_valid():
                 return Response({
@@ -451,7 +451,7 @@ class EditCompanyDocumentView(APIView):
             return payload
 
         # Permission : If user is allowed to edit a company (Inherited permission)
-        if user.can_edit_company:
+        if user.is_superuser:
             
             # Fetches company_document records corresponding to document_id
             company_document_instance = company_master_docs.objects.get(id=id)
@@ -491,7 +491,7 @@ class DeleteCompanyDocument(APIView):
             return payload
 
         # permission : if user can delete company then user can delete company document (Inherited permission)
-        if user.can_delete_company:
+        if user.is_superuser:
 
             company_master_documents = company_master_docs.objects.get(id=id)
             company_master_documents.delete()
@@ -521,7 +521,7 @@ class GetCompanyDocumentView(APIView):
             return payload 
         
         # Permission : If user is allowed to view company (Inherited permission)
-        if user.can_view_company:
+        if user.is_superuser:
             
             # Fetches company_document record corresponding to the document_id 
             company_master_record = company_master_docs.objects.filter(company_master_id=id)
@@ -557,7 +557,7 @@ class AddCurrency(APIView):
         except:
             return payload
         # permission : Inherited from create company
-        if user.can_create_company:
+        if user.is_superuser:
             serializer = CurrencySerializer(data = request.data)
             if not serializer.is_valid():
                 return Response({
@@ -596,7 +596,7 @@ class EditCurrency(APIView):
         except:
             return payload
         # permission : inherited from can edit company
-        if user.can_edit_company:
+        if user.is_superuser:
             currency_instance = currency.objects.get(id=id)
             serializer = CurrencySerializer(currency_instance, data=request.data)
 
@@ -628,7 +628,7 @@ class DeleteCurrency(APIView):
         except:
             return payload
         # permission : inherited from can edit company
-        if user.can_delete_company:
+        if user.is_superuser:
             company_master_documents = currency.objects.get(id=id)
             company_master_documents.delete()
             return Response({
@@ -653,21 +653,15 @@ class GetCurrency(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-         # permission : inherited from can view company
-        if user.can_view_company:
-            all_currency = currency.objects.all()
-            serializer = CurrencySerializer(all_currency, many=True)
-            return Response({
-            'success': True,
-            'message':'',
-            'data': serializer.data
-            })
-        else:
-            return Response({
-                'success': False,
-                'message': 'You are not allowed to View Currency',
-                'data': []
-            })
+
+        all_currency = currency.objects.all()
+        serializer = CurrencySerializer(all_currency, many=True)
+        return Response({
+        'success': True,
+        'message':'',
+        'data': serializer.data
+        })
+ 
 
 
 ############################################################################################################################
@@ -687,19 +681,26 @@ class AddVoucherType(APIView):
         except:
             return payload
         
-        serializer = VoucherTypeSerializer(data = request.data)
-        # validate serialier
-        if not serializer.is_valid():
-            return Response({
-            "success":False,
-            "message": get_error(serializer.errors),
-            })
+        user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            serializer = VoucherTypeSerializer(data = request.data)
+            # validate serialier
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                })
 
-        serializer.save()
-        return Response({
-            "success":True,
-            "message":"Voucher Type added successfully",
-            "data":serializer.data
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Voucher Type added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Add Vocher Type',
             })
 
 
@@ -717,18 +718,23 @@ class EditVoucherType(APIView):
         # Query : Getting Voucher Type Instace
         voucher_type_instance = voucher_type.objects.get(id=id)
         serializer = VoucherTypeSerializer(voucher_type_instance, data=request.data)
-
-        if not serializer.is_valid():
+        user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_alter")
+        if user_permission: 
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+                    
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Voucher Type Edited successfully'})
+        else:
             return Response({
                 'success': False,
-                'message': get_error(serializer.errors),
-                })
-                
-        serializer.save()
-        return Response({
-            'success': True,
-            'message': 'Voucher Type Edited successfully'})
-        
+                'message': 'You are not allowed to Edit Voucher Type',
+            })     
 
 # API For deleting vouhcer
 # request : DELETE
@@ -741,14 +747,21 @@ class DeleteVoucherType(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        # Query : fetch voucher type record using id
-        voucher_type_record = voucher_type.objects.get(id=id)
-        voucher_type_record.delete()
-        return Response({
-            'success': True,
-            'message': 'Voucher deleted Successfully',
-            })
-
+        
+        user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_delete")
+        if user_permission:  
+            # Query : fetch voucher type record using id
+            voucher_type_record = voucher_type.objects.get(id=id)
+            voucher_type_record.delete()
+            return Response({
+                'success': True,
+                'message': 'Voucher deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete Voucher Type',
+            })     
 
 # API For getting voucher type
 # request : GET
@@ -761,14 +774,20 @@ class GetVoucherType(APIView):
         except:
             return payload
         # id is company id
-        voucher_type_record = voucher_type.objects.filter(company_master_id=id)
-        serializer = GetVoucherTypeSerializer(voucher_type_record, many=True)
-        return Response({
-        'success': True,
-        'message':'',
-        'data': serializer.data
-        })
-
+        user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_view")
+        if user_permission:        
+            voucher_type_record = voucher_type.objects.filter(company_master_id=id)
+            serializer = GetVoucherTypeSerializer(voucher_type_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View Voucher Type',
+            })            
 
 ############################################################################################################################
 ################################################## ACCOUNT HEAD (CRUD) #####################################################
@@ -1314,7 +1333,7 @@ class DeleteLedgerMaster(APIView):
             'success': False,
             'message': 'You cannot delete this field',
             })
-        user_permission = check_user_company_right("Account Group", ledger_master_record.company_master_id, user.id, "can_delete")
+        user_permission = check_user_company_right("Ledger Master", ledger_master_record.company_master_id, user.id, "can_delete")
         if user_permission:
             ledger_master_record.delete()
             return Response({

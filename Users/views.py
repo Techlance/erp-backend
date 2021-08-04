@@ -77,17 +77,7 @@ class VerifyUser(APIView):
                             "user":{
                                 "id":user.id,
                                 "email":user.email,
-                                "can_create_company":user.can_create_company,
-                                "can_edit_company":user.can_edit_company,
-                                "can_delete_company":user.can_delete_company,
-                                "can_create_user":user.can_create_user,
-                                "can_edit_user":user.can_edit_user,
-                                "can_delete_user":user.can_delete_user,
-                                "can_view_user":user.can_view_user,
-                                "can_create_user_groups":user.can_create_user_groups,
-                                "can_edit_user_groups":user.can_edit_user_groups,
-                                "can_delete_user_groups":user.can_delete_user_groups,
-                                "can_view_user_groups":user.can_view_user_groups
+                                "is_superuser":user.is_superuser
                                 }
                             
                             }
@@ -155,17 +145,7 @@ class LoginView(APIView):
                             "user":{
                                 "id":user.id,
                                 "email":user.email,
-                                "can_create_company":user.can_create_company,
-                                "can_edit_company":user.can_edit_company,
-                                "can_delete_company":user.can_delete_company,
-                                "can_create_user":user.can_create_user,
-                                "can_edit_user":user.can_edit_user,
-                                "can_delete_user":user.can_delete_user,
-                                "can_view_user":user.can_view_user,
-                                "can_create_user_groups":user.can_create_user_groups,
-                                "can_edit_user_groups":user.can_edit_user_groups,
-                                "can_delete_user_groups":user.can_delete_user_groups,
-                                "can_view_user_groups":user.can_view_user_groups
+                                "is_superuser":user.is_superuser,
                                 }
                             }
                         }
@@ -189,8 +169,8 @@ class AddUserView(APIView):
         except:
             return payload
         
-        # permission : If user can create another user
-        if user.can_create_user:
+        # permission : If superuser can create another user
+        if user.is_superuser:
 
             serializer = UserSerializer(data=request.data)
 
@@ -235,7 +215,7 @@ class EditUserView(APIView):
             return payload
 
         # permission : If user can edit another user
-        if user.can_edit_user:
+        if user.is_superuser:
             
             # Fetch user data from the database with a specific id = "id"
             selected_user = User.objects.get(id=id)
@@ -277,7 +257,7 @@ class DeleteUserView(APIView):
             return payload
 
         # permission : if user can delete another user 
-        if user.can_delete_user:
+        if user.is_superuser:
             
             # Fetch details of user with a specific id = "id"
             selected_user = User.objects.get(id=id)
@@ -311,7 +291,7 @@ class GetUserView(APIView):
             return payload
     
         # permission : If user can view other user
-        if user.can_view_user:
+        if user.is_superuser:
             
             # Fetch user details of all existing users in database
             users = User.objects.all()
@@ -347,7 +327,7 @@ class DetailUserView(APIView):
             return payload
     
         # permission : If user can view another user
-        if user.can_view_user:
+        if user.is_superuser:
 
             # Fetch details of user with a specific id = "id"
             user_details = User.objects.get(id=id)
@@ -383,7 +363,7 @@ class AddUserGroup(APIView):
             return payload
 
         # Permission : If user is allowed to create a user group
-        if user.can_create_user_groups:
+        if user.is_superuser:
 
             serializer = UserGroupSerializer(data=request.data)
 
@@ -430,7 +410,7 @@ class EditUserGroup(APIView):
             return payload
 
         # Permission : If user is allowed to edit a user group
-        if user.can_edit_user_groups:
+        if user.is_superuser:
             
             # Fetch user group details with a specific is = "id"
             selected_group = user_group.objects.get(id=id)
@@ -471,7 +451,7 @@ class DeleteUserGroup(APIView):
             return payload
 
         # Permission : If user is allowed to delete a user group
-        if user.can_delete_user_groups:
+        if user.is_superuser:
 
             # Fetch user group with a specific id = "id"
             selected_group = user_group.objects.get(id=id)
@@ -502,7 +482,7 @@ class GetUserGroup(APIView):
             return payload
     
         # perimission type : can view user groups
-        if user.can_view_user_groups:
+        if user.is_superuser:
             # Query : Get all user group data
             user_groups = user_group.objects.all()
             serializer = UserGroupSerializer(user_groups, many=True)
@@ -538,7 +518,7 @@ class AddUserRight(APIView):
             return payload
     
         # Permission type : can create user
-        if user.can_create_user:
+        if user.is_superuser:
             serializer = UserRightSerializer(data=request.data)
 
             # check serializer validation
@@ -583,7 +563,7 @@ class EditUserRight(APIView):
             return payload
 
         # Permission type : can edit user
-        if user.can_edit_user:
+        if user.is_superuser:
 
             # Query : To fetch user right data by parameter id
             selected_group = user_right.objects.get(id=id)
@@ -622,7 +602,7 @@ class DeleteUserRight(APIView):
             return payload
         
         # Permission type : can delete company
-        if user.can_delete_company:
+        if user.is_superuser:
             # Fetch data using id to delete user right 
             user_rights = user_right.objects.get(id=id)
             user_rights.delete()
@@ -651,7 +631,7 @@ class GetUserRight(APIView):
             return payload
         
         # permission : can view user
-        if user.can_view_user:
+        if user.is_superuser:
 
             # Fetch all user rights data
             user_groups = user_right.objects.all()
