@@ -6,7 +6,7 @@
 ##### https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
 
 ## STEP-2 : Set Up Database 
-##### Open PgAdmin and Create a database with name Partuma in PgAdmin.
+##### Open PgAdmin and Create a database with name erp_software in PgAdmin.
 
 ## STEP-3 : Clone this repository
 
@@ -19,7 +19,7 @@
 ## STEP-5 Install requirements.txt
 ```pip install -r requirements.txt```
 
-## STEP-6 : Go to partuma/settings.py
+## STEP-6 : Go to erp_backend/settings.py
 ##### Replace database_name, database_user and database_password in following code
 
 ```DATABASES = {
