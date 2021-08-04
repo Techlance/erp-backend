@@ -250,9 +250,9 @@ class CreateCompanyView(APIView):
             account_group=[]
             all_fixed_account_group = fixed_account_group.objects.all()
             for i in all_fixed_account_group:
-                # print(i.acc_head_id.id)
-                acc_head_instance = acc_head.objects.get(id=i.acc_head_id.id)
-                account_group.append([i.group_name, acc_head_instance ,i.group_code,i.child_of])
+                # print(i.acc_head_id.acc_head_name)
+                acc_head_instance = acc_head.objects.get(acc_head_name=i.acc_head_id.acc_head_name, company_master_id=added_company.id)
+                account_group.append([i.group_name, acc_head_instance  ,i.group_code,i.child_of])
                 
 
             acc_group_insert(account_group, added_company, user.email)
@@ -264,7 +264,7 @@ class CreateCompanyView(APIView):
             # ledger_id, ledger_name, acc_group_id, maintain_billwise
             all_fixed_ledger_master = fixed_ledger_master.objects.all()
             for i in all_fixed_ledger_master:
-                acc_group_instance = acc_group.objects.get(id=i.acc_group_id.id)
+                acc_group_instance = acc_group.objects.get(group_name=i.acc_group_id.group_name, company_master_id=added_company.id)
                 ledger_master.append([i.ledger_id,i.ledger_name,acc_group_instance,i.maintain_billwise])
                             
            
@@ -944,7 +944,6 @@ class GetAccountHead(APIView):
 ############################################################################################################################
 ################################################## COST CATEGORY(CRUD) #####################################################
 ############################################################################################################################
-
 
 
 # API For adding Cost Category
