@@ -38,8 +38,8 @@ class company_master(models.Model):
 
 
 class user_company(models.Model):
-    user = models.ForeignKey(to=User, null=False, on_delete=models.SET_NULL)
-    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.SET_NULL)
+    user = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
+    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.Case)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
@@ -74,7 +74,7 @@ class voucher_type(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
     voucher_class = models.TextField(max_length=500, null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
-    authorization_id = models.ForeignKey(to=User, null=True, on_delete=models.SET_NULL)
+    authorization_id = models.ForeignKey(to=User, null=True, on_delete=models.CASCADE)
     auto_numbering = models.BooleanField(default=False)
     prefix = models.TextField(max_length=200, null=True)
     restart = models.TextField(max_length=50, null=True)
