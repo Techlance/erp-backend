@@ -16,7 +16,7 @@ urlpatterns = [
     path('delete-user-group/<int:id>', DeleteUserGroup.as_view()),      # Delete
 
     path('add-user-right', AddUserRight.as_view()),                     # Create
-    path('get-user-right', GetUserRight.as_view()),                     # Retrieve
+    path('get-user-right/<int:id>', GetUserRight.as_view()),            # Retrieve (id is user group id)
     path('edit-user-right/<int:id>', EditUserRight.as_view()),          # Update
     path('delete-user-right/<int:id>', DeleteUserRight.as_view()),      # Delete
 

@@ -113,11 +113,12 @@ class TransactionRightSerializer(serializers.ModelSerializer):
     
 
 class GetUserRightSerializer(serializers.ModelSerializer):
-    user_group_id = UserGroupSerializer()
+    #user_group_id = UserGroupSerializer()
     transaction_id = TransactionRightSerializer()
     class Meta:
         model = user_right
-        fields = '__all__' 
+        # fields = '__all__' 
+        exclude = ('user_group_id', )
         extra_kwargs = {
             'id':{'read_only': True},
             'created_on':{'read_only': True}

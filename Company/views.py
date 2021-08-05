@@ -18,7 +18,8 @@ import jwt
 from django.http import JsonResponse
 from .serializers import *
 from datetime import date, timedelta
-
+from django.http.response import HttpResponse
+import PIL
 
 # Function to verify token for authorization
 def verify_token(request):
@@ -98,7 +99,7 @@ class GetTransaction(APIView):
         except:
             return payload
             
-        # Fetches company_document record corresponding to the document_id 
+        
         all_transaction_right = transaction_right.objects.all()
         serializer = GetTransactionSerializer(all_transaction_right, many=True)
         return Response({
@@ -540,6 +541,42 @@ class GetCompanyDocumentView(APIView):
                 'message': 'You are not allowed to View Company Document',
                 'data': []
             })
+
+
+#API for downloading company document
+class DownloadClientDocument(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()  
+        except:
+            return payload 
+        if user.is_superuser:
+            company_document = company_master_docs.objects.get(id=id)
+            temp = company_document.file
+            im = str(company_document.file)
+            
+            files = temp.read()
+            ext = ""
+            im = im[::-1]
+            for i in im:
+                if i==".":
+                    break
+                else:
+                    ext += i
+            ext = ext[::-1]
+            im = im[::-1]
+            print(im)
+            file_name = im[6:]
+            response = HttpResponse(files, content_type='application/'+ext)
+            response['Content-Disposition'] = "attachment; filename="+file_name
+            return response
+       # else:
+        #     return Response({
+        #         'success': False,
+        #         'message': 'You are not allowed to download Company Document',
+        #         # 'data': []
+        #     }) 
 
 
 ############################################################################################################################
