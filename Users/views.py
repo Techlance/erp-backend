@@ -262,6 +262,11 @@ class DeleteUserView(APIView):
             # Fetch details of user with a specific id = "id"
             selected_user = User.objects.get(id=id)
             # Delete fetched user
+            # selected_user.name="isdeleted"
+            
+            # print(selected_user)
+            
+            #selected_user.is_deleted=True
             selected_user.delete()
 
             return Response({

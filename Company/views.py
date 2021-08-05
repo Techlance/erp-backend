@@ -129,7 +129,7 @@ class GetUserCompanyView(APIView):
             else:
                 logo_str = str(i.company_master_id.logo)
             
-            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "logo": logo_str, "created_on": i.company_master_id.created_on})
+            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "country":i.company_master_id.country, "year_start_date": i.company_master_id.year_start_date, "year_end_date": i.company_master_id.year_end_date, "logo": logo_str, "created_on": i.company_master_id.created_on})
         # print(companies)
         return Response({
                 "success":True,
@@ -339,8 +339,9 @@ class DeleteCompanyView(APIView):
 
             # Find company record with id above
             company_master_record = company_master.objects.get(id=id)
+           
             company_master_record.delete()
-
+            
             return Response({
                 'success': True,
                 'message': 'Company deleted Successfully',

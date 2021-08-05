@@ -10,6 +10,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, null=False)
     created_by = models.TextField(default="primary",max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    # is_deleted = models.BooleanField(default=False)
     username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
