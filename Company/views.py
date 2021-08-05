@@ -212,12 +212,14 @@ class CreateCompanyView(APIView):
                     "email":user.email
                 }
                 })
+            # Create Logs Trigger
+            new_company_logs = company_master_logs(name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=request.data['base_currency'],cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=request.data['logo'],altered_by=user.email,entry="after",is_deleted=False,operation="create")
+            new_company_logs.save()
 
             serializer.save()
             added_company = company_master.objects.latest('id')
             company_user_group = user_group.objects.get(id=11)  # should be admin of company : pending
 
-            # pending : store all triggered data in json
 
             #! Trigger data to user_company table
             user_company_insert(user,company_user_group,added_company,user.email)
@@ -308,7 +310,12 @@ class EditCompanyView(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+            # Create Logs Trigger
+            new_company_logs = company_master_logs(name=company_instance.company_name, address=company_instance.address, country=company_instance.country, state=company_instance.state, email=company_instance.email, website=company_instance.website, contact_no=company_instance.contact_no,base_currency=company_instance.base_currency,cr_no=company_instance.cr_no,registration_no=company_instance.registration_no,tax_id_no=company_instance.tax_id_no,vat_id_no=company_instance.vat_id_no,year_start_date=company_instance.year_start_date,year_end_date=company_instance.year_end_date,logo=company_instance.logo,altered_by=user.email,entry="before",operation="edit")
+            new_company_logs.save()
+            new_company_logs = company_master_logs(name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=request.data['base_currency'],cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=request.data['logo'],altered_by=user.email,entry="after",is_deleted=False,operation="edit")
+            new_company_logs.save()
+
             serializer.save()
             return Response({
                 'success': True,
@@ -339,9 +346,12 @@ class DeleteCompanyView(APIView):
         if user.is_superuser:
 
             # Find company record with id above
-            company_master_record = company_master.objects.get(id=id)
-           
-            company_master_record.delete()
+            company_instance = company_master.objects.get(id=id)
+            
+            new_company_logs = company_master_logs(name=company_instance.company_name, address=company_instance.address, country=company_instance.country, state=company_instance.state, email=company_instance.email, website=company_instance.website, contact_no=company_instance.contact_no,base_currency=company_instance.base_currency,cr_no=company_instance.cr_no,registration_no=company_instance.registration_no,tax_id_no=company_instance.tax_id_no,vat_id_no=company_instance.vat_id_no,year_start_date=company_instance.year_start_date,year_end_date=company_instance.year_end_date,logo=company_instance.logo,altered_by=user.email,entry="before",operation="delete")
+            new_company_logs.save()           
+            
+            company_instance.delete()
             
             return Response({
                 'success': True,
@@ -561,7 +571,7 @@ class DownloadClientDocument(APIView):
             im = im[::-1]
             for i in im:
                 if i==".":
-                    break
+                    break 
                 else:
                     ext += i
             ext = ext[::-1]
