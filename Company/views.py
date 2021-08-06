@@ -214,12 +214,14 @@ class CreateCompanyView(APIView):
                 } 
                 })
             # Create Logs Trigger
-            currency_instance = currency.objects.get(id=request.data['base_currency'])
-            new_company_logs = company_master_logs(company_name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=currency_instance.currency, cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=request.data['logo'],altered_by=user.email,entry="after",is_deleted=False,operation="create")
-            new_company_logs.save()
+            
 
             serializer.save()
             added_company = company_master.objects.latest('id')
+            currency_instance = currency.objects.get(id=request.data['base_currency'])
+            new_company_logs = company_master_logs(company_name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=currency_instance.currency, cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=added_company.logo,altered_by=user.email,entry="after",is_deleted=False,operation="create")
+            new_company_logs.save()
+            
             company_user_group = user_group.objects.get(id=11)  # should be admin of company : pending
 
 
@@ -316,10 +318,12 @@ class EditCompanyView(APIView):
             currency_instance = currency.objects.get(id=request.data['base_currency'])
             new_company_logs = company_master_logs(company_name=company_instance.company_name, address=company_instance.address, country=company_instance.country, state=company_instance.state, email=company_instance.email, website=company_instance.website, contact_no=company_instance.contact_no,base_currency=company_instance.base_currency.currency,cr_no=company_instance.cr_no,registration_no=company_instance.registration_no,tax_id_no=company_instance.tax_id_no,vat_id_no=company_instance.vat_id_no,year_start_date=company_instance.year_start_date,year_end_date=company_instance.year_end_date,logo=company_instance.logo,altered_by=user.email,entry="before",operation="edit")
             new_company_logs.save()
-            new_company_logs = company_master_logs(company_name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=currency_instance.currency,cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=request.data['logo'],altered_by=user.email,entry="after",is_deleted=False,operation="edit")
-            new_company_logs.save()
+            
 
             serializer.save()
+            added_company = company_master.objects.get(id=id)
+            new_company_logs = company_master_logs(company_name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=currency_instance.currency,cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=added_company.logo, altered_by=user.email,entry="after",is_deleted=False,operation="edit")
+            new_company_logs.save()
             return Response({
                 'success': True,
                 'message': 'Company Edited successfully'})
@@ -490,7 +494,7 @@ class EditCompanyDocumentView(APIView):
            
             
             serializer.save()
-            instance_company_master_docs = company_master_docs.objects.latest('id')
+            instance_company_master_docs = company_master_docs.objects.get(id=id)
             new_company_document_logs = company_master_docs_logs(doc_name=request.data['doc_name'], file=instance_company_master_docs.file, company_master_id=instance_company_master.company_name, entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
             new_company_document_logs.save()
             
