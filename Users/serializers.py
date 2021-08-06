@@ -18,7 +18,7 @@ from .models import User, transaction_right, user_group, user_right
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'name', 'email', 'password', 'created_by', 'can_create_company', 'can_edit_company', 'can_delete_company', 'can_view_user_groups', 'can_view_company', 'can_create_user', 'can_edit_user', 'can_delete_user_groups', 'can_edit_user_groups', 'can_create_user_groups', 'can_view_user', 'can_delete_user']
+        fields = ['id', 'name', 'email', 'password','is_superuser','created_by']
         extra_kwargs = {
             'password': {'write_only': True},
             'id':{'read_only': True},
@@ -113,11 +113,12 @@ class TransactionRightSerializer(serializers.ModelSerializer):
     
 
 class GetUserRightSerializer(serializers.ModelSerializer):
-    user_group_id = UserGroupSerializer()
+    #user_group_id = UserGroupSerializer()
     transaction_id = TransactionRightSerializer()
     class Meta:
         model = user_right
-        fields = '__all__' 
+        # fields = '__all__' 
+        exclude = ('user_group_id', )
         extra_kwargs = {
             'id':{'read_only': True},
             'created_on':{'read_only': True}

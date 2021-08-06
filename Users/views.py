@@ -77,17 +77,7 @@ class VerifyUser(APIView):
                             "user":{
                                 "id":user.id,
                                 "email":user.email,
-                                "can_create_company":user.can_create_company,
-                                "can_edit_company":user.can_edit_company,
-                                "can_delete_company":user.can_delete_company,
-                                "can_create_user":user.can_create_user,
-                                "can_edit_user":user.can_edit_user,
-                                "can_delete_user":user.can_delete_user,
-                                "can_view_user":user.can_view_user,
-                                "can_create_user_groups":user.can_create_user_groups,
-                                "can_edit_user_groups":user.can_edit_user_groups,
-                                "can_delete_user_groups":user.can_delete_user_groups,
-                                "can_view_user_groups":user.can_view_user_groups
+                                "is_superuser":user.is_superuser
                                 }
                             
                             }
@@ -155,17 +145,7 @@ class LoginView(APIView):
                             "user":{
                                 "id":user.id,
                                 "email":user.email,
-                                "can_create_company":user.can_create_company,
-                                "can_edit_company":user.can_edit_company,
-                                "can_delete_company":user.can_delete_company,
-                                "can_create_user":user.can_create_user,
-                                "can_edit_user":user.can_edit_user,
-                                "can_delete_user":user.can_delete_user,
-                                "can_view_user":user.can_view_user,
-                                "can_create_user_groups":user.can_create_user_groups,
-                                "can_edit_user_groups":user.can_edit_user_groups,
-                                "can_delete_user_groups":user.can_delete_user_groups,
-                                "can_view_user_groups":user.can_view_user_groups
+                                "is_superuser":user.is_superuser,
                                 }
                             }
                         }
@@ -189,18 +169,21 @@ class AddUserView(APIView):
         except:
             return payload
         
-        # permission : If user can create another user
-        if user.can_create_user:
+        # permission : If superuser can create another user
+        if user.is_superuser:
 
             serializer = UserSerializer(data=request.data)
-
+          
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
                 "data": user.email
                 })
-
+            
+            # Create Logs Trigger
+            new_user_logs = user_logs(name=request.data['name'], email=request.data['email'], is_superuser=request.data['is_superuser'], entry="before", is_deleted=False, operation="create", altered_by=user.email,)
+            new_user_logs.save()
             serializer.save()
         
             return Response({
@@ -235,7 +218,7 @@ class EditUserView(APIView):
             return payload
 
         # permission : If user can edit another user
-        if user.can_edit_user:
+        if user.is_superuser:
             
             # Fetch user data from the database with a specific id = "id"
             selected_user = User.objects.get(id=id)
@@ -248,7 +231,13 @@ class EditUserView(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+
+            # Create Logs Trigger
+            new_user_logs = user_logs(name=selected_user.name, email=selected_user.email, is_superuser=selected_user.is_superuser, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_user_logs.save()
+            new_user_logs = user_logs(name=request.data['name'], email=request.data['email'], is_superuser=request.data['is_superuser'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_user_logs.save()
+
             serializer.save()
             return Response({
                 'success': True,
@@ -277,11 +266,18 @@ class DeleteUserView(APIView):
             return payload
 
         # permission : if user can delete another user 
-        if user.can_delete_user:
+        if user.is_superuser:
             
             # Fetch details of user with a specific id = "id"
             selected_user = User.objects.get(id=id)
             # Delete fetched user
+            # selected_user.name="isdeleted"
+            
+            # print(selected_user)
+            
+            #selected_user.is_deleted=True
+            new_user_logs = user_logs(name=selected_user.name, email=selected_user.email, is_superuser=selected_user.is_superuser, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            new_user_logs.save()
             selected_user.delete()
 
             return Response({
@@ -311,7 +307,7 @@ class GetUserView(APIView):
             return payload
     
         # permission : If user can view other user
-        if user.can_view_user:
+        if user.is_superuser:
             
             # Fetch user details of all existing users in database
             users = User.objects.all()
@@ -347,7 +343,7 @@ class DetailUserView(APIView):
             return payload
     
         # permission : If user can view another user
-        if user.can_view_user:
+        if user.is_superuser:
 
             # Fetch details of user with a specific id = "id"
             user_details = User.objects.get(id=id)
@@ -383,7 +379,7 @@ class AddUserGroup(APIView):
             return payload
 
         # Permission : If user is allowed to create a user group
-        if user.can_create_user_groups:
+        if user.is_superuser:
 
             serializer = UserGroupSerializer(data=request.data)
 
@@ -396,6 +392,9 @@ class AddUserGroup(APIView):
                 }
                 })
 
+            # Trigger into log table
+            new_user_group_logs = user_group_logs(user_group_name=request.data['user_group_name'], backdated_days=request.data['backdated_days'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_user_group_logs.save()
             serializer.save()
     
             return Response({
@@ -430,7 +429,7 @@ class EditUserGroup(APIView):
             return payload
 
         # Permission : If user is allowed to edit a user group
-        if user.can_edit_user_groups:
+        if user.is_superuser:
             
             # Fetch user group details with a specific is = "id"
             selected_group = user_group.objects.get(id=id)
@@ -441,7 +440,11 @@ class EditUserGroup(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+            
+            new_user_group_logs = user_group_logs(user_group_name=selected_group.user_group_name, backdated_days=selected_group.backdated_days, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_user_group_logs.save()
+            new_user_group_logs = user_group_logs(user_group_name=request.data['user_group_name'], backdated_days=request.data['backdated_days'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_user_group_logs.save()
             serializer.save()
     
             return Response({
@@ -471,10 +474,12 @@ class DeleteUserGroup(APIView):
             return payload
 
         # Permission : If user is allowed to delete a user group
-        if user.can_delete_user_groups:
+        if user.is_superuser:
 
             # Fetch user group with a specific id = "id"
             selected_group = user_group.objects.get(id=id)
+            new_user_group_logs = user_group_logs(user_group_name=selected_group.user_group_name, backdated_days=selected_group.backdated_days, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            new_user_group_logs.save()
             selected_group.delete()
 
             return Response({
@@ -502,7 +507,7 @@ class GetUserGroup(APIView):
             return payload
     
         # perimission type : can view user groups
-        if user.can_view_user_groups:
+        if user.is_superuser:
             # Query : Get all user group data
             user_groups = user_group.objects.all()
             serializer = UserGroupSerializer(user_groups, many=True)
@@ -538,7 +543,7 @@ class AddUserRight(APIView):
             return payload
     
         # Permission type : can create user
-        if user.can_create_user:
+        if user.is_superuser:
             serializer = UserRightSerializer(data=request.data)
 
             # check serializer validation
@@ -550,7 +555,10 @@ class AddUserRight(APIView):
                     "email":user.email
                 }
                 })
-
+            user_group_id = user_group.objects.get(id=request.data['user_group_id'])
+            transaction_id = transaction_right.objects.get(id=request.data['transaction_id'])
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=request.data['can_create'], can_alter=request.data['can_alter'], can_delete=request.data['can_delete'],can_view=request.data['can_view'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_user_right.save()
             serializer.save()
     
             return Response({
@@ -583,7 +591,7 @@ class EditUserRight(APIView):
             return payload
 
         # Permission type : can edit user
-        if user.can_edit_user:
+        if user.is_superuser:
 
             # Query : To fetch user right data by parameter id
             selected_group = user_right.objects.get(id=id)
@@ -594,6 +602,15 @@ class EditUserRight(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
+
+            user_group_id = user_group.objects.get(id=selected_group.user_group_id.id)
+            transaction_id = transaction_right.objects.get(id=selected_group.transaction_id.id)
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=selected_group.can_create, can_alter=selected_group.can_alter, can_delete=selected_group.can_delete,can_view=selected_group.can_view, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_user_right.save()
+            user_group_id = user_group.objects.get(id=request.data['user_group_id'])
+            transaction_id = transaction_right.objects.get(id=request.data['transaction_id'])
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=request.data['can_create'], can_alter=request.data['can_alter'], can_delete=request.data['can_delete'],can_view=request.data['can_view'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_user_right.save()
                     
             serializer.save()
     
@@ -622,10 +639,14 @@ class DeleteUserRight(APIView):
             return payload
         
         # Permission type : can delete company
-        if user.can_delete_company:
+        if user.is_superuser:
             # Fetch data using id to delete user right 
-            user_rights = user_right.objects.get(id=id)
-            user_rights.delete()
+            selected_group = user_right.objects.get(id=id)
+            user_group_id = user_group.objects.get(id=selected_group.user_group_id.id)
+            transaction_id = transaction_right.objects.get(id=selected_group.transaction_id.id)
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=selected_group.can_create, can_alter=selected_group.can_alter, can_delete=selected_group.can_delete,can_view=selected_group.can_view, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            new_user_right.save()
+            selected_group.delete()
             return Response({
                 'success': True,
                 'message': 'User Right deleted Successfully',
@@ -637,11 +658,11 @@ class DeleteUserRight(APIView):
                 })
 
 
-# API For retrieving a user group
+# API For retrieving a user rights
 # request : GET
 # endpoint : get-user-right
 class GetUserRight(APIView):
-    def get(self, request):
+    def get(self, request, id):
 
         # verify token of authorized user
         payload = verify_token(request)
@@ -651,11 +672,11 @@ class GetUserRight(APIView):
             return payload
         
         # permission : can view user
-        if user.can_view_user:
+        if user.is_superuser:
 
             # Fetch all user rights data
-            user_groups = user_right.objects.all()
-            serializer = GetUserRightSerializer(user_groups, many=True)
+            user_group_rights = user_right.objects.filter(user_group_id=id)
+            serializer = GetUserRightSerializer(user_group_rights, many=True)
             return Response({
             'success': True,
             'message':'',

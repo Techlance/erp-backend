@@ -8,24 +8,26 @@ from django.utils import timezone
 class User(AbstractUser):
     name = models.TextField(max_length=200, null=False)
     email = models.EmailField(unique=True, null=False)
-    can_create_company = models.BooleanField(null=False, default=False)
-    can_edit_company = models.BooleanField(null=False, default=False)
-    can_delete_company = models.BooleanField(null=False, default=False)
-    can_view_company = models.BooleanField(null=False, default=False)
-    can_create_user = models.BooleanField(null=False, default=False)
-    can_edit_user = models.BooleanField(null=False, default=False)
-    can_delete_user = models.BooleanField(null=False, default=False)
-    can_view_user = models.BooleanField(null=False, default=False)
-    can_create_user_groups = models.BooleanField(null=False, default=False)
-    can_edit_user_groups = models.BooleanField(null=False, default=False)
-    can_delete_user_groups = models.BooleanField(null=False, default=False)
-    can_view_user_groups = models.BooleanField(null=False, default=False)
     created_by = models.TextField(default="primary",max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    # is_deleted = models.BooleanField(default=False)
     username = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
+    def __str__(self):
+        return self.email
+
+
+class user_logs(models.Model):
+    name = models.TextField(max_length=200, null=False)
+    email = models.EmailField(null=False)
+    is_superuser = models.BooleanField(null=False)
+    altered_by = models.TextField(null=False)
+    altered_on = models.DateTimeField(default=timezone.now())
+    entry = models.TextField(default="before", null=False)
+    is_deleted = models.BooleanField(default=False)
+    operation = models.TextField(null=False)
     def __str__(self):
         return self.email
 
@@ -36,7 +38,20 @@ class user_group(models.Model):
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
     def __str__(self):
-        return self.user_group_name 
+        return self.user_group_name
+
+
+class user_group_logs(models.Model):
+    user_group_name = models.TextField(max_length=200, null=False)
+    backdated_days = models.IntegerField(default=1,null=True)
+    altered_by = models.TextField(null=False)
+    altered_on = models.DateTimeField(default=timezone.now())
+    entry = models.TextField(default="before", null=False)
+    is_deleted = models.BooleanField(default=False)
+    operation = models.TextField(null=False)
+    def __str__(self):
+        return self.user_group_name
+
 
 
 class transaction_right(models.Model):
@@ -45,6 +60,7 @@ class transaction_right(models.Model):
     created_on = models.DateTimeField(default=timezone.now())
     def __str__(self):
         return self.transactions
+
 
 class user_right(models.Model):
     user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.CASCADE)
@@ -57,6 +73,25 @@ class user_right(models.Model):
     created_on = models.DateTimeField(default=timezone.now())
     class Meta:
         unique_together = ('user_group_id', 'transaction_id',)
+
+
+class user_right_logs(models.Model):
+    user_group_id = models.TextField(max_length=500, null=False)
+    transaction_id = models.TextField(max_length=500, null=False)
+    can_create = models.BooleanField(default=False)
+    can_alter = models.BooleanField(default=False)
+    can_delete = models.BooleanField(default=False)
+    can_view = models.BooleanField(default=False)
+    altered_by = models.TextField(null=False)
+    altered_on = models.DateTimeField(default=timezone.now())
+    entry = models.TextField(default="before", null=False)
+    is_deleted = models.BooleanField(default=False)
+    operation = models.TextField(null=False)
+    
+
+
+
+
 
 
 
