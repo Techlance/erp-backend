@@ -210,7 +210,7 @@ class CreateCompanyView(APIView):
                 "message":get_error(serializer.errors),
                 "data": {
                     "email":user.email
-                }
+                } 
                 })
             # Create Logs Trigger
             new_company_logs = company_master_logs(name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=request.data['base_currency'],cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=request.data['logo'],altered_by=user.email,entry="after",is_deleted=False,operation="create")
@@ -430,6 +430,10 @@ class AddCompanyDocument(APIView):
                 }
                 })
 
+            instance_company_master = company_master.objects.get(id=request.data['company_master_id'])
+            new_company_document_logs = company_master_docs_logs(doc_name=request.data['doc_name'], file=request.data['file'], company_master_id=instance_company_master, entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_company_document_logs.save()
+    
             serializer.save()
             return Response({
                 "success":True,
@@ -474,7 +478,13 @@ class EditCompanyDocumentView(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+            
+            instance_company_master = company_master.objects.get(id=request.data['company_master_id'])
+            new_company_document_logs = company_master_docs_logs(doc_name=company_document_instance.doc_name, file=company_document_instance.doc_name, company_master_id=company_document_instance.company_master_id, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_company_document_logs.save()
+            new_company_document_logs = company_master_docs_logs(doc_name=request.data['doc_name'], file=request.data['file'], company_master_id=instance_company_master, entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_company_document_logs.save()
+            
             serializer.save()
             
             return Response({
@@ -506,6 +516,8 @@ class DeleteCompanyDocument(APIView):
         if user.is_superuser:
 
             company_master_documents = company_master_docs.objects.get(id=id)
+            new_company_document_logs = company_master_docs_logs(doc_name=company_master_documents.doc_name, file=company_master_documents.doc_name, company_master_id=company_master_documents.company_master_id, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            new_company_document_logs.save()
             company_master_documents.delete()
             return Response({
                 'success': True,
@@ -616,6 +628,9 @@ class AddCurrency(APIView):
                 }
                 })
 
+            new_curreny_logs = currency_logs(currency=request.data['currency'], currency_name=request.data['currency_name'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_curreny_logs.save()
+            serializer.save()
             serializer.save()
             return Response({
                 "success":True,
@@ -653,7 +668,11 @@ class EditCurrency(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+            
+            new_curreny_logs = currency_logs(currency=currency_instance.currency, currency_name=currency_instance.currency_name, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_curreny_logs.save()
+            new_curreny_logs = currency_logs(currency=request.data['currency'], currency_name=request.data['currency_name'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_curreny_logs.save()
             serializer.save()
             return Response({
                 'success': True,
@@ -677,8 +696,10 @@ class DeleteCurrency(APIView):
             return payload
         # permission : inherited from can edit company
         if user.is_superuser:
-            company_master_documents = currency.objects.get(id=id)
-            company_master_documents.delete()
+            currency_instance = currency.objects.get(id=id)
+            new_curreny_logs = currency_logs(currency=currency_instance.currency, currency_name=currency_instance.currency_name, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            new_curreny_logs.save()
+            currency_instance.delete()
             return Response({
                 'success': True,
                 'message': 'Currency deleted Successfully',
@@ -739,6 +760,13 @@ class AddVoucherType(APIView):
                 "message": get_error(serializer.errors),
                 })
 
+            authorization_instance = user.obeject.get(id=request.data['authorization_id'])
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_voucher_type_logs = voucher_type_logs(voucher_name=request.data['voucher_name'], voucher_class=request.data['voucher_class'], company_master_id=company_master_instance, 
+                authorization_id=authorization_instance, prefix=request.data['prefix'], restart=request.data['restart'], 
+                is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_voucher_type_logs.save()
+            
             serializer.save()
             return Response({
                 "success":True,
@@ -773,7 +801,17 @@ class EditVoucherType(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+            
+            authorization_instance = user.obeject.get(id=request.data['authorization_id'])
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_voucher_type_logs = voucher_type_logs(voucher_name=voucher_type_instance.voucher_name, voucher_class=voucher_type_instance.voucher_class, company_master_id=voucher_type_instance.company_master_id, 
+                authorization_id=voucher_type_instance.authorization_id, prefix=voucher_type_instance.prefix, restart=voucher_type_instance.restart, 
+                is_fixed=voucher_type_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_voucher_type_logs.save()
+            new_voucher_type_logs = voucher_type_logs(voucher_name=request.data['voucher_name'], voucher_class=request.data['voucher_class'], company_master_id=company_master_instance, 
+                authorization_id=authorization_instance, prefix=request.data['prefix'], restart=request.data['restart'], 
+                is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_voucher_type_logs.save()
             serializer.save()
             return Response({
                 'success': True,
@@ -799,8 +837,12 @@ class DeleteVoucherType(APIView):
         user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_delete")
         if user_permission:  
             # Query : fetch voucher type record using id
-            voucher_type_record = voucher_type.objects.get(id=id)
-            voucher_type_record.delete()
+            voucher_type_instance = voucher_type.objects.get(id=id)
+            new_voucher_type_logs = voucher_type_logs(voucher_name=voucher_type_instance.voucher_name, voucher_class=voucher_type_instance.voucher_class, company_master_id=voucher_type_instance.company_master_id, 
+            authorization_id=voucher_type_instance.authorization_id, prefix=voucher_type_instance.prefix, restart=voucher_type_instance.restart, 
+                is_fixed=voucher_type_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_voucher_type_logs.save()
+            voucher_type_instance.delete()
             return Response({
                 'success': True,
                 'message': 'Voucher deleted Successfully',
@@ -870,6 +912,10 @@ class AddAccountHead(APIView):
                 "message": get_error(serializer.errors),
                 })
 
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_account_head_logs = acc_head_logs(acc_head_name=request.data['acc_head_name'], title=request.data['title'], company_master_id=company_master_instance, bs=request.data['bs'], schedule_no=request.data['schedule_no'], is_fixed=request.data['is_fixed'],  entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_account_head_logs.save()
+           
             serializer.save()
             return Response({
                 "success":True,
@@ -914,6 +960,12 @@ class EditAccountHead(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
+            
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_account_head_logs = acc_head_logs(acc_head_name=acc_head_instance.acc_head_name, title=acc_head_instance.title, company_master_id=acc_head_instance.company_master_id, bs=acc_head_instance.bs, schedule_no=acc_head_instance.schedule_no, is_fixed=acc_head_instance.is_fixed,  entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_account_head_logs.save()
+            new_account_head_logs = acc_head_logs(acc_head_name=request.data['acc_head_name'], title=request.data['title'], company_master_id=company_master_instance, bs=request.data['bs'], schedule_no=request.data['schedule_no'], is_fixed=request.data['is_fixed'],  entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_account_head_logs.save()
                     
             serializer.save()
             return Response({
@@ -948,6 +1000,8 @@ class DeleteAccountHead(APIView):
         # check user permission to delete account head 
         user_permission = check_user_company_right("Account Head", acc_head_instance.company_master_id, user.id, "can_delete")
         if user_permission:
+            new_account_head_logs = acc_head_logs(acc_head_name=acc_head_instance.acc_head_name, title=acc_head_instance.title, company_master_id=acc_head_instance.company_master_id, bs=acc_head_instance.bs, schedule_no=acc_head_instance.schedule_no, is_fixed=acc_head_instance.is_fixed,  entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            new_account_head_logs.save()
             acc_head_instance.delete()
             return Response({
                 'success': True,
@@ -1012,7 +1066,8 @@ class AddCostCategory(APIView):
                 "success":False,
                 "message": get_error(serializer.errors),
                 })
-
+            new_cost_category_logs = cost_category_logs(name=request.data['name'], company_master_id=request.data['company_master_id'], altered_by=user.email,  entry="after", is_deleted=False, operation="create")
+            new_cost_category_logs.save()
             serializer.save()
             return Response({
                 "success":True,
@@ -1048,8 +1103,15 @@ class EditCostCategory(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+
+            
+            
+            new_cost_category_logs = cost_category_logs(name=cost_category_instance.name, company_master_id=cost_category_instance.company_master_id, altered_by=user.email,  entry="before", is_deleted=False, operation="edit" )
+            new_cost_category_logs.save()
+            new_cost_category_logs = cost_category_logs(name=request.data['name'], company_master_id=request.data['company_master_id'], altered_by=user.email,  entry="after", is_deleted=False, operation="edit")
+            new_cost_category_logs.save()
             serializer.save()
+
             return Response({
                 'success': True,
                 'message': 'Cost Category Edited successfully'})
@@ -1077,6 +1139,8 @@ class DeleteCostCategory(APIView):
         user_permission = check_user_company_right("Cost Category", cost_category_instance.company_master_id, user.id, "can_delete")
         if user_permission:
             cost_category_instance = cost_category.objects.get(id=id)
+            new_cost_category_logs = cost_category_logs(name=cost_category_instance.name, company_master_id=cost_category_instance.company_master_id, altered_by=user.email,  entry="before", is_deleted=False, operation="delete" )
+            new_cost_category_logs.save()            
             cost_category_instance.delete()
             return Response({
                 'success': True,
@@ -1142,7 +1206,11 @@ class AddAccGroup(APIView):
                 "message": get_error(serializer.errors),
                 })
 
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_acc_group_logs = acc_group_logs(group_name=request.data['group_name'], group_code=request.data['group_code'], company_master_id=company_master_instance, child_of=request.data['child_of'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_acc_group_logs.save()
             serializer.save()
+
             return Response({
                 "success":True,
                 "message":"account group added successfully",
@@ -1181,7 +1249,12 @@ class EditAccGroup(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-                    
+            
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_acc_group_logs = acc_group_logs(group_name=accgroup_instance.group_name, group_code=accgroup_instance.group_code, company_master_id=accgroup_instance.company_master_id, child_of=accgroup_instance.child_of, is_fixed=accgroup_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_acc_group_logs.save()
+            new_acc_group_logs = acc_group_logs(group_name=request.data['group_name'], group_code=request.data['group_code'], company_master_id=company_master_instance, child_of=request.data['child_of'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_acc_group_logs.save()
             serializer.save()
             return Response({
                 'success': True,
@@ -1204,15 +1277,17 @@ class DeleteAccGroup(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        acc_group_record = acc_group.objects.get(id=id)
-        if(acc_group_record.is_fixed):
+        accgroup_instance = acc_group.objects.get(id=id)
+        if(accgroup_instance.is_fixed):
             return Response({
             'success': False,
             'message': 'You cannot delete this field',
             })
-        user_permission = check_user_company_right("Account Group", acc_group_record.company_master_id, user.id, "can_delete")
+        user_permission = check_user_company_right("Account Group", accgroup_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            acc_group_record.delete()
+            new_acc_group_logs = acc_group_logs(group_name=accgroup_instance.group_name, group_code=accgroup_instance.group_code, company_master_id=accgroup_instance.company_master_id, child_of=accgroup_instance.child_of, is_fixed=accgroup_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_acc_group_logs.save()
+            accgroup_instance.delete()
             return Response({
                 'success': True,
                 'message': 'Account group deleted Successfully',
@@ -1286,6 +1361,8 @@ class AddLedgerMaster(APIView):
                 "message": get_error(serializer.errors),
                 })
 
+            new_ledger_master_logs = ledger_master_logs(acc_group_id=request.data['acc_group_id'], ledger_id=request.data['ledger_id'], old_ledger_id=request.data['old_ledger_id'],ledger_name=request.data['ledger_name'], company_master_id=request.data['company_master_id'], maintain_billwise=request.data['maintain_billwise'], address=request.data['address'], tel=request.data['tel'], email=request.data['email'], contact_person=request.data['contact_person'], bank_name=request.data['bank_name'], branch_name=request.data['branch_name'], bank_code=request.data['bank_code'], bank_ac_no=request.data['bank_ac_no'], credit_limit=request.data['credit_limit'], credit_days=request.data['credit_days'], credit_rating=request.data['credit_rating'], block_ac=request.data['block_ac'], tax_reg_no=request.data['tax_reg_no'], cr_no=request.data['cr_no'], cr_exp_date=request.data['cr_exp_date'], id_no=request.data['id_no'], id_exp_date=request.data['id_exp_date'], cc_no=request.data['cc_no'], cc_exp_date=request.data['cc_exp_date'], vat_no=request.data['vat_no'], delivery_terms=request.data['delivery_terms'], payment_terms=request.data['payment_terms'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_ledger_master_logs.save()
             serializer.save()
             return Response({
                 "success":True,
@@ -1353,6 +1430,12 @@ class EditLedgerMaster(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
+
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_ledger_master_logs = ledger_master_logs(acc_group_id=ledger_master_instance.acc_group_id, ledger_id=ledger_master_instance.ledger_id, old_ledger_id=ledger_master_instance.old_ledger_id,ledger_name=ledger_master_instance.ledger_name, company_master_id=ledger_master_instance.company_master_id, maintain_billwise=ledger_master_instance.maintain_billwise, address=ledger_master_instance.address, tel=ledger_master_instance.tel, email=ledger_master_instance.email, contact_person=ledger_master_instance.contact_person, bank_name=ledger_master_instance.bank_name, branch_name=ledger_master_instance.branch_name, bank_code=ledger_master_instance.bank_code, bank_ac_no=ledger_master_instance.bank_ac_no, credit_limit=ledger_master_instance.credit_limit, credit_days=ledger_master_instance.credit_days, credit_rating=ledger_master_instance.credit_rating, block_ac=ledger_master_instance.block_ac, tax_reg_no=ledger_master_instance.tax_reg_no, cr_no=ledger_master_instance.cr_no, cr_exp_date=ledger_master_instance.cr_exp_date, id_no=ledger_master_instance.id_no, id_exp_date=ledger_master_instance.ip_exp_date, cc_no=ledger_master_instance.cc_no, cc_exp_date=ledger_master_instance.cc_exp_date, vat_no=ledger_master_instance.vat_no, delivery_terms=ledger_master_instance.delivery_terms, payment_terms=ledger_master_instance.payment_terms, is_fixed=ledger_master_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_ledger_master_logs.save()
+            new_ledger_master_logs = ledger_master_logs(acc_group_id=request.data['acc_group_id'], ledger_id=request.data['ledger_id'], old_ledger_id=request.data['old_ledger_id'],ledger_name=request.data['ledger_name'], company_master_id=company_master_instance, maintain_billwise=request.data['maintain_billwise'], address=request.data['address'], tel=request.data['tel'], email=request.data['email'], contact_person=request.data['contact_person'], bank_name=request.data['bank_name'], branch_name=request.data['branch_name'], bank_code=request.data['bank_code'], bank_ac_no=request.data['bank_ac_no'], credit_limit=request.data['credit_limit'], credit_days=request.data['credit_days'], credit_rating=request.data['credit_rating'], block_ac=request.data['block_ac'], tax_reg_no=request.data['tax_reg_no'], cr_no=request.data['cr_no'], cr_exp_date=request.data['cr_exp_date'], id_no=request.data['id_no'], id_exp_date=request.data['id_exp_date'], cc_no=request.data['cc_no'], cc_exp_date=request.data['cc_exp_date'], vat_no=request.data['vat_no'], delivery_terms=request.data['delivery_terms'], payment_terms=request.data['payment_terms'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_ledger_master_logs.save()
                     
             serializer.save()
             return Response({
@@ -1364,6 +1447,7 @@ class EditLedgerMaster(APIView):
                 'message': 'You are not allowed to edit this field',
                 }) 
 
+
 # API For deleting Ledger Master
 # request : DELETE
 # endpoint : delete-ledger-master/id(ledger master required)
@@ -1374,15 +1458,17 @@ class DeleteLedgerMaster(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        ledger_master_record = ledger_master.objects.get(id=id)
-        if(ledger_master_record.is_fixed):
+        ledger_master_instance = ledger_master.objects.get(id=id)
+        if(ledger_master_instance.is_fixed):
             return Response({
             'success': False,
             'message': 'You cannot delete this field',
             })
-        user_permission = check_user_company_right("Ledger Master", ledger_master_record.company_master_id, user.id, "can_delete")
+        user_permission = check_user_company_right("Ledger Master", ledger_master_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            ledger_master_record.delete()
+            new_ledger_master_logs = ledger_master_logs(acc_group_id=ledger_master_instance.acc_group_id, ledger_id=ledger_master_instance.ledger_id, old_ledger_id=ledger_master_instance.old_ledger_id,ledger_name=ledger_master_instance.ledger_name, company_master_id=ledger_master_instance.company_master_id, maintain_billwise=ledger_master_instance.maintain_billwise, address=ledger_master_instance.address, tel=ledger_master_instance.tel, email=ledger_master_instance.email, contact_person=ledger_master_instance.contact_person, bank_name=ledger_master_instance.bank_name, branch_name=ledger_master_instance.branch_name, bank_code=ledger_master_instance.bank_code, bank_ac_no=ledger_master_instance.bank_ac_no, credit_limit=ledger_master_instance.credit_limit, credit_days=ledger_master_instance.credit_days, credit_rating=ledger_master_instance.credit_rating, block_ac=ledger_master_instance.block_ac, tax_reg_no=ledger_master_instance.tax_reg_no, cr_no=ledger_master_instance.cr_no, cr_exp_date=ledger_master_instance.cr_exp_date, id_no=ledger_master_instance.id_no, id_exp_date=ledger_master_instance.ip_exp_date, cc_no=ledger_master_instance.cc_no, cc_exp_date=ledger_master_instance.cc_exp_date, vat_no=ledger_master_instance.vat_no, delivery_terms=ledger_master_instance.delivery_terms, payment_terms=ledger_master_instance.payment_terms, is_fixed=ledger_master_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_ledger_master_logs.save()
+            ledger_master_instance.delete()
             return Response({
                 'success': True,
                 'message': 'Ledger master deleted Successfully',
@@ -1418,6 +1504,9 @@ class AddCostCenter(APIView):
                 "success":False,
                 "message": get_error(serializer.errors),
                 })
+            
+            new_cost_center_logs = cost_center_logs(cost_center_name=request.data['cost_center_name'], cost_category_id=request.data['cost_category_id'], child_of=request.data['child_of'], company_master_id=request.data['company_master_id'], altered_by=user.email, entry="after", is_deleted=False, operation="create")
+            new_cost_center_logs.save()
 
             serializer.save()
             return Response({
@@ -1454,6 +1543,11 @@ class EditCostCenter(APIView):
                     'message': get_error(serializer.errors),
                     })
                     
+            new_cost_center_logs = cost_center_logs(cost_center_name=cost_center_instance.cost_center_name, cost_category_id=cost_center_instance.cost_category_id, child_of=cost_center_instance.child_of, company_master_id=cost_center_instance.company_master_id, altered_by=user.email, entry="before", is_deleted=False, operation="edit")
+            new_cost_center_logs.save()
+            new_cost_center_logs = cost_center_logs(cost_center_name=request.data['cost_center_name'], cost_category_id=request.data['cost_category_id'], child_of=request.data['child_of'], company_master_id=request.data['company_master_id'], altered_by=user.email, entry="after", is_deleted=False, operation="edit")
+            new_cost_center_logs.save()
+
             serializer.save()
             return Response({
                 'success': True,
@@ -1476,10 +1570,14 @@ class DeleteCostCenter(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        cost_center_record = cost_center.objects.get(id=id)
-        user_permission = check_user_company_right("Cost center", cost_center_record.company_master_id, user.id, "can_delete")
+        cost_center_instance = cost_center.objects.get(id=id)
+        user_permission = check_user_company_right("Cost center", cost_center_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            cost_center_record.delete()
+
+            new_cost_center_logs = cost_center_logs(cost_center_name=cost_center_instance.cost_center_name, cost_category_id=cost_center_instance.cost_category_id, child_of=cost_center_instance.child_of, company_master_id=cost_center_instance.company_master_id, altered_by=user.email, entry="before", is_deleted=True, operation="delete")
+            new_cost_center_logs.save()
+
+            cost_center_instance.delete()
             return Response({
                 'success': True,
                 'message': 'Cost Center deleted Successfully',

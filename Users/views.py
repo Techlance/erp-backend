@@ -557,7 +557,7 @@ class AddUserRight(APIView):
                 })
             user_group_id = user_group.objects.get(id=request.data['user_group_id'])
             transaction_id = transaction_right.objects.get(id=request.data['transaction_id'])
-            new_user_right = user_right_logs(user_group_id=user_group_id, transaction_id=transaction_id, can_create=request.data['can_create'], can_alter=request.data['can_alter'], can_delete=request.data['can_delete'],can_view=request.data['can_view'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=request.data['can_create'], can_alter=request.data['can_alter'], can_delete=request.data['can_delete'],can_view=request.data['can_view'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
             new_user_right.save()
             serializer.save()
     
@@ -603,12 +603,13 @@ class EditUserRight(APIView):
                     'message': get_error(serializer.errors),
                     })
 
-
-            new_user_right = user_right_logs(user_group_id=selected_group.user_group_id, transaction_id=selected_group.transaction_id, can_create=selected_group.can_create, can_alter=selected_group.can_alter, can_delete=selected_group.can_delete,can_view=selected_group.can_view, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
+            user_group_id = user_group.objects.get(id=selected_group.user_group_id.id)
+            transaction_id = transaction_right.objects.get(id=selected_group.transaction_id.id)
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=selected_group.can_create, can_alter=selected_group.can_alter, can_delete=selected_group.can_delete,can_view=selected_group.can_view, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
             new_user_right.save()
             user_group_id = user_group.objects.get(id=request.data['user_group_id'])
             transaction_id = transaction_right.objects.get(id=request.data['transaction_id'])
-            new_user_right = user_right_logs(user_group_id=user_group_id, transaction_id=transaction_id, can_create=request.data['can_create'], can_alter=request.data['can_alter'], can_delete=request.data['can_delete'],can_view=request.data['can_view'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=request.data['can_create'], can_alter=request.data['can_alter'], can_delete=request.data['can_delete'],can_view=request.data['can_view'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
             new_user_right.save()
                     
             serializer.save()
@@ -641,7 +642,9 @@ class DeleteUserRight(APIView):
         if user.is_superuser:
             # Fetch data using id to delete user right 
             selected_group = user_right.objects.get(id=id)
-            new_user_right = user_right_logs(user_group_id=selected_group.user_group_id, transaction_id=selected_group.transaction_id, can_create=selected_group.can_create, can_alter=selected_group.can_alter, can_delete=selected_group.can_delete,can_view=selected_group.can_view, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            user_group_id = user_group.objects.get(id=selected_group.user_group_id.id)
+            transaction_id = transaction_right.objects.get(id=selected_group.transaction_id.id)
+            new_user_right = user_right_logs(user_group_id=user_group_id.user_group_name, transaction_id=transaction_id.transactions, can_create=selected_group.can_create, can_alter=selected_group.can_alter, can_delete=selected_group.can_delete,can_view=selected_group.can_view, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
             new_user_right.save()
             selected_group.delete()
             return Response({

@@ -54,7 +54,7 @@ class company_master_logs(models.Model):
     email = models.EmailField(null=True)
     website = models.TextField(max_length=1000, null=True)
     contact_no = models.TextField(max_length=20, null=True)
-    base_currency = models.ForeignKey(to=currency, null=False)
+    base_currency = models.TextField(max_length=500, null=False)
     cr_no = models.TextField(max_length=500, null=True)
     registration_no = models.TextField(max_length=500, null=True)
     tax_id_no = models.TextField(max_length=500, null=True)
@@ -81,9 +81,9 @@ class user_company(models.Model):
         unique_together = ('user', 'company_master_id',)
     
 class user_company_logs(models.Model):
-    user = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
-    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.Case)
-    company_master_id = models.ForeignKey(to=company_master, null=False)
+    user = models.TextField(max_length=500, null=False)
+    user_group_id = models.TextField(max_length=500, null=False)
+    company_master_id =models.TextField(max_length=500, null=False)
     altered_by = models.TextField(null=False)
     altered_on = models.DateTimeField(default=timezone.now())
     entry = models.TextField(default="before", null=False)
@@ -103,7 +103,7 @@ class company_master_docs(models.Model):
 class company_master_docs_logs(models.Model):
     doc_name = models.TextField(max_length=500, null=False)
     file = models.FileField(upload_to="files", null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False)
+    company_master_id = models.TextField(max_length=500, null=False)
     altered_by = models.TextField(null=False)
     altered_on = models.DateTimeField(default=timezone.now())
     entry = models.TextField(default="before", null=False)
@@ -124,11 +124,11 @@ class year_master(models.Model):
     def __str__(self):
         return self.year_no
 
-class year_master(models.Model):
+class year_master_logs(models.Model):
     year_no = models.IntegerField(null=False, default=0)
     start_date = models.DateField(null=False)
     end_date = models.DateField(null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False)
+    company_master_id = models.TextField(max_length=500, null=False)
     status = models.BooleanField(default=True, null=False)
     locked = models.BooleanField(default=True, null=False)
     altered_by = models.TextField(null=False)
@@ -159,8 +159,8 @@ class voucher_type(models.Model):
 class voucher_type_logs(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
     voucher_class = models.TextField(max_length=500, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False)
-    authorization_id = models.ForeignKey(to=User, null=True)
+    company_master_id = models.TextField(max_length=500, null=False)
+    authorization_id = models.TextField(max_length=500, null=False)
     auto_numbering = models.BooleanField(default=False)
     prefix = models.TextField(max_length=200, null=True)
     restart = models.TextField(max_length=50, null=True)
@@ -191,7 +191,7 @@ class acc_head(models.Model):
 class acc_head_logs(models.Model):
     acc_head_name = models.TextField(max_length=200, null=False)
     title = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.TextField(max_length=500, null=False)
     bs = models.BooleanField(default=True, null=False)
     schedule_no = models.IntegerField(null=False)
     is_fixed = models.BooleanField(default=True)
@@ -222,9 +222,9 @@ class acc_group(models.Model):
 
 class acc_group_logs(models.Model):
     group_name = models.TextField(max_length=1000, null=False)
-    acc_head_id = models.ForeignKey(to=acc_head, null=False)
+    acc_head_id = models.TextField(max_length=500, null=False)
     group_code = models.TextField(max_length=4, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False)
+    company_master_id = models.TextField(max_length=500, null=False)
     child_of = models.TextField(max_length=1000, null=True)
     is_fixed = models.BooleanField(default=True, null=False)
     altered_by = models.TextField(null=False)
@@ -272,11 +272,11 @@ class ledger_master(models.Model):
 
 
 class ledger_master_logs(models.Model):
-    acc_group_id = models.ForeignKey(to=acc_group, null=False)
+    acc_group_id = models.TextField(max_length=500, null=False)
     ledger_id = models.TextField(max_length=200, null=False)
     old_ledger_id = models.TextField(max_length=200, null=True)
     ledger_name = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False)
+    company_master_id = models.TextField(max_length=500, null=False)
     maintain_billwise = models.BooleanField(default=True, null=False)
     address = models.TextField(max_length=1000, null=True)
     tel = models.TextField(max_length=15, null=True)
@@ -318,7 +318,7 @@ class cost_category(models.Model):
 
 class cost_category_logs(models.Model):
     name = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False)
+    company_master_id = models.TextField(max_length=500, null=False)
     altered_by = models.TextField(null=False)
     altered_on = models.DateTimeField(default=timezone.now())
     entry = models.TextField(default="before", null=False)
@@ -343,9 +343,9 @@ class cost_center(models.Model):
 
 class cost_center_logs(models.Model):
     cost_center_name = models.TextField(max_length=500, null=False)
-    cost_category_id = models.ForeignKey(to=cost_category, null=False)
+    cost_category_id = models.TextField(max_length=500, null=False)
     child_of = models.TextField(max_length=500, default="primary")
-    company_master_id = models.ForeignKey(to=company_master, null=False)
+    company_master_id = models.TextField(max_length=500, null=False)
     altered_by = models.TextField(null=False)
     altered_on = models.DateTimeField(default=timezone.now())
     entry = models.TextField(default="before", null=False)
