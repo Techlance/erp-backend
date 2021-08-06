@@ -160,7 +160,6 @@ class AccountHeadSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'id':{'read_only': True},
             'created_on':{'read_only': True},
-            'schedule_no':{'read_only': True},
         }
 
          

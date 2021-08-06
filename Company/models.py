@@ -15,8 +15,8 @@ class currency(models.Model):
         return self.currency
 
 class currency_logs(models.Model):
-    currency = models.TextField(max_length=50, null=False, unique=True)
-    currency_name = models.TextField(max_length=100, null=False, unique=True)
+    currency = models.TextField(max_length=50, null=False)
+    currency_name = models.TextField(max_length=100, null=False)
     altered_by = models.TextField(null=False)
     altered_on = models.DateTimeField(default=timezone.now())
     entry = models.TextField(default="before", null=False)
@@ -47,7 +47,7 @@ class company_master(models.Model):
         return self.company_name
 
 class company_master_logs(models.Model):
-    company_name = models.TextField(max_length=200, unique=True, null=False)
+    company_name = models.TextField(max_length=200, null=False)
     address = models.TextField(max_length=1000, null=False)
     country = models.TextField(max_length=100, null=False)
     state =  models.TextField(max_length=100, null=False)
@@ -102,7 +102,7 @@ class company_master_docs(models.Model):
 
 class company_master_docs_logs(models.Model):
     doc_name = models.TextField(max_length=500, null=False)
-    file = models.FileField(upload_to="files", null=False)
+    file = models.FileField(upload_to="files_logs", null=False)
     company_master_id = models.TextField(max_length=500, null=False)
     altered_by = models.TextField(null=False)
     altered_on = models.DateTimeField(default=timezone.now())
