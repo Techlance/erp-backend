@@ -205,6 +205,7 @@ class CreateCompanyView(APIView):
             return payload
         # check user permission
         if user.is_superuser:
+            print(request.data)
             serializer = CompanySerializer(data = request.data)
             if not serializer.is_valid():
                 return Response({
@@ -305,13 +306,13 @@ class EditCompanyView(APIView):
         except:
             return payload
         # permission : user can edit company
+        print("debug")
         if user.is_superuser:
             # Query : Find company instance to be edited
             company_instance = company_master.objects.get(id=id)
             temp = request.data
             context = temp.dict()
             logo_file = context['logo']
-            # context = context.json()
             if "https://" in logo_file:
                 print(company_instance.logo)
                 context["logo"] = company_instance.logo

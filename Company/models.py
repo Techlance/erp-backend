@@ -40,11 +40,12 @@ class company_master(models.Model):
     vat_id_no = models.TextField(max_length=500, null=True)
     year_start_date = models.DateField(null=False)
     year_end_date = models.DateField(null=False)
-    logo = models.ImageField(upload_to="logo", null=True)
+    logo = models.FileField(upload_to="logo", null=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
     def __str__(self):
         return self.company_name
+
 
 class company_master_logs(models.Model):
     company_name = models.TextField(max_length=200, null=False)

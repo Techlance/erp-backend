@@ -89,6 +89,9 @@ def check_user_company_right(transaction_rights, user_company_id, user_id, need_
         return check_user_right.can_view
 
 
+# API For Adding LC
+# request : POST
+# endpoint : add-lc/<int:id>
 class AddLC(APIView):
     def post(self, request):
         payload = verify_token(request)
@@ -96,38 +99,41 @@ class AddLC(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
+        
         # permission
-        serializer = LCSerializer(data = request.data)
-        if not serializer.is_valid():
-            return Response({
-            "success":False,
-            "message": get_error(serializer.errors),
-            "data": {
-                "email":user.email
-            }
-            })
+        user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            serializer = LCSerializer(data = request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                "data": {
+                    "email":user.email
+                }
+                })
 
-        company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-        new_lc_logs = lc_logs(trans_type=request.data['trans_type'], lc_date=request.data['lc_date'], year_id=request.data['year_id'], party_code=request.data['party_code'], cost_center=request.data['cost_center'], applicant_bank=request.data['applicant_bank'],
-        benificiary_bank=request.data['benificiary_bank'], benificiary_bank_lc_no=request.data['benificiary_bank_lc_no'], applicant_bank_lc_no=request.data['applicant_bank_lc_no'], inspection=request.data['inspection'], bank_ref=request.data['bank_ref'], days_for_submit_to_bank=request.data['days_for_submit_to_bank'], payment_terms=request.data['payment_terms'],
-        place_of_taking_incharge=request.data['place_of_taking_incharge'], final_destination_of_delivery=request.data['final_destination_of_delivery'], completed=request.data['completed'], shipment_terms=request.data['shipment_terms'], goods_description=request.data['goods_description'], other_lc_terms=request.data['other_lc_terms'], 
-        bank_ac=request.data['bank_ac'], expiry_date=request.data['expiry_date'], lc_amount=request.data['lc_amount'], company_master_id=company_master_instance, entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-        new_lc_logs.save()
-        serializer.save()
-    
-        return Response({
-            "success":True,
-            "message":"LC added successfully",
-            "data":serializer.data
+            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+            new_lc_logs = lc_logs(trans_type=request.data['trans_type'], lc_date=request.data['lc_date'], year_id=request.data['year_id'], party_code=request.data['party_code'], cost_center=request.data['cost_center'], applicant_bank=request.data['applicant_bank'],
+            benificiary_bank=request.data['benificiary_bank'], benificiary_bank_lc_no=request.data['benificiary_bank_lc_no'], applicant_bank_lc_no=request.data['applicant_bank_lc_no'], inspection=request.data['inspection'], bank_ref=request.data['bank_ref'], days_for_submit_to_bank=request.data['days_for_submit_to_bank'], payment_terms=request.data['payment_terms'],
+            place_of_taking_incharge=request.data['place_of_taking_incharge'], final_destination_of_delivery=request.data['final_destination_of_delivery'], completed=request.data['completed'], shipment_terms=request.data['shipment_terms'], goods_description=request.data['goods_description'], other_lc_terms=request.data['other_lc_terms'], 
+            bank_ac=request.data['bank_ac'], expiry_date=request.data['expiry_date'], lc_amount=request.data['lc_amount'], company_master_id=company_master_instance, entry="after", is_deleted=False, operation="create", altered_by=user.email,)
+            new_lc_logs.save()
+            serializer.save()
+
+            return Response({
+                "success":True,
+                "message":"LC added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to Add LC",
+                "data":{
+                    "email":user.email
+                }
             })
-        # else:
-        #     return Response({
-        #         "success":False,
-        #         "message":"Not authorized to Add currency",
-        #         "data":{
-        #             "email":user.email
-        #         }
-        #     })
 
 # API For editing currency
 # request : PUT
@@ -301,8 +307,6 @@ class DeleteLcDoc(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-
-
 
         lc_document = lc_docs.objects.get(id=id)
         lc_instance = lc.objects.get(id=lc_document.lc_id.id)
