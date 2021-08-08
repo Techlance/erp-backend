@@ -76,7 +76,7 @@ class CompanyDocumentSerializer(serializers.ModelSerializer):
 
 
 class GetCompanyDocumentSerializer(serializers.ModelSerializer):
-    company_master_id = GetCompanySerializer()  
+    
     class Meta:
         model = company_master_docs
         fields = '__all__'
