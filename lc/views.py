@@ -201,7 +201,7 @@ class DeleteLC(APIView):
             new_lc_logs = lc_logs(trans_type=lc_instance.trans_type, lc_date=lc_instance.lc_date, year_id=lc_instance.year_id, party_code=lc_instance.party_code, cost_center=lc_instance.cost_center, applicant_bank=lc_instance.applicant_bank,
             benificiary_bank=lc_instance.benificiary_bank, benificiary_bank_lc_no=lc_instance.benificiary_bank_lc_no, applicant_bank_lc_no=lc_instance.applicant_bank_lc_no, inspection=lc_instance.inspection, bank_ref=lc_instance.bank_ref, days_for_submit_to_bank=lc_instance.days_for_submit_to_bank, payment_terms=lc_instance.payment_terms,
             place_of_taking_incharge=lc_instance.place_of_taking_incharge, final_destination_of_delivery=lc_instance.final_destination_of_delivery, completed=lc_instance.completed, shipment_terms=lc_instance.shipment_terms, goods_description=lc_instance.goods_description, other_lc_terms=lc_instance.other_lc_terms, 
-            bank_ac=lc_instance.bank_ac, expiry_date=lc_instance.expiry_date, lc_amount=lc_instance.lc_amount, company_master_id=lc_instance.company_master_id.company_name, entry="before", is_deleted=Tru, operation="delete", altered_by=user.email,)
+            bank_ac=lc_instance.bank_ac, expiry_date=lc_instance.expiry_date, lc_amount=lc_instance.lc_amount, company_master_id=lc_instance.company_master_id.company_name, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
             new_lc_logs.save()
             lc_instance.delete()
             return Response({
