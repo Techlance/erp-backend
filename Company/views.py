@@ -416,6 +416,160 @@ class DetailCompanyView(APIView):
                 'data': []
             })
 
+############################################################################################################################
+################################################## USER COMAPANY (CRUD) #################################################
+############################################################################################################################
+
+# API For adding user company
+# request : POST
+# endpoint : create-user-company
+class CreateUserCompany(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # check user permission
+        if user.is_superuser:
+            # print(request.data)
+            
+            serializer = UserCompanySerializer(data = request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message":get_error(serializer.errors),
+                "data": {
+                    "email":user.email
+                } 
+                })
+            
+            company_name = company_master.objects.get(id=request.data['company_master_id']).company_name
+            serializer.save()
+            
+            
+            return Response({
+                "success":True,
+                "message":"User has been added to "+company_name+" successfully",
+                "data": serializer.data
+                })
+        else:
+            return Response({
+            "success":False,
+            "message":"Not Allowed to add user",
+            "data": {
+                    "email":user.email
+                }
+            })
+
+
+# API For editing user company
+# request : PUT
+# endpoint : edit-user-company/id
+class EditUserCompany(APIView):
+    def put(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # check user permission
+        if user.is_superuser:
+            # print(request.data)
+            user_company_instance = user_company.objects.get(id=id)
+            serializer = UserCompanySerializer(user_company_instance, data = request.data)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message":get_error(serializer.errors),
+                "data": {
+                    "email":user.email
+                } 
+                })
+            
+            serializer.save()
+            
+            return Response({
+                "success":True,
+                "message":"User has been edited successfully",
+                "data": serializer.data
+                })
+        else:
+            return Response({
+            "success":False,
+            "message":"Not Allowed to edit user",
+            "data": {
+                    "email":user.email
+                }
+            })
+
+# API For getting user company and user group in which user is included
+# request : GET
+# endpoint : get-user-company-group/userid
+class GetUserCompany(APIView):
+    def get(self, request, id):
+        # verify token for authorization
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        if user.is_superuser:
+            user_company_query = user_company.objects.filter(user=id)
+            serializer = UserCompanySerializer(user_company_query, many=True)
+            return Response({
+                    "success":True,
+                    "message":"",
+                    "data": serializer.data
+                
+                })
+        else:
+            return Response({
+            "success":False,
+            "message":"Not Allowed to view user company",
+            "data": {
+                    "email":user.email
+                }
+            })
+        
+
+
+# API For deleting user company
+# request : DELETE
+# endpoint : delete-user-company/<int:id> 
+class DeleteUserCompany(APIView):  
+    def delete(self, request, id):
+        # verify token for authorization
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        # permission : if user can delete company then user can delete company document (Inherited permission)
+        if user.is_superuser:
+
+            user_company_instance = user_company.objects.get(id=id)
+            # company_master_instance = company_master.objects.get(id=company_master_documents.company_master_id.id)
+            # new_company_document_logs = company_master_docs_logs(doc_name=company_master_documents.doc_name, file=company_master_documents.doc_name, company_master_id=company_master_instance.company_name, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
+            # new_company_document_logs.save()
+            # company_name = company_master.objects.get(id=user_company_instance.company_master_id).company_name
+            company_name = user_company_instance.company_master_id.company_name
+            user_company_instance.delete()
+            return Response({
+                'success': True,
+                'message': "User from company " + company_name + " has been removed",
+                })
+
+        else:
+            
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Delete User Company',
+                })
+    
+
+
 
 ############################################################################################################################
 ################################################## COMPANY DOCUMENT (CRUD) #################################################

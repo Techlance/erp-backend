@@ -62,5 +62,11 @@ urlpatterns = [
     path('delete-cost-center/<int:id>', DeleteCostCenter.as_view()), # id : delete cost center id
     path('get-cost-center/<int:id>', GetCostCenter.as_view()), # id : company master id
 
-    path('download-company-document/<int:id>', DownloadClientDocument.as_view()) #id : documentcompan id
+    path('download-company-document/<int:id>', DownloadClientDocument.as_view()), #id : documentcompan id
+
+    path('add-user-company', CreateUserCompany.as_view()),
+    path('edit-user-company/<int:id>', EditUserCompany.as_view()), # id : user company id
+    path('delete-user-company/<int:id>', DeleteUserCompany.as_view()), # id : user company id
+    path('get-user-company-group/<int:id>', GetUserCompany.as_view()), # id : user id
+    
 ]

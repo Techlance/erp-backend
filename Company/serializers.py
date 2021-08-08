@@ -3,7 +3,7 @@ from Users.models import transaction_right
 from django.db import models
 from django.db.models import fields
 from rest_framework import serializers
-from .models import company_master, company_master_docs, cost_center, currency, ledger_master,voucher_type, acc_group, acc_head, cost_category
+from .models import company_master, company_master_docs, cost_center, currency, ledger_master,voucher_type, acc_group, acc_head, cost_category,user_company
 from Users.serializers import UserSerializer,UsernamesSerializer
 
 
@@ -84,6 +84,25 @@ class GetCompanyDocumentSerializer(serializers.ModelSerializer):
             'id':{'read_only': True},
             'created_on':{'read_only': True}
         }
+
+class UserCompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = user_company
+        fields = '__all__'
+        extra_kwargs = {
+            'id':{'read_only': True},
+            'created_on':{'read_only': True}
+        }
+    def create(self, validated_data): 
+        instance = self.Meta.model(**validated_data)
+        instance.save()
+        return instance
+    
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 
 class CurrencySerializer(serializers.ModelSerializer):
