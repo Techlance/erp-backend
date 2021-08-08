@@ -306,7 +306,6 @@ class EditCompanyView(APIView):
         except:
             return payload
         # permission : user can edit company
-        print("debug")
         if user.is_superuser:
             # Query : Find company instance to be edited
             company_instance = company_master.objects.get(id=id)
@@ -314,7 +313,6 @@ class EditCompanyView(APIView):
             context = temp.dict()
             logo_file = context['logo']
             if "https://" in logo_file:
-                print(company_instance.logo)
                 context["logo"] = company_instance.logo
             
             serializer = CompanySerializer(company_instance, data=context)
