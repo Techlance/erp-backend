@@ -516,7 +516,7 @@ class GetUserCompany(APIView):
             return payload
         if user.is_superuser:
             user_company_query = user_company.objects.filter(user=id)
-            serializer = UserCompanySerializer(user_company_query, many=True)
+            serializer = GetUserCompanySerializer(user_company_query, many=True)
             return Response({
                     "success":True,
                     "message":"",

@@ -86,7 +86,6 @@ class GetCompanyDocumentSerializer(serializers.ModelSerializer):
         }
 
 class UserCompanySerializer(serializers.ModelSerializer):
-    company_master_id = GetCompanySerializer()
     class Meta:
         model = user_company
         fields = '__all__'
@@ -105,6 +104,15 @@ class UserCompanySerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class GetUserCompanySerializer(serializers.ModelSerializer):
+    company_master_id = GetCompanySerializer()
+    class Meta:
+        model = user_company
+        fields = '__all__'
+        extra_kwargs = {
+            'id':{'read_only': True},
+            'created_on':{'read_only': True}
+        }
 
 class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
