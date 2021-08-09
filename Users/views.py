@@ -184,7 +184,7 @@ class AddUserView(APIView):
             # Create Logs Trigger
             # new_user_logs = user_logs(name=request.data['name'], email=request.data['email'], is_superuser=request.data['is_superuser'], entry="before", is_deleted=False, operation="create", altered_by=user.email,)
             # new_user_logs.save()
-            # serializer.save()
+            serializer.save()
         
             return Response({
                 "success":True,
