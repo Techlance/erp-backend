@@ -92,17 +92,27 @@ WSGI_APPLICATION = 'erp_backend.wsgi.application'
 # }
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'd1uqdeqisgqj3a',
+#         'USER': 'knypazjdjppoai',
+#         'PASSWORD': '876199f969bad405f5bea8dc58fcd4ff7e81fef2caf66aa8dd8644cfc35e9cc2',
+#         'HOST': 'ec2-52-72-125-94.compute-1.amazonaws.com',
+#         'PORT': 5432
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd1uqdeqisgqj3a',
-        'USER': 'knypazjdjppoai',
-        'PASSWORD': '876199f969bad405f5bea8dc58fcd4ff7e81fef2caf66aa8dd8644cfc35e9cc2',
-        'HOST': 'ec2-52-72-125-94.compute-1.amazonaws.com',
+        'NAME': 'de1qadpdk2bfdr',
+        'USER': 'zcemxyrbyzmwqs',
+        'PASSWORD': '8b15f896b9e4330572dd1b4e0967c1e83927d87f95e592f402ffb9c5de31ab86',
+        'HOST': 'ec2-23-21-229-200.compute-1.amazonaws.com',
         'PORT': 5432
     }
 }
-
 import dj_database_url 
 prod_db  =  dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(prod_db)
