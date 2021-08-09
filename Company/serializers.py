@@ -4,7 +4,7 @@ from django.db import models
 from django.db.models import fields
 from rest_framework import serializers
 from .models import company_master, company_master_docs, cost_center, currency, ledger_master,voucher_type, acc_group, acc_head, cost_category,user_company
-from Users.serializers import UserSerializer,UsernamesSerializer
+from Users.serializers import UserSerializer,UsernamesSerializer, UserGroupSerializer
 
 
 # superAdmin serializer for saving, editing admin/superadmin
@@ -106,6 +106,7 @@ class UserCompanySerializer(serializers.ModelSerializer):
 
 class GetUserCompanySerializer(serializers.ModelSerializer):
     company_master_id = GetCompanySerializer()
+    user_group_id = UserGroupSerializer()
     class Meta:
         model = user_company
         fields = '__all__'
