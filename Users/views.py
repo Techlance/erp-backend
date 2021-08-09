@@ -362,14 +362,12 @@ class DetailUserView(APIView):
                 'data': []
             })
 
-
 # API For creating a user group
 # request : POST  
 # Endpoint : add-user-group
 class AddUserGroup(APIView):
     
-
-     def post(self, request):
+    def post(self, request):
     
         payload = verify_token(request)
     
@@ -395,7 +393,15 @@ class AddUserGroup(APIView):
             # Trigger into log table
             new_user_group_logs = user_group_logs(user_group_name=request.data['user_group_name'], backdated_days=request.data['backdated_days'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
             new_user_group_logs.save()
+            
             serializer.save()
+
+            #! Trigger data to user_rights
+            user_group_instance = user_group.objects.latest('id')
+            all_transactions = transaction_right.objects.all()
+            for instance in all_transactions:
+                user_right_instance = user_right(user_group_id=user_group_instance, transaction_id=instance,created_by=user.email)
+                user_right_instance.save()
     
             return Response({
                 "success":True,
@@ -411,7 +417,6 @@ class AddUserGroup(APIView):
                     "email":user.email
                 }
             })
-
 
 # API For updating a user group
 # Request : PUT
