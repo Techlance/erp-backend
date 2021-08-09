@@ -162,15 +162,15 @@ class AddUserView(APIView):
     def post(self, request):
 
         # Verify token i.e checks user is authenticated or not
-        # payload = verify_token(request)
+        payload = verify_token(request)
 
-        # try:
-        #     user = User.objects.filter(id=payload['id']).first()
-        # except:
-        #     return payload
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
         
         # permission : If superuser can create another user
-        # if user.is_superuser:
+        if user.is_superuser:
 
             serializer = UserSerializer(data=request.data)
           
@@ -178,12 +178,12 @@ class AddUserView(APIView):
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
-                # "data": user.email
+                "data": user.email
                 })
             
             # Create Logs Trigger
-            # new_user_logs = user_logs(name=request.data['name'], email=request.data['email'], is_superuser=request.data['is_superuser'], entry="before", is_deleted=False, operation="create", altered_by=user.email,)
-            # new_user_logs.save()
+            new_user_logs = user_logs(name=request.data['name'], email=request.data['email'], is_superuser=request.data['is_superuser'], entry="before", is_deleted=False, operation="create", altered_by=user.email,)
+            new_user_logs.save()
             serializer.save()
         
             return Response({
@@ -192,14 +192,14 @@ class AddUserView(APIView):
                 "data":serializer.data
                 })
 
-        # else:
-        #     return Response({
-        #         "success":False,
-        #         "message":"Not authorized to create user",
-        #         "data":{
-        #             "email":user.email
-        #         }
-        #     })
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to create user",
+                "data":{
+                    "email":user.email
+                }
+            })
 
 
 # API for editing user
