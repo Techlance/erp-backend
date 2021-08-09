@@ -205,7 +205,15 @@ class CreateCompanyView(APIView):
             return payload
         # check user permission
         if user.is_superuser:
-            print(request.data)
+            #print(request.data)
+            if request.data['year_start_date'] > request.data['year_end_date']:
+                return Response({
+                "success":False,
+                "message":"Year end date should be greater than year start date",
+                "data": {
+                    "email":user.email
+                } 
+                })
             serializer = CompanySerializer(data = request.data)
             if not serializer.is_valid():
                 return Response({
@@ -224,7 +232,7 @@ class CreateCompanyView(APIView):
             new_company_logs = company_master_logs(company_name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=currency_instance.currency, cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=added_company.logo,altered_by=user.email,entry="after",is_deleted=False,operation="create")
             new_company_logs.save()
             
-            company_user_group = user_group.objects.get(id=11)  # should be admin of company : pending
+            company_user_group = user_group.objects.get(user_group_name='ADMIN')  # should be admin of company : pending
 
 
             #! Trigger data to user_company table
@@ -309,11 +317,20 @@ class EditCompanyView(APIView):
         if user.is_superuser:
             # Query : Find company instance to be edited
             company_instance = company_master.objects.get(id=id)
+            if request.data['year_start_date'] > request.data['year_end_date']:
+                return Response({
+                "success":False,
+                "message":"Year end date should be greater than year start date",
+                "data": {
+                    "email":user.email
+                } 
+                })
             temp = request.data
             context = temp.dict()
             logo_file = context['logo']
             if "https://" in logo_file:
                 context["logo"] = company_instance.logo
+            
             
             serializer = CompanySerializer(company_instance, data=context)
            
