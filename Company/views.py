@@ -13,8 +13,8 @@ from django.db import reset_queries
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import *
-from Company.models import user_company
-from Company.models import user_group
+# from Company.models import user_company
+# from Company.models import user_group
 import jwt
 from django.http import JsonResponse
 from .serializers import *
@@ -1088,6 +1088,30 @@ class GetVoucherType(APIView):
 ################################################## ACCOUNT HEAD (CRUD) #####################################################
 ############################################################################################################################
 
+# API For getting schedule number
+# request : GET
+# endpoint : get-schedule-number
+class GetScheduleNo(APIView):
+    def get(self, request, id):
+        
+    #     payload = verify_token(request)
+
+    #     try:
+    #         user = User.objects.filter(id=payload['id']).first()
+    #     except:
+    #         return payload
+
+        last_comp_schedule_no = acc_head.objects.filter(company_master_id=id)
+        sc_no = []
+        for i in last_comp_schedule_no:
+            sc_no.append(i.schedule_no)
+        sc_no.sort()
+        return Response({
+            'success': True,
+            'message':'',
+            'data': sc_no
+            })
+
 
 # API For adding Account Head
 # request : POST
@@ -1105,9 +1129,9 @@ class AddAccountHead(APIView):
         user_permission = check_user_company_right("Account Head", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
             # Logic to maintain schedule_no for each company when we add new company
-            last_comp_schedule_no = acc_head.objects.filter(company_master_id=request.data['company_master_id'])
-            new_schedule_no = len(last_comp_schedule_no)+1
-            request.data.update({"schedule_no":new_schedule_no})
+            # last_comp_schedule_no = acc_head.objects.filter(company_master_id=request.data['company_master_id'])
+            # new_schedule_no = len(last_comp_schedule_no)+1
+            # request.data.update({"schedule_no":new_schedule_no})
             serializer = AccountHeadSerializer(data = request.data)
             # validate serialize
             print(request.data['schedule_no'])
@@ -1157,8 +1181,8 @@ class EditAccountHead(APIView):
         # checks user permission to edit Account Head
         user_permission = check_user_company_right("Account Head", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
-            # User cannot update schedule no
-            request.data.update({"schedule_no":acc_head_instance.schedule_no})
+            # # User cannot update schedule no
+            # request.data.update({"schedule_no":acc_head_instance.schedule_no})
             serializer = AccountHeadSerializer(acc_head_instance, data=request.data)
 
             if not serializer.is_valid():

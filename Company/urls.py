@@ -41,6 +41,8 @@ urlpatterns = [
     path('edit-account-head/<int:id>', EditAccountHead.as_view()), # id : Account head id
     path('delete-account-head/<int:id>', DeleteAccountHead.as_view()), # id : Account head id
     path('get-account-head/<int:id>', GetAccountHead.as_view()), #id : company_master_id
+    path('get-schedule-no/<int:id>', GetScheduleNo.as_view()), #id : company_master_id
+
 
     path('add-cost-category', AddCostCategory.as_view()),
     path('edit-cost-category/<int:id>', EditCostCategory.as_view()), # id : Cost Category id

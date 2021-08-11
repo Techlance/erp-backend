@@ -2,6 +2,7 @@ from re import T
 from django.db import models
 from django.utils import timezone
 from Users.models import *
+from simple_history.models import HistoricalRecords
 # Create your models here.
 
 
@@ -10,6 +11,7 @@ class currency(models.Model):
     currency_name = models.TextField(max_length=100, null=False, unique=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.currency
@@ -22,7 +24,7 @@ class currency_logs(models.Model):
     entry = models.TextField(default="before", null=False)
     is_deleted = models.BooleanField(default=False)
     operation = models.TextField(null=False)
-
+    history = HistoricalRecords()
 
 
 class company_master(models.Model):
@@ -43,6 +45,7 @@ class company_master(models.Model):
     logo = models.FileField(upload_to="logo", null=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    history = HistoricalRecords()
     def __str__(self):
         return self.company_name
 
@@ -68,6 +71,7 @@ class company_master_logs(models.Model):
     entry = models.TextField(default="before", null=False)
     is_deleted = models.BooleanField(default=False)
     operation = models.TextField(null=False)
+    history = HistoricalRecords()
     def __str__(self):
         return self.company_name
 
@@ -78,6 +82,7 @@ class user_company(models.Model):
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    history = HistoricalRecords()
     class Meta:
         unique_together = ('user', 'company_master_id',)
     
@@ -90,7 +95,7 @@ class user_company_logs(models.Model):
     entry = models.TextField(default="before", null=False)
     is_deleted = models.BooleanField(default=False)
     operation = models.TextField(null=False)
-
+    
 
 class company_master_docs(models.Model): 
     doc_name = models.TextField(max_length=500, null=False)
@@ -122,6 +127,9 @@ class year_master(models.Model):
     locked = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+
+    class Meta:
+        unique_together = ('year_no', 'company_master_id',)
     def __str__(self):
         return self.year_no
 

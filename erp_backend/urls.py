@@ -23,7 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/user/', include('Users.urls')),
     path('api/company/', include('Company.urls')),
-    path('api/ls/', include('lc.urls'))
+    path('api/ls/', include('lc.urls')),
+    path('api/ledger-balance/', include('ledger_balance.urls'))
 ]
 
 if settings.DEBUG:

@@ -1,6 +1,7 @@
 from django.db import models
 from Company.models import year_master, ledger_master, cost_center, company_master
 from django.utils import timezone
+from simple_history.models import HistoricalRecords
 # Create your models here.
 
 class lc(models.Model):
@@ -30,6 +31,7 @@ class lc(models.Model):
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=100, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    history = HistoricalRecords()
     class Meta:
         unique_together = ('lc_no', 'company_master_id',)
 

@@ -42,7 +42,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'Users',
     'Company',
-    'lc'
+    'lc',
+    'ledger_balance',
+    'Budget'
+    'simple_history',
 ]
 
 
@@ -55,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'erp_backend.urls'
@@ -102,6 +106,8 @@ WSGI_APPLICATION = 'erp_backend.wsgi.application'
 #         'PORT': 5432
 #     }
 # }
+
+#new db
 
 DATABASES = {
     'default': {

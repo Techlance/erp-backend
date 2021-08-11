@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
-
+from simple_history.models import HistoricalRecords
 
 
 # Create your models here.
@@ -10,6 +10,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, null=False)
     created_by = models.TextField(default="primary",max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    history = HistoricalRecords()
     # is_deleted = models.BooleanField(default=False)
     username = None
     USERNAME_FIELD = 'email'
