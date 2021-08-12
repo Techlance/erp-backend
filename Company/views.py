@@ -214,7 +214,10 @@ class CreateCompanyView(APIView):
                     "email":user.email
                 } 
                 })
-            serializer = CompanySerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = CompanySerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -228,9 +231,7 @@ class CreateCompanyView(APIView):
 
             serializer.save()
             added_company = company_master.objects.latest('id')
-            currency_instance = currency.objects.get(id=request.data['base_currency'])
-            new_company_logs = company_master_logs(company_name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=currency_instance.currency, cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=added_company.logo,altered_by=user.email,entry="after",is_deleted=False,operation="create")
-            new_company_logs.save()
+           
             
             company_user_group = user_group.objects.get(user_group_name='ADMIN')  # should be admin of company : pending
 
@@ -327,6 +328,7 @@ class EditCompanyView(APIView):
                 })
             temp = request.data
             context = temp.dict()
+            context['altered_by'] = user.email
             logo_file = context['logo']
             if "https://" in logo_file:
                 context["logo"] = company_instance.logo
@@ -339,17 +341,9 @@ class EditCompanyView(APIView):
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
+
             # Create Logs Trigger
-            currency_instance = currency.objects.get(id=request.data['base_currency'])
-            new_company_logs = company_master_logs(company_name=company_instance.company_name, address=company_instance.address, country=company_instance.country, state=company_instance.state, email=company_instance.email, website=company_instance.website, contact_no=company_instance.contact_no,base_currency=company_instance.base_currency.currency,cr_no=company_instance.cr_no,registration_no=company_instance.registration_no,tax_id_no=company_instance.tax_id_no,vat_id_no=company_instance.vat_id_no,year_start_date=company_instance.year_start_date,year_end_date=company_instance.year_end_date,logo=company_instance.logo,altered_by=user.email,entry="before",operation="edit")
-            new_company_logs.save()
-            
-            
-            
             serializer.save()
-            added_company = company_master.objects.get(id=id)
-            new_company_logs = company_master_logs(company_name=request.data['company_name'], address=request.data['address'], country=request.data['country'], state=request.data['state'], email=request.data['email'], website=request.data['website'], contact_no=request.data['contact_no'],base_currency=currency_instance.currency,cr_no=request.data['cr_no'],registration_no=request.data['registration_no'],tax_id_no=request.data['tax_id_no'],vat_id_no=request.data['vat_id_no'],year_start_date=request.data['year_start_date'],year_end_date=request.data['year_end_date'],logo=added_company.logo, altered_by=user.email,entry="after",is_deleted=False,operation="edit")
-            new_company_logs.save()
             return Response({
                 'success': True,
                 'message': 'Company Edited successfully'})
@@ -380,10 +374,7 @@ class DeleteCompanyView(APIView):
 
             # Find company record with id above
             company_instance = company_master.objects.get(id=id)
-            
-            new_company_logs = company_master_logs(company_name=company_instance.company_name, address=company_instance.address, country=company_instance.country, state=company_instance.state, email=company_instance.email, website=company_instance.website, contact_no=company_instance.contact_no,base_currency=company_instance.base_currency.currency,cr_no=company_instance.cr_no,registration_no=company_instance.registration_no,tax_id_no=company_instance.tax_id_no,vat_id_no=company_instance.vat_id_no,year_start_date=company_instance.year_start_date,year_end_date=company_instance.year_end_date,logo=company_instance.logo,altered_by=user.email,entry="before",operation="delete")
-            new_company_logs.save()           
-            
+            company_instance.altered_by = user.email         
             company_instance.delete()
             
             return Response({
@@ -450,8 +441,10 @@ class CreateUserCompany(APIView):
         # check user permission
         if user.is_superuser:
             # print(request.data)
-            
-            serializer = UserCompanySerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = UserCompanySerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -494,7 +487,10 @@ class EditUserCompany(APIView):
         if user.is_superuser:
             # print(request.data)
             user_company_instance = user_company.objects.get(id=id)
-            serializer = UserCompanySerializer(user_company_instance, data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = UserCompanySerializer(user_company_instance, data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -567,11 +563,8 @@ class DeleteUserCompany(APIView):
         if user.is_superuser:
 
             user_company_instance = user_company.objects.get(id=id)
-            # company_master_instance = company_master.objects.get(id=company_master_documents.company_master_id.id)
-            # new_company_document_logs = company_master_docs_logs(doc_name=company_master_documents.doc_name, file=company_master_documents.doc_name, company_master_id=company_master_instance.company_name, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            # new_company_document_logs.save()
-            # company_name = company_master.objects.get(id=user_company_instance.company_master_id).company_name
             company_name = user_company_instance.company_master_id.company_name
+            user_company_instance.altered_by = user.email
             user_company_instance.delete()
             return Response({
                 'success': True,
@@ -607,7 +600,10 @@ class AddCompanyDocument(APIView):
         
         # Permission : can create company (Inherited permission)
         if user.is_superuser:
-            serializer = CompanyDocumentSerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = CompanyDocumentSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -617,13 +613,7 @@ class AddCompanyDocument(APIView):
                 }
                 })
 
-           
-    
             serializer.save()
-            instance_company_master_docs = company_master_docs.objects.latest('id')
-            instance_company_master = company_master.objects.get(id=request.data['company_master_id'])
-            new_company_document_logs = company_master_docs_logs(doc_name=request.data['doc_name'], file=instance_company_master_docs.file, company_master_id=instance_company_master.company_name, entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-            new_company_document_logs.save()
             return Response({
                 "success":True,
                 "message":"Company Document added successfully",
@@ -657,27 +647,21 @@ class EditCompanyDocumentView(APIView):
 
         # Permission : If user is allowed to edit a company (Inherited permission)
         if user.is_superuser:
-            
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+
             # Fetches company_document records corresponding to document_id
             company_document_instance = company_master_docs.objects.get(id=id)
-            serializer = CompanyDocumentSerializer(company_document_instance, data=request.data)
+            serializer = CompanyDocumentSerializer(company_document_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-            
-            instance_company_master = company_master.objects.get(id=request.data['company_master_id'])
-            new_company_document_logs = company_master_docs_logs(doc_name=company_document_instance.doc_name, file=company_document_instance.file, company_master_id=company_document_instance.company_master_id.company_name, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_company_document_logs.save()
            
-            
             serializer.save()
-            instance_company_master_docs = company_master_docs.objects.get(id=id)
-            new_company_document_logs = company_master_docs_logs(doc_name=request.data['doc_name'], file=instance_company_master_docs.file, company_master_id=instance_company_master.company_name, entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_company_document_logs.save()
-            
             return Response({
                 'success': True,
                 'message': 'Company Edited successfully'})
@@ -707,9 +691,7 @@ class DeleteCompanyDocument(APIView):
         if user.is_superuser:
 
             company_master_documents = company_master_docs.objects.get(id=id)
-            company_master_instance = company_master.objects.get(id=company_master_documents.company_master_id.id)
-            new_company_document_logs = company_master_docs_logs(doc_name=company_master_documents.doc_name, file=company_master_documents.doc_name, company_master_id=company_master_instance.company_name, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            new_company_document_logs.save()
+            company_master_documents.altered_by = user.email
             company_master_documents.delete()
             return Response({
                 'success': True,
@@ -810,7 +792,10 @@ class AddCurrency(APIView):
             return payload
         # permission : Inherited from create company
         if user.is_superuser:
-            serializer = CurrencySerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = CurrencySerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -820,9 +805,6 @@ class AddCurrency(APIView):
                 }
                 })
 
-            new_curreny_logs = currency_logs(currency=request.data['currency'], currency_name=request.data['currency_name'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-            new_curreny_logs.save()
-            serializer.save()
             serializer.save()
             return Response({
                 "success":True,
@@ -852,19 +834,18 @@ class EditCurrency(APIView):
             return payload
         # permission : inherited from can edit company
         if user.is_superuser:
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
             currency_instance = currency.objects.get(id=id)
-            serializer = CurrencySerializer(currency_instance, data=request.data)
+            serializer = CurrencySerializer(currency_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-            
-            new_curreny_logs = currency_logs(currency=currency_instance.currency, currency_name=currency_instance.currency_name, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_curreny_logs.save()
-            new_curreny_logs = currency_logs(currency=request.data['currency'], currency_name=request.data['currency_name'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_curreny_logs.save()
+        
             serializer.save()
             return Response({
                 'success': True,
@@ -889,8 +870,7 @@ class DeleteCurrency(APIView):
         # permission : inherited from can edit company
         if user.is_superuser:
             currency_instance = currency.objects.get(id=id)
-            new_curreny_logs = currency_logs(currency=currency_instance.currency, currency_name=currency_instance.currency_name, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            new_curreny_logs.save()
+            currency_instance.altered_by = user.email
             currency_instance.delete()
             return Response({
                 'success': True,
@@ -944,20 +924,16 @@ class AddVoucherType(APIView):
         
         user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
-            serializer = VoucherTypeSerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = VoucherTypeSerializer(data = context)
             # validate serialier
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
                 })
-
-            authorization_instance = User.objects.get(id=request.data['authorization_id'])
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_voucher_type_logs = voucher_type_logs(voucher_name=request.data['voucher_name'], voucher_class=request.data['voucher_class'], company_master_id=company_master_instance.company_name, 
-                authorization_id=authorization_instance.email, prefix=request.data['prefix'], restart=request.data['restart'], 
-                is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-            new_voucher_type_logs.save()
             
             serializer.save()
             return Response({
@@ -991,7 +967,11 @@ class EditVoucherType(APIView):
                 'success': False,
                 'message': 'You are not allowed to Edit Account Head',
             })
-        serializer = VoucherTypeSerializer(voucher_type_instance, data=request.data)
+
+        temp = request.data
+        context = temp.dict()
+        context['altered_by'] = user.email
+        serializer = VoucherTypeSerializer(voucher_type_instance, data=context)
         user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_alter")
         if user_permission: 
             if not serializer.is_valid():
@@ -1000,16 +980,6 @@ class EditVoucherType(APIView):
                     'message': get_error(serializer.errors),
                     })
             
-            authorization_instance = User.objects.get(id=request.data['authorization_id'])
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_voucher_type_logs = voucher_type_logs(voucher_name=voucher_type_instance.voucher_name, voucher_class=voucher_type_instance.voucher_class, company_master_id=voucher_type_instance.company_master_id.company_name, 
-                authorization_id=voucher_type_instance.authorization_id.email, prefix=voucher_type_instance.prefix, restart=voucher_type_instance.restart, 
-                is_fixed=voucher_type_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_voucher_type_logs.save()
-            new_voucher_type_logs = voucher_type_logs(voucher_name=request.data['voucher_name'], voucher_class=request.data['voucher_class'], company_master_id=company_master_instance.company_name, 
-                authorization_id=authorization_instance.email, prefix=request.data['prefix'], restart=request.data['restart'], 
-                is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_voucher_type_logs.save()
             serializer.save()
             return Response({
                 'success': True,
@@ -1043,10 +1013,7 @@ class DeleteVoucherType(APIView):
         if user_permission:  
             # Query : fetch voucher type record using id
             voucher_type_instance = voucher_type.objects.get(id=id)
-            new_voucher_type_logs = voucher_type_logs(voucher_name=voucher_type_instance.voucher_name, voucher_class=voucher_type_instance.voucher_class, company_master_id=voucher_type_instance.company_master_id.company_name, 
-            authorization_id=voucher_type_instance.authorization_id.email, prefix=voucher_type_instance.prefix, restart=voucher_type_instance.restart, 
-                is_fixed=voucher_type_instance.is_fixed, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            new_voucher_type_logs.save()
+            voucher_type_instance.altered_by = user.email
             voucher_type_instance.delete()
             return Response({
                 'success': True,
@@ -1057,6 +1024,7 @@ class DeleteVoucherType(APIView):
                 'success': False,
                 'message': 'You are not allowed to Delete Voucher Type',
             })     
+
 
 # API For getting voucher type
 # request : GET
@@ -1132,7 +1100,10 @@ class AddAccountHead(APIView):
             # last_comp_schedule_no = acc_head.objects.filter(company_master_id=request.data['company_master_id'])
             # new_schedule_no = len(last_comp_schedule_no)+1
             # request.data.update({"schedule_no":new_schedule_no})
-            serializer = AccountHeadSerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = AccountHeadSerializer(data = context)
             # validate serialize
             print(request.data['schedule_no'])
             if not serializer.is_valid():
@@ -1142,9 +1113,6 @@ class AddAccountHead(APIView):
                 })
 
             # print(serializer.data)
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_account_head_logs = acc_head_logs(acc_head_name=request.data['acc_head_name'], title=request.data['title'], company_master_id=company_master_instance.company_name, bs=request.data['bs'], schedule_no=new_schedule_no, is_fixed=request.data['is_fixed'],  entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-            new_account_head_logs.save()
            
             serializer.save()
             return Response({
@@ -1183,20 +1151,16 @@ class EditAccountHead(APIView):
         if user_permission:
             # # User cannot update schedule no
             # request.data.update({"schedule_no":acc_head_instance.schedule_no})
-            serializer = AccountHeadSerializer(acc_head_instance, data=request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = AccountHeadSerializer(acc_head_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-            
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_account_head_logs = acc_head_logs(acc_head_name=acc_head_instance.acc_head_name, title=acc_head_instance.title, company_master_id=acc_head_instance.company_master_id.company_name, bs=acc_head_instance.bs, schedule_no=acc_head_instance.schedule_no, is_fixed=acc_head_instance.is_fixed,  entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_account_head_logs.save()
-            new_account_head_logs = acc_head_logs(acc_head_name=request.data['acc_head_name'], title=request.data['title'], company_master_id=company_master_instance.company_name, bs=request.data['bs'], schedule_no=request.data['schedule_no'], is_fixed=request.data['is_fixed'],  entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_account_head_logs.save()
-                    
             serializer.save()
             return Response({
                 'success': True,
@@ -1230,8 +1194,7 @@ class DeleteAccountHead(APIView):
         # check user permission to delete account head 
         user_permission = check_user_company_right("Account Head", acc_head_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            new_account_head_logs = acc_head_logs(acc_head_name=acc_head_instance.acc_head_name, title=acc_head_instance.title, company_master_id=acc_head_instance.company_master_id.company_name, bs=acc_head_instance.bs, schedule_no=acc_head_instance.schedule_no, is_fixed=acc_head_instance.is_fixed,  entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            new_account_head_logs.save()
+            acc_head_instance.altered_by = user.email
             acc_head_instance.delete()
             return Response({
                 'success': True,
@@ -1290,16 +1253,15 @@ class AddCostCategory(APIView):
             return payload
         user_permission = check_user_company_right("Cost Category", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
-            serializer = CostCategorySerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = CostCategorySerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
                 })
-            
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_cost_category_logs = cost_category_logs(name=request.data['name'], company_master_id=company_master_instance.company_name, altered_by=user.email,  entry="after", is_deleted=False, operation="create")
-            new_cost_category_logs.save()
             serializer.save()
             return Response({
                 "success":True,
@@ -1324,12 +1286,15 @@ class EditCostCategory(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
+
         user_permission = check_user_company_right("Cost Category", request.data['company_master_id'], user.id, "can_edit")
         if user_permission:
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
             cost_category_instance = cost_category.objects.get(id=id)
             # print(cost_category_instance)
-            serializer = CostCategorySerializer(cost_category_instance, data=request.data)
+            serializer = CostCategorySerializer(cost_category_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
@@ -1337,12 +1302,6 @@ class EditCostCategory(APIView):
                     'message': get_error(serializer.errors),
                     })
 
-            
-            
-            new_cost_category_logs = cost_category_logs(name=cost_category_instance.name, company_master_id=cost_category_instance.company_master_id.company_name, altered_by=user.email,  entry="before", is_deleted=False, operation="edit" )
-            new_cost_category_logs.save()
-            new_cost_category_logs = cost_category_logs(name=request.data['name'], company_master_id=company_master_instance.company_name, altered_by=user.email,  entry="after", is_deleted=False, operation="edit")
-            new_cost_category_logs.save()
             serializer.save()
 
             return Response({
@@ -1353,9 +1312,6 @@ class EditCostCategory(APIView):
                 "success":False,
                 "message":"You are not allowed to Edit Cost Category"
                 })        
-
-
-
 
 
 # API For deleting Cost Category
@@ -1372,8 +1328,7 @@ class DeleteCostCategory(APIView):
         user_permission = check_user_company_right("Cost Category", cost_category_instance.company_master_id, user.id, "can_delete")
         if user_permission:
             cost_category_instance = cost_category.objects.get(id=id)
-            new_cost_category_logs = cost_category_logs(name=cost_category_instance.name, company_master_id=cost_category_instance.company_master_id.company_name, altered_by=user.email,  entry="before", is_deleted=True, operation="delete")
-            new_cost_category_logs.save()            
+            cost_category_instance.altered_by = user.email          
             cost_category_instance.delete()
             return Response({
                 'success': True,
@@ -1430,18 +1385,19 @@ class AddAccGroup(APIView):
         except:
             return payload
         
-        serializer = AccGroupSerializer(data = request.data)
+        
         user_permission = check_user_company_right("Account Group", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = AccGroupSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
                 })
 
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_acc_group_logs = acc_group_logs(group_name=request.data['group_name'], group_code=request.data['group_code'], company_master_id=company_master_instance.company_name, child_of=request.data['child_of'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-            new_acc_group_logs.save()
             serializer.save()
 
             return Response({
@@ -1475,7 +1431,10 @@ class EditAccGroup(APIView):
             })
         user_permission = check_user_company_right("Account Group", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
-            serializer = AccGroupSerializer(accgroup_instance, data=request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = AccGroupSerializer(accgroup_instance, data=context)
             
             if not serializer.is_valid():
                 return Response({
@@ -1483,11 +1442,6 @@ class EditAccGroup(APIView):
                     'message': get_error(serializer.errors),
                     })
             
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_acc_group_logs = acc_group_logs(group_name=accgroup_instance.group_name, group_code=accgroup_instance.group_code, company_master_id=accgroup_instance.company_master_id.company_name, child_of=accgroup_instance.child_of, is_fixed=accgroup_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_acc_group_logs.save()
-            new_acc_group_logs = acc_group_logs(group_name=request.data['group_name'], group_code=request.data['group_code'], company_master_id=company_master_instance.company_name, child_of=request.data['child_of'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_acc_group_logs.save()
             serializer.save()
             return Response({
                 'success': True,
@@ -1518,8 +1472,7 @@ class DeleteAccGroup(APIView):
             })
         user_permission = check_user_company_right("Account Group", accgroup_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            new_acc_group_logs = acc_group_logs(group_name=accgroup_instance.group_name, group_code=accgroup_instance.group_code, company_master_id=accgroup_instance.company_master_id.company_name, child_of=accgroup_instance.child_of, is_fixed=accgroup_instance.is_fixed, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            new_acc_group_logs.save()
+            accgroup_instance.altered_by = user.email
             accgroup_instance.delete()
             return Response({
                 'success': True,
@@ -1528,7 +1481,7 @@ class DeleteAccGroup(APIView):
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to delete this field',
+                'message': 'You are not allowed to delete Account Group',
                 }) 
 
 
@@ -1585,8 +1538,10 @@ class AddLedgerMaster(APIView):
             all_ledger_master = ledger_master.objects.filter(company_master_id=request.data['company_master_id']).count() + 1
             new_ledger_id = str(group_code) + "-" + str(all_ledger_master)
             request.data.update({"ledger_id":new_ledger_id})
-
-            serializer = LedgerMasterSerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LedgerMasterSerializer(data = context)
             # validate serialize
             if not serializer.is_valid():
                 return Response({
@@ -1594,11 +1549,6 @@ class AddLedgerMaster(APIView):
                 "message": get_error(serializer.errors),
                 })
 
-
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            account_group_instance = acc_group.objects.get(id=request.data['acc_group_id'])
-            new_ledger_master_logs = ledger_master_logs(acc_group_id=account_group_instance.group_name, ledger_id=request.data['ledger_id'], old_ledger_id=request.data['old_ledger_id'],ledger_name=request.data['ledger_name'], company_master_id=company_master_instance.company_name, maintain_billwise=request.data['maintain_billwise'], address=request.data['address'], tel=request.data['tel'], email=request.data['email'], contact_person=request.data['contact_person'], bank_name=request.data['bank_name'], branch_name=request.data['branch_name'], bank_code=request.data['bank_code'], bank_ac_no=request.data['bank_ac_no'], credit_limit=request.data['credit_limit'], credit_days=request.data['credit_days'], credit_rating=request.data['credit_rating'], block_ac=request.data['block_ac'], tax_reg_no=request.data['tax_reg_no'], cr_no=request.data['cr_no'], cr_exp_date=request.data['cr_exp_date'], id_no=request.data['id_no'], id_exp_date=request.data['id_exp_date'], cc_no=request.data['cc_no'], cc_exp_date=request.data['cc_exp_date'], vat_no=request.data['vat_no'], delivery_terms=request.data['delivery_terms'], payment_terms=request.data['payment_terms'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-            new_ledger_master_logs.save()
             serializer.save()
             return Response({
                 "success":True,
@@ -1658,22 +1608,16 @@ class EditLedgerMaster(APIView):
             'message': 'You cannot edit this field',
             })
         if user_permission:
-            
-            serializer = LedgerMasterSerializer(ledger_master_instance,data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LedgerMasterSerializer(ledger_master_instance,data = context)
             
             if not serializer.is_valid():
                 return Response({
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-
-            
-            account_group_instance = acc_group.objects.get(id=request.data['acc_group_id'])
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_ledger_master_logs = ledger_master_logs(acc_group_id=ledger_master_instance.acc_group_id.group_name, ledger_id=ledger_master_instance.ledger_id, old_ledger_id=ledger_master_instance.old_ledger_id,ledger_name=ledger_master_instance.ledger_name, company_master_id=ledger_master_instance.company_master_id.company_name, maintain_billwise=ledger_master_instance.maintain_billwise, address=ledger_master_instance.address, tel=ledger_master_instance.tel, email=ledger_master_instance.email, contact_person=ledger_master_instance.contact_person, bank_name=ledger_master_instance.bank_name, branch_name=ledger_master_instance.branch_name, bank_code=ledger_master_instance.bank_code, bank_ac_no=ledger_master_instance.bank_ac_no, credit_limit=ledger_master_instance.credit_limit, credit_days=ledger_master_instance.credit_days, credit_rating=ledger_master_instance.credit_rating, block_ac=ledger_master_instance.block_ac, tax_reg_no=ledger_master_instance.tax_reg_no, cr_no=ledger_master_instance.cr_no, cr_exp_date=ledger_master_instance.cr_exp_date, id_no=ledger_master_instance.id_no, id_exp_date=ledger_master_instance.id_exp_date, cc_no=ledger_master_instance.cc_no, cc_exp_date=ledger_master_instance.cc_exp_date, vat_no=ledger_master_instance.vat_no, delivery_terms=ledger_master_instance.delivery_terms, payment_terms=ledger_master_instance.payment_terms, is_fixed=ledger_master_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_ledger_master_logs.save()
-            new_ledger_master_logs = ledger_master_logs(acc_group_id=account_group_instance.group_name, ledger_id=request.data['ledger_id'], old_ledger_id=request.data['old_ledger_id'],ledger_name=request.data['ledger_name'], company_master_id=company_master_instance.company_name, maintain_billwise=request.data['maintain_billwise'], address=request.data['address'], tel=request.data['tel'], email=request.data['email'], contact_person=request.data['contact_person'], bank_name=request.data['bank_name'], branch_name=request.data['branch_name'], bank_code=request.data['bank_code'], bank_ac_no=request.data['bank_ac_no'], credit_limit=request.data['credit_limit'], credit_days=request.data['credit_days'], credit_rating=request.data['credit_rating'], block_ac=request.data['block_ac'], tax_reg_no=request.data['tax_reg_no'], cr_no=request.data['cr_no'], cr_exp_date=request.data['cr_exp_date'], id_no=request.data['id_no'], id_exp_date=request.data['id_exp_date'], cc_no=request.data['cc_no'], cc_exp_date=request.data['cc_exp_date'], vat_no=request.data['vat_no'], delivery_terms=request.data['delivery_terms'], payment_terms=request.data['payment_terms'], is_fixed=request.data['is_fixed'], entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_ledger_master_logs.save()
                     
             serializer.save()
             return Response({
@@ -1704,8 +1648,7 @@ class DeleteLedgerMaster(APIView):
             })
         user_permission = check_user_company_right("Ledger Master", ledger_master_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            new_ledger_master_logs = ledger_master_logs(acc_group_id=ledger_master_instance.acc_group_id.group_name, ledger_id=ledger_master_instance.ledger_id, old_ledger_id=ledger_master_instance.old_ledger_id,ledger_name=ledger_master_instance.ledger_name, company_master_id=ledger_master_instance.company_master_id.company_name, maintain_billwise=ledger_master_instance.maintain_billwise, address=ledger_master_instance.address, tel=ledger_master_instance.tel, email=ledger_master_instance.email, contact_person=ledger_master_instance.contact_person, bank_name=ledger_master_instance.bank_name, branch_name=ledger_master_instance.branch_name, bank_code=ledger_master_instance.bank_code, bank_ac_no=ledger_master_instance.bank_ac_no, credit_limit=ledger_master_instance.credit_limit, credit_days=ledger_master_instance.credit_days, credit_rating=ledger_master_instance.credit_rating, block_ac=ledger_master_instance.block_ac, tax_reg_no=ledger_master_instance.tax_reg_no, cr_no=ledger_master_instance.cr_no, cr_exp_date=ledger_master_instance.cr_exp_date, id_no=ledger_master_instance.id_no, id_exp_date=ledger_master_instance.id_exp_date, cc_no=ledger_master_instance.cc_no, cc_exp_date=ledger_master_instance.cc_exp_date, vat_no=ledger_master_instance.vat_no, delivery_terms=ledger_master_instance.delivery_terms, payment_terms=ledger_master_instance.payment_terms, is_fixed=ledger_master_instance.is_fixed, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            new_ledger_master_logs.save()
+            ledger_master_instance.altered_by = user.email
             ledger_master_instance.delete()
             return Response({
                 'success': True,
@@ -1734,21 +1677,19 @@ class AddCostCenter(APIView):
         except:
             return payload
         
-        serializer = CostCenterSerializer(data = request.data)
+       
         user_permission = check_user_company_right("Cost center", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = CostCenterSerializer(data = request.data)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
                 })
-            
-
-            cost_category_instance = cost_category.objects.get(id=request.data['cost_category_id'])
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            new_cost_center_logs = cost_center_logs(cost_center_name=request.data['cost_center_name'], cost_category_id=cost_category_instance.name, child_of=request.data['child_of'], company_master_id=company_master_instance.company_name, altered_by=user.email, entry="after", is_deleted=False, operation="create")
-            new_cost_center_logs.save()
-
+    
             serializer.save()
             return Response({
                 "success":True,
@@ -1776,21 +1717,16 @@ class EditCostCenter(APIView):
         cost_center_instance = cost_center.objects.get(id=id)
         user_permission = check_user_company_right("Cost center", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
-            serializer = CostCenterSerializer(cost_center_instance, data=request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = CostCenterSerializer(cost_center_instance, data=context)
             
             if not serializer.is_valid():
                 return Response({
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-            
-            cost_category_instance = cost_category.objects.get(id=request.data['cost_category_id'])
-            company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-                    
-            new_cost_center_logs = cost_center_logs(cost_center_name=cost_center_instance.cost_center_name, cost_category_id=cost_center_instance.cost_category_id.name, child_of=cost_center_instance.child_of, company_master_id=cost_center_instance.company_master_id.company_name, altered_by=user.email, entry="before", is_deleted=False, operation="edit")
-            new_cost_center_logs.save()
-            new_cost_center_logs = cost_center_logs(cost_center_name=request.data['cost_center_name'], cost_category_id=cost_category_instance.name, child_of=request.data['child_of'], company_master_id=company_master_instance.company_name, altered_by=user.email, entry="after", is_deleted=False, operation="edit")
-            new_cost_center_logs.save()
 
             serializer.save()
             return Response({
@@ -1817,10 +1753,7 @@ class DeleteCostCenter(APIView):
         cost_center_instance = cost_center.objects.get(id=id)
         user_permission = check_user_company_right("Cost center", cost_center_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-
-            new_cost_center_logs = cost_center_logs(cost_center_name=cost_center_instance.cost_center_name, cost_category_id=cost_center_instance.cost_category_id.name, child_of=cost_center_instance.child_of, company_master_id=cost_center_instance.company_master_id.company_name, altered_by=user.email, entry="before", is_deleted=True, operation="delete")
-            new_cost_center_logs.save()
-
+            cost_center_instance.altered_by = user.email
             cost_center_instance.delete()
             return Response({
                 'success': True,

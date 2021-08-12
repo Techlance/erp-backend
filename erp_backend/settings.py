@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'Company',
     'lc',
     'ledger_balance',
-    'Budget'
+    'Budget',
     'simple_history',
 ]
 
