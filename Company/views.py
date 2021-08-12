@@ -217,6 +217,7 @@ class CreateCompanyView(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            # request.data.update({'altered_by': user.email})
             serializer = CompanySerializer(data = context)
             if not serializer.is_valid():
                 return Response({
@@ -326,6 +327,7 @@ class EditCompanyView(APIView):
                     "email":user.email
                 } 
                 })
+           
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
@@ -425,7 +427,7 @@ class DetailCompanyView(APIView):
             })
 
 ############################################################################################################################
-################################################## USER COMAPANY (CRUD) #################################################
+################################################## USER COMPANY (CRUD) #################################################
 ############################################################################################################################
 
 # API For adding user company
@@ -444,6 +446,7 @@ class CreateUserCompany(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = UserCompanySerializer(data = context)
             if not serializer.is_valid():
                 return Response({
@@ -490,6 +493,7 @@ class EditUserCompany(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = UserCompanySerializer(user_company_instance, data = context)
             if not serializer.is_valid():
                 return Response({
@@ -603,6 +607,7 @@ class AddCompanyDocument(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            # request.data.update({'altered_by': user.email})
             serializer = CompanyDocumentSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
@@ -650,8 +655,9 @@ class EditCompanyDocumentView(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
-
+            # request.data.update({'altered_by': user.email})
             # Fetches company_document records corresponding to document_id
+           
             company_document_instance = company_master_docs.objects.get(id=id)
             serializer = CompanyDocumentSerializer(company_document_instance, data=context)
 
@@ -792,6 +798,8 @@ class AddCurrency(APIView):
             return payload
         # permission : Inherited from create company
         if user.is_superuser:
+           
+            # request.data.update({'altered_by': user.email})
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
@@ -834,6 +842,7 @@ class EditCurrency(APIView):
             return payload
         # permission : inherited from can edit company
         if user.is_superuser:
+            #request.data.update({'altered_by': user.email})
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
@@ -927,6 +936,7 @@ class AddVoucherType(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = VoucherTypeSerializer(data = context)
             # validate serialier
             if not serializer.is_valid():
@@ -971,6 +981,7 @@ class EditVoucherType(APIView):
         temp = request.data
         context = temp.dict()
         context['altered_by'] = user.email
+        # request.data.update({'altered_by': user.email})
         serializer = VoucherTypeSerializer(voucher_type_instance, data=context)
         user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_alter")
         if user_permission: 
@@ -1103,6 +1114,7 @@ class AddAccountHead(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            # request.data.update({'altered_by': user.email})
             serializer = AccountHeadSerializer(data = context)
             # validate serialize
             print(request.data['schedule_no'])
@@ -1154,6 +1166,7 @@ class EditAccountHead(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = AccountHeadSerializer(acc_head_instance, data=context)
 
             if not serializer.is_valid():
@@ -1256,6 +1269,7 @@ class AddCostCategory(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = CostCategorySerializer(data = context)
             if not serializer.is_valid():
                 return Response({
@@ -1292,6 +1306,7 @@ class EditCostCategory(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             cost_category_instance = cost_category.objects.get(id=id)
             # print(cost_category_instance)
             serializer = CostCategorySerializer(cost_category_instance, data=context)
@@ -1391,6 +1406,7 @@ class AddAccGroup(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = AccGroupSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
@@ -1434,6 +1450,7 @@ class EditAccGroup(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = AccGroupSerializer(accgroup_instance, data=context)
             
             if not serializer.is_valid():
@@ -1537,10 +1554,12 @@ class AddLedgerMaster(APIView):
             group_code = acc_group.objects.get(id=request.data['acc_group_id']).group_code
             all_ledger_master = ledger_master.objects.filter(company_master_id=request.data['company_master_id']).count() + 1
             new_ledger_id = str(group_code) + "-" + str(all_ledger_master)
-            request.data.update({"ledger_id":new_ledger_id})
+            #request.data.update({"ledger_id":new_ledger_id})
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            context['ledger_id'] = new_ledger_id
+            #request.data.update({'altered_by': user.email})
             serializer = LedgerMasterSerializer(data = context)
             # validate serialize
             if not serializer.is_valid():
@@ -1611,6 +1630,7 @@ class EditLedgerMaster(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = LedgerMasterSerializer(ledger_master_instance,data = context)
             
             if not serializer.is_valid():
@@ -1683,7 +1703,8 @@ class AddCostCenter(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
-            serializer = CostCenterSerializer(data = request.data)
+            # request.data.update({'altered_by': user.email})
+            serializer = CostCenterSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -1720,6 +1741,7 @@ class EditCostCenter(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            #request.data.update({'altered_by': user.email})
             serializer = CostCenterSerializer(cost_center_instance, data=context)
             
             if not serializer.is_valid():

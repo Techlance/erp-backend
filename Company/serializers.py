@@ -14,7 +14,8 @@ class CurrencySerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by':{'write_only': True}
         }
         
         
@@ -26,7 +27,8 @@ class CompanySerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True}, 
+            'altered_by': {'write_only': True}
         }
 
     def create(self, validated_data): 
@@ -115,14 +117,14 @@ class GetUserCompanySerializer(serializers.ModelSerializer):
             'created_on':{'read_only': True}
         }
 
-class CurrencySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = currency
-        fields = '__all__'
-        extra_kwargs = {
-            'id':{'read_only': True},
-            'created_on':{'read_only': True}
-        }
+# class CurrencySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = currency
+#         fields = '__all__'
+#         extra_kwargs = {
+#             'id':{'read_only': True},
+#             'created_on':{'read_only': True}
+#         }
 
 class GetVoucherTypeSerializer(serializers.ModelSerializer):
     authorization_id = UsernamesSerializer()

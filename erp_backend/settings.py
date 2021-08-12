@@ -44,8 +44,9 @@ INSTALLED_APPS = [
     'Company',
     'lc',
     'ledger_balance',
-    'Budget',
     'simple_history',
+    'import_export',
+    'Budget'
 ]
 
 
@@ -112,13 +113,15 @@ WSGI_APPLICATION = 'erp_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'de1qadpdk2bfdr',
-        'USER': 'zcemxyrbyzmwqs',
-        'PASSWORD': '8b15f896b9e4330572dd1b4e0967c1e83927d87f95e592f402ffb9c5de31ab86',
-        'HOST': 'ec2-23-21-229-200.compute-1.amazonaws.com',
+        'NAME': 'd4fjsk81n6r81b',
+        'USER': 'tcoqukkknoxxvq',
+        'PASSWORD': 'fd19bea255224a72c2768cdac2a37999ae59e340fd40990b6af3d41f795e2a96',
+        'HOST': 'ec2-44-195-209-130.compute-1.amazonaws.com',
         'PORT': 5432
     }
 }
+
+
 import dj_database_url 
 prod_db  =  dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(prod_db)

@@ -51,6 +51,7 @@ class op_bal_brs(models.Model):
     bank_ledger_id = models.ForeignKey(to=ledger_balance, null=False, on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     acc_code = models.TextField(max_length=200, null=False) # check
+    year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.CASCADE, default=0)#remove default
     name = models.TextField(max_length=200, null=False)
     chq_date = models.DateField(null=True)
     chq_no = models.IntegerField(max_length=200, null=True)

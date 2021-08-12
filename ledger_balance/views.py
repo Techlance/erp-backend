@@ -81,11 +81,11 @@ def check_user_company_right(transaction_rights, user_company_id, user_id, need_
 class GetLedgerIdsWithBs(APIView):
     def get(self, request, id):
         # verify token for authorization
-        # payload = verify_token(request)
-        # try:
-        #     user = User.objects.filter(id=payload['id']).first()  
-        # except:
-        #     return payload
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()  
+        except:
+            return payload
     
         ledgers  = []
 
@@ -122,7 +122,10 @@ class AddLedgerBalance(APIView):
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
             year_master_instance = year_master.objects.get(company_master_id=request.data['company_master_id'], year_no=0)
-            request.data.update({"year_id":year_master_instance})
+            temp = request.data
+            context = temp.dict()
+            context['year_id'] = year_master_instance.id
+            #request.data.update({'year_id':year_master_instance.id})
             debit = 0 
             credit = 0
             if request.data['dr'] :
@@ -130,20 +133,22 @@ class AddLedgerBalance(APIView):
             if request.data['cr'] :
                 credit = D(request.data['cr'])
             balance = debit+credit
-            request.data.update({"amount":balance})
-            fc_rate = str(balance/request.data['fc_amount'])
+            #request.data.update({'balance':balance})
+            context['balance'] = balance
+            fc_rate = str(balance/D(request.data['fc_amount']))
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = D(fc_rate)
-            request.data.update({"fc_rate": fc_rate})
+            #request.data.update({'fc_rate': fc_rate})
+            context['fc_rate'] = fc_rate
            
 
-            serializer = LedgerBalanceBillwiseSerializer(data = request.data)
+            serializer = LedgerBalanceSerializer(data = context)
 
             if not serializer.is_valid():
                 return Response({
                 "success":False,
-                "message": get_error(serializer.errors),
+                "message": serializer.errors,
                 })
 
             serializer.save()
@@ -205,7 +210,10 @@ class EditLedgerBalance(APIView):
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
             ledger_balance_instance = ledger_balance.objects.get(id=id)
-            request.data.update({"year_id":ledger_balance_instance.year_id})
+            # request.data.update({"year_id":ledger_balance_instance.year_id})
+            temp = request.data
+            context = temp.dict()
+            context['year_id'] = ledger_balance_instance.year_id.id
             debit = 0 
             credit = 0
             if request.data['dr'] :
@@ -213,13 +221,15 @@ class EditLedgerBalance(APIView):
             if request.data['cr'] :
                 credit = D(request.data['cr'])
             balance = debit+credit
-            request.data.update({"balance":balance})
-            fc_rate = str(balance/request.data['fc_amount'])
+            #request.data.update({"balance":balance})
+            context['balance'] = balance
+            fc_rate = str(balance/D(request.data['fc_amount']))
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = D(fc_rate)
-            request.data.update({"fc_rate": fc_rate})
-            serializer = LedgerBalanceSerializer(ledger_balance_instance, data=request.data)
+            #request.data.update({"fc_rate": fc_rate})
+            context['fc_rate'] = fc_rate
+            serializer = LedgerBalanceSerializer(ledger_balance_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
@@ -230,7 +240,7 @@ class EditLedgerBalance(APIView):
             serializer.save()
             return Response({
                 'success': True,
-                'message': 'ledger balance. Edited successfully'})
+                'message': 'ledger balance Edited successfully'})
         else:
             return Response({
                 'success': False,
@@ -274,7 +284,7 @@ class DeleteLedgerBalance(APIView):
 # API For adding Ledger balance billwise
 # request : POST
 # endpoint : add-ledger-bal-billwie
-class AddBalBillwise(APIView):
+class AddLedgerBalBillwise(APIView):
     def post(self, request):
         payload = verify_token(request)
         try:
@@ -284,6 +294,8 @@ class AddBalBillwise(APIView):
 
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
+            temp = request.data
+            context = temp.dict()
             debit = 0 
             credit = 0
             if request.data['dr'] :
@@ -291,13 +303,15 @@ class AddBalBillwise(APIView):
             if request.data['cr'] :
                 credit = D(request.data['cr'])
             balance = debit+credit
-            request.data.update({"balance":balance})
-            fc_rate = str(balance/request.data['fc_amount'])
+            #request.data.update({"amount":balance})
+            context['amount'] = balance
+            fc_rate = str(balance/D(request.data['fc_amount']))
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = D(fc_rate)
-            request.data.update({"fc_rate": fc_rate})
-            serializer = LedgerBalanceBillwiseSerializer(data=request.data)
+            #request.data.update({"fc_rate": fc_rate})
+            context['fc_rate'] = fc_rate
+            serializer = LedgerBalanceBillwiseSerializer(data=context)
             if not serializer.is_valid():
                 return Response({
                     'success': False,
@@ -332,6 +346,8 @@ class EditLedgerBalBillwise(APIView):
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
             ledger_balance_billwise_instance = ledger_bal_billwise.objects.get(id=id)
+            temp = request.data
+            context = temp.dict()
             debit = 0 
             credit = 0
             if request.data['dr'] :
@@ -339,13 +355,15 @@ class EditLedgerBalBillwise(APIView):
             if request.data['cr'] :
                 credit = D(request.data['cr'])
             balance = debit+credit
-            request.data.update({"balance":balance})
-            fc_rate = str(balance/request.data['fc_amount'])
+            #request.data.update({"balance":balance})
+            context['amount'] = balance
+            fc_rate = str(balance/D(request.data['fc_amount']))
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = D(fc_rate)
-            request.data.update({"fc_rate": fc_rate})
-            serializer = LedgerBalanceBillwiseSerializer(ledger_balance_billwise_instance, data=request.data)
+            #request.data.update({"fc_rate": fc_rate})
+            context['fc_rate'] = fc_rate
+            serializer = LedgerBalanceBillwiseSerializer(ledger_balance_billwise_instance, data=context)
             if not serializer.is_valid():
                 return Response({
                     'success': False,
@@ -392,7 +410,7 @@ class DeleteLedgerBalBillwise(APIView):
 # API For getting ledger balance billwise
 # request : GET
 # endpoint : get-ledger-bal-billwise/id (company id)
-class GetLedgerBalance(APIView):
+class GetLedgerBalBillwise(APIView):
     def get(self, request, id):
         payload = verify_token(request)
         try:
@@ -436,9 +454,12 @@ class AddOpBalBrs(APIView):
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
             year_master_instance = year_master.objects.get(company_master_id=request.data['company_master_id'], year_no=1)
-            request.data.update({"year_id":year_master_instance})
+            # request.data.update({"year_id":year_master_instance})
+            temp = request.data
+            context = temp.dict()
+            context['year_id'] = year_master_instance.id
 
-            serializer = OpBalanceBrsSerializer(data=request.data)
+            serializer = OpBalanceBrsSerializer(data=context)
             if not serializer.is_valid():
                 return Response({
                     'success': False,
@@ -472,8 +493,11 @@ class EditOpBalBrs(APIView):
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
             op_bal_brs_instance = op_bal_brs.objects.get(id=id)
-            request.data.update({"year_id":op_bal_brs_instance.year_id})
-            serializer = OpBalanceBrsSerializer(op_bal_brs_instance, data=request.data)
+            # request.data.update({"year_id":op_bal_brs_instance.year_id})
+            temp = request.data
+            context = temp.dict()
+            context['year_id'] = op_bal_brs_instance.year_id.id
+            serializer = OpBalanceBrsSerializer(op_bal_brs_instance, data=context)
             if not serializer.is_valid():
                 return Response({
                     'success': False,
@@ -532,7 +556,7 @@ class GetOpBalBrs(APIView):
         user_permission = check_user_company_right("Opening Balance", id, user.id, "can_view")
         if user_permission:
             op_bal_brs_instance = op_bal_brs.objects.filter(company_master_id=id)
-            serializer = LedgerBalanceBillwiseSerializer(op_bal_brs_instance, many=True)
+            serializer = OpBalanceBrsSerializer(op_bal_brs_instance, many=True)
             return Response({
             'success': True,
             'message':'',

@@ -42,14 +42,14 @@ class budget_details(models.Model):
     created_on = models.DateTimeField(default=timezone.now())
     history = HistoricalRecords()
     class Meta:
-        unique_together = ('budget_id', 'company_master_id',)
+        unique_together = ('budget_id', 'ledger_id',)
 
 
 
 class revised_budget_details(models.Model):
     budget_id = models.ForeignKey(to=budget,null=False, on_delete=models.CASCADE)
     ledger_id = models.ForeignKey(to=ledger_master,null=False, on_delete=models.CASCADE)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    # company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     jan = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     feb = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     mar = models.DecimalField(max_digits=100, decimal_places=4, default=0)
@@ -66,7 +66,7 @@ class revised_budget_details(models.Model):
     created_on = models.DateTimeField(default=timezone.now())
     history = HistoricalRecords()
     class Meta:
-        unique_together = ('budget_id', 'company_master_id',)
+        unique_together = ('budget_id', 'ledger_id',)
 
     
 
