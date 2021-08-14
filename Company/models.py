@@ -213,7 +213,7 @@ class cost_center(models.Model):
     history = HistoricalRecords()
     
     class Meta:
-        unique_together = ('cost_category_id', 'company_master_id',)
+        unique_together = ('cost_center_name', 'company_master_id',)
     
     def __str__(self):
         return self.cost_center_name
