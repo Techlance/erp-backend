@@ -13,7 +13,7 @@ class budget(models.Model):
     authoriser = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
     budget_type = models.TextField(max_length=100)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -39,7 +39,7 @@ class budget_details(models.Model):
     nov = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     dec = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('budget_id', 'ledger_id',)
@@ -63,7 +63,7 @@ class revised_budget_details(models.Model):
     nov = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     dec = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('budget_id', 'ledger_id',)
@@ -90,7 +90,7 @@ class budget_cashflow_details(models.Model):
     budget_type = models.TextField(max_length=100)
     cashflow_head = models.TextField(max_length=100)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('budget_id', 'cashflow_head',)
@@ -114,7 +114,7 @@ class revised_budget_cashflow_details(models.Model):
     budget_type = models.TextField(max_length=100)
     cashflow_head = models.TextField(max_length=100)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('budget_id', 'cashflow_head',)

@@ -9,7 +9,7 @@ class lc(models.Model):
     trans_type = models.TextField(max_length=1000, null=False) # import/export as choice field
     lc_date = models.DateField(null=False)
     year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.CASCADE)
-    party_code = models.ForeignKey(to=ledger_master, null=False, on_delete=models.CASCADE)
+    party_code = models.ForeignKey(to=ledger_master, related_name="ledger_master1", null=False, on_delete=models.CASCADE)
     cost_center = models.ForeignKey(to=cost_center, null=False, on_delete=models.CASCADE)
     applicant_bank = models.TextField(max_length=1000, null=True)
     benificiary_bank = models.TextField(max_length=1000, null=True)
@@ -25,12 +25,12 @@ class lc(models.Model):
     shipment_terms = models.TextField(max_length=10000000, null=False)
     goods_description = models.TextField(max_length=10000000, null=False)
     other_lc_terms = models.TextField(max_length=10000000, null=False)
-    # bank_ac =  models.ForeignKey(to=ledger_master, null=False, on_delete=models.CASCADE)
+    bank_ac =  models.ForeignKey(to=ledger_master, related_name="ledger_master2", null=True, on_delete=models.CASCADE)
     expiry_date = models.DateField(null=False)
     lc_amount = models.FloatField(max_length=100000000, null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=100, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     class Meta:
@@ -43,7 +43,7 @@ class lc_docs(models.Model):
     file = models.FileField(upload_to="lc_files", null=False)
     lc_id = models.ForeignKey(to=lc, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     def __str__(self):
@@ -61,7 +61,7 @@ class lc_amend(models.Model):
     lc_amount = models.FloatField()
     remarks = models.TextField(null=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     def __str__(self):

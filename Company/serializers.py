@@ -187,6 +187,7 @@ class AccGroupSerializer(serializers.ModelSerializer):
 
 
 class AccountHeadSerializer(serializers.ModelSerializer):
+    acc_group = serializers.StringRelatedField(many=True)
     class Meta:
         model = acc_head
         fields = '__all__'
@@ -210,7 +211,7 @@ class AccountHeadSerializer(serializers.ModelSerializer):
 
 class GetAccGroupSerializer(serializers.ModelSerializer):
     acc_head_id = AccountHeadSerializer()
-    
+    ledger_master = serializers.StringRelatedField(many=True)
     class Meta:
         model = acc_group
         fields = '__all__'
@@ -267,6 +268,18 @@ class CostCategorySerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+class GetCostCategorySerializer(serializers.ModelSerializer):
+    cost_center = serializers.StringRelatedField(many=True)
+    class Meta:
+        model = cost_category
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
 
 
 class GetTransactionSerializer(serializers.ModelSerializer):

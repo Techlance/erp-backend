@@ -17,7 +17,7 @@ class ledger_balance(models.Model):
     total_dr = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     total_cr = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     class Meta:
@@ -40,7 +40,7 @@ class ledger_bal_billwise(models.Model):
     fc_name = models.ForeignKey(to=currency, null=False, on_delete=models.CASCADE)
     fc_rate = models.DecimalField(max_digits=100, decimal_places=4, default=0, null=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     class Meta:
@@ -64,7 +64,7 @@ class op_bal_brs(models.Model):
     transaction_type = models.TextField(max_length=200, null=True)
     reco_date = models.DateField(null=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
 

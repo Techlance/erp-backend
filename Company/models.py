@@ -11,7 +11,7 @@ class currency(models.Model):
     currency_name = models.TextField(max_length=100, null=False, unique=True)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -36,7 +36,7 @@ class company_master(models.Model):
     logo = models.FileField(upload_to="logo", null=True)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -49,7 +49,7 @@ class user_company(models.Model):
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('user', 'company_master_id',)
@@ -61,7 +61,7 @@ class company_master_docs(models.Model):
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -77,7 +77,7 @@ class year_master(models.Model):
     locked = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -90,7 +90,7 @@ class year_master(models.Model):
 class voucher_type(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
     voucher_class = models.TextField(max_length=500, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     authorization_id = models.ForeignKey(to=User, null=True, on_delete=models.CASCADE)
     auto_numbering = models.BooleanField(default=False)
     prefix = models.TextField(max_length=200, null=True)
@@ -98,7 +98,7 @@ class voucher_type(models.Model):
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -112,13 +112,13 @@ class voucher_type(models.Model):
 class acc_head(models.Model):
     acc_head_name = models.TextField(max_length=200, null=False)
     title = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     bs = models.BooleanField(default=True, null=False)
     schedule_no = models.IntegerField(null=False)
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -130,15 +130,15 @@ class acc_head(models.Model):
 
 class acc_group(models.Model):
     group_name = models.TextField(max_length=1000, null=False)
-    acc_head_id = models.ForeignKey(to=acc_head, null=False, on_delete=models.CASCADE)
+    acc_head_id = models.ForeignKey(to=acc_head, related_name='acc_group', null=False, on_delete=models.PROTECT)
     group_code = models.TextField(max_length=4, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
-    child_of = models.TextField(max_length=1000, null=True)
-    #child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    #child_of = models.TextField(max_length=1000, null=True)
+    child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE, blank=True)
     is_fixed = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -152,11 +152,11 @@ class acc_group(models.Model):
 
 
 class ledger_master(models.Model):
-    acc_group_id = models.ForeignKey(to=acc_group, null=False, on_delete=models.CASCADE)
+    acc_group_id = models.ForeignKey(to=acc_group, related_name="ledger_master", null=False, on_delete=models.CASCADE)
     ledger_id = models.TextField(max_length=200, null=False)
     old_ledger_id = models.TextField(max_length=200, null=True)
     ledger_name = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     maintain_billwise = models.BooleanField(default=True, null=False)
     address = models.TextField(max_length=1000, null=True)
     tel = models.TextField(max_length=15, null=True)
@@ -183,7 +183,7 @@ class ledger_master(models.Model):
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -191,11 +191,11 @@ class ledger_master(models.Model):
 
 
 class cost_category(models.Model):
-    name = models.TextField(max_length=200, null=False)
+    name = models.TextField(max_length=200, null=False, unique=True)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -204,12 +204,13 @@ class cost_category(models.Model):
 
 class cost_center(models.Model):
     cost_center_name = models.TextField(max_length=500, null=False)
-    cost_category_id = models.ForeignKey(to=cost_category, null=False, on_delete=models.CASCADE)
-    child_of = models.TextField(max_length=500, default="primary")
+    cost_category_id = models.ForeignKey(to=cost_category, related_name="cost_center", null=False, on_delete=models.CASCADE)
+    # child_of = models.TextField(max_length=500, default="primary")
+    child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE, blank=True)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     
     class Meta:
@@ -231,7 +232,7 @@ class fixed_vouchertype(models.Model):
     auto_numbering = models.BooleanField(default=False)
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return self.voucher_name
@@ -243,7 +244,7 @@ class fixed_account_head(models.Model):
     bs = models.BooleanField(default=True, null=False)
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.acc_head_name
 
@@ -252,10 +253,10 @@ class fixed_account_group(models.Model):
     group_name = models.TextField(max_length=1000, null=False)
     acc_head_id = models.ForeignKey(to=fixed_account_head, null=False, on_delete=models.CASCADE)
     group_code = models.TextField(max_length=4, null=False)
-    child_of = models.TextField(max_length=1000, null=True, blank=True)
+    child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE, blank=True)
     is_fixed = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.group_name
 
@@ -266,7 +267,7 @@ class fixed_ledger_master(models.Model):
     maintain_billwise = models.BooleanField(default=True, null=False)
     is_fixed = models.BooleanField(default=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return self.ledger_name
 

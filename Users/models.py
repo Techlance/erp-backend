@@ -9,7 +9,7 @@ class User(AbstractUser):
     name = models.TextField(max_length=200, null=False)
     email = models.EmailField(unique=True, null=False)
     created_by = models.TextField(default="primary",max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     
@@ -27,7 +27,7 @@ class user_group(models.Model):
     user_group_name = models.TextField(max_length=200, null=False, unique=True) #should be unique??
     backdated_days = models.IntegerField(default=60,null=True)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     def __str__(self):
@@ -39,7 +39,7 @@ class user_group(models.Model):
 class transaction_right(models.Model):
     transactions = models.TextField(max_length=200, null=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.transactions
@@ -53,7 +53,7 @@ class user_right(models.Model):
     can_delete = models.BooleanField(default=False)
     can_view = models.BooleanField(default=False)
     created_by = models.TextField(max_length=200, null=False)
-    created_on = models.DateTimeField(default=timezone.now())
+    created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     class Meta:

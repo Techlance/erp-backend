@@ -64,6 +64,7 @@ urlpatterns = [
     path('edit-cost-center/<int:id>', EditCostCenter.as_view()), # id : cost center id
     path('delete-cost-center/<int:id>', DeleteCostCenter.as_view()), # id : delete cost center id
     path('get-cost-center/<int:id>', GetCostCenter.as_view()), # id : company master id
+    path('get-cost-center-name/<int:id>', GetCostCenterName.as_view()), # id : cost category id
 
     path('download-company-document/<int:id>', DownloadClientDocument.as_view()), #id : documentcompan id
 

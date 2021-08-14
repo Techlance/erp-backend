@@ -15,12 +15,13 @@ from rest_framework.response import Response
 from .models import currency, company_master, user_company, company_master_docs, year_master, voucher_type, acc_head, acc_group, ledger_master, cost_category, cost_center, fixed_vouchertype, fixed_account_head, fixed_account_group, fixed_ledger_master
 import jwt
 from django.http import JsonResponse
-from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupSerializer,  AccountHeadSerializer, LedgerMasterSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer
+from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupSerializer,  AccountHeadSerializer, LedgerMasterSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from Users.models import User, transaction_right, user_group, user_right
 import PIL
 import json
+
 
 # Function to verify token for authorization
 def verify_token(request):
@@ -518,6 +519,7 @@ class EditUserCompany(APIView):
                     "email":user.email
                 }
             })
+
 
 # API For getting user company and user group in which user is included
 # request : GET
@@ -1369,7 +1371,7 @@ class GetCostCategory(APIView):
         user_permission = check_user_company_right("Cost Category", id , user.id, "can_view")
         if user_permission:
             cost_category_instance = cost_category.objects.filter(company_master_id=id)
-            serializer = CostCategorySerializer(cost_category_instance, many=True)
+            serializer = GetCostCategorySerializer(cost_category_instance, many=True)
             return Response({
             'success': True,
             'message':'',
@@ -1530,7 +1532,7 @@ class GetAccGroup(APIView):
 
 # API For getting account group name
 # request : GET
-# endpoint: get-account-group-name/id(company-id required)
+# endpoint: get-account-group-name/id(acc head id required)
 class GetAccGroupName(APIView):
     def get(self, request, id):
         payload = verify_token(request)
@@ -1538,13 +1540,15 @@ class GetAccGroupName(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        # id is company id
-        user_permission = check_user_company_right("Account Group", id, user.id, "can_view")
+        # id is acc head id
+        company_instance = acc_head.objects.get(id=id).company_master_id
+        
+        user_permission = check_user_company_right("Account Group", company_instance.id, user.id, "can_view")
         if user_permission:
-            acc_group_record = acc_group.objects.filter(company_master_id=id)
+            acc_group_record = acc_group.objects.filter(acc_head_id=id)
             grp_name = []
             for i in acc_group_record:
-                grp_name.append(i. group_name)
+                grp_name.append({'id':i.id, 'group_name':i. group_name})
             return Response({
             'success': True,
             'message':'',
@@ -1840,5 +1844,37 @@ class GetCostCenter(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to view cost center',
+                'data': []
+                }) 
+
+
+# API For getting cost center name
+# request : GET
+# endpoint: get-cost-center-name/id(cost_category_id)
+class GetCostCenterName(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is cost_category_id
+        company_instance = cost_category.objects.get(id=id).company_master_id
+        
+        user_permission = check_user_company_right("Cost center", company_instance.id, user.id, "can_view")
+        if user_permission:
+            cost_center_record = cost_center.objects.filter(cost_category_id=id)
+            cost_center_names = []
+            for i in cost_center_record:
+                cost_center_names.append({'id':i.id, 'cost_center_name':i. cost_center_name})
+            return Response({
+            'success': True,
+            'message':'',
+            'data': cost_center_names
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Cost Center Names',
                 'data': []
                 }) 
