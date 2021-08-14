@@ -90,7 +90,7 @@ class year_master(models.Model):
 class voucher_type(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
     voucher_class = models.TextField(max_length=500, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     authorization_id = models.ForeignKey(to=User, null=True, on_delete=models.CASCADE)
     auto_numbering = models.BooleanField(default=False)
     prefix = models.TextField(max_length=200, null=True)
@@ -112,7 +112,7 @@ class voucher_type(models.Model):
 class acc_head(models.Model):
     acc_head_name = models.TextField(max_length=200, null=False)
     title = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     bs = models.BooleanField(default=True, null=False)
     schedule_no = models.IntegerField(null=False)
     is_fixed = models.BooleanField(default=True)
@@ -132,7 +132,7 @@ class acc_group(models.Model):
     group_name = models.TextField(max_length=1000, null=False)
     acc_head_id = models.ForeignKey(to=acc_head, null=False, on_delete=models.CASCADE)
     group_code = models.TextField(max_length=4, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     child_of = models.TextField(max_length=1000, null=True)
     #child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     is_fixed = models.BooleanField(default=True, null=False)
@@ -156,7 +156,7 @@ class ledger_master(models.Model):
     ledger_id = models.TextField(max_length=200, null=False)
     old_ledger_id = models.TextField(max_length=200, null=True)
     ledger_name = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     maintain_billwise = models.BooleanField(default=True, null=False)
     address = models.TextField(max_length=1000, null=True)
     tel = models.TextField(max_length=15, null=True)
@@ -192,7 +192,7 @@ class ledger_master(models.Model):
 
 class cost_category(models.Model):
     name = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_on = models.DateTimeField(default=timezone.now())
@@ -206,7 +206,7 @@ class cost_center(models.Model):
     cost_center_name = models.TextField(max_length=500, null=False)
     cost_category_id = models.ForeignKey(to=cost_category, null=False, on_delete=models.CASCADE)
     child_of = models.TextField(max_length=500, default="primary")
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())

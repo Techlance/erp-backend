@@ -168,7 +168,6 @@ class AccGroupSerializer(serializers.ModelSerializer):
             
             'id':{'read_only': True},
             'created_on':{'read_only': True},
-            'is_fixed': {'write_only': True},
              'altered_by': {'write_only': True}
         }
 
@@ -211,6 +210,7 @@ class AccountHeadSerializer(serializers.ModelSerializer):
 
 class GetAccGroupSerializer(serializers.ModelSerializer):
     acc_head_id = AccountHeadSerializer()
+    
     class Meta:
         model = acc_group
         fields = '__all__'
@@ -218,7 +218,6 @@ class GetAccGroupSerializer(serializers.ModelSerializer):
             
             'id':{'read_only': True},
             'created_on':{'read_only': True},
-            'is_fixed': {'write_only': True},
             'altered_by': {'write_only': True}
         }
 
