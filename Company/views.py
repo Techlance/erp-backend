@@ -12,14 +12,13 @@ Status : {
 from django.db import reset_queries
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import *
-# from Company.models import user_company
-# from Company.models import user_group
+from .models import currency, company_master, user_company, company_master_docs, year_master, voucher_type, acc_head, acc_group, ledger_master, cost_category, cost_center, fixed_vouchertype, fixed_account_head, fixed_account_group, fixed_ledger_master
 import jwt
 from django.http import JsonResponse
-from .serializers import *
+from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupSerializer,  AccountHeadSerializer, LedgerMasterSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer
 from datetime import date, timedelta
 from django.http.response import HttpResponse
+from Users.models import User, transaction_right, user_group, user_right
 import PIL
 import json
 
@@ -117,7 +116,7 @@ class GetTransaction(APIView):
 # endpoint : get-user-company
 class GetUserCompanyView(APIView):
     def get(self, request):
-        # verify token for authorization
+        # verify token for authorization 
         payload = verify_token(request)
         try:
             user = User.objects.filter(id=payload['id']).first()
@@ -169,10 +168,10 @@ def acc_head_insert(acc_head_fields, company_id, user_email):
 def acc_group_insert(acc_group_fields, company_id, user_email):
     for i in acc_group_fields:
         try:
-            new_acc_group = acc_group(group_name=i[0], acc_head_id = i[1], child_of=i[2], group_code=i[3], company_master_id=company_id, created_by=user_email)
+            new_acc_group = acc_group(group_name=i[0], acc_head_id = i[1], child_of=i[3], group_code=i[2], company_master_id=company_id, created_by=user_email)
             new_acc_group.save()
         except:
-            new_acc_group = acc_group(group_name=i[0], acc_head_id = i[1], group_code=i[2], company_master_id=company_id, created_by=user_email)
+            new_acc_group = acc_group(group_name=i[0], acc_head_id = i[1], group_code=i[2], child_of=None, company_master_id=company_id, created_by=user_email)
             new_acc_group.save()
 
 
@@ -1516,7 +1515,7 @@ class GetAccGroup(APIView):
         user_permission = check_user_company_right("Account Group", id, user.id, "can_view")
         if user_permission:
             acc_group_record = acc_group.objects.filter(company_master_id=id)
-            serializer = AccGroupSerializer(acc_group_record, many=True)
+            serializer = GetAccGroupSerializer(acc_group_record, many=True)
             return Response({
             'success': True,
             'message':'',
@@ -1526,6 +1525,35 @@ class GetAccGroup(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to view Account group',
+                'data': []
+                }) 
+
+# API For getting account group name
+# request : GET
+# endpoint: get-account-group-name/id(company-id required)
+class GetAccGroupName(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        user_permission = check_user_company_right("Account Group", id, user.id, "can_view")
+        if user_permission:
+            acc_group_record = acc_group.objects.filter(company_master_id=id)
+            grp_name = []
+            for i in acc_group_record:
+                grp_name.append(i. group_name)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': grp_name
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Account group name',
                 'data': []
                 }) 
 

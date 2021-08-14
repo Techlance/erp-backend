@@ -53,6 +53,7 @@ urlpatterns = [
     path('edit-account-group/<int:id>', EditAccGroup.as_view()), # id : Account group id
     path('delete-account-group/<int:id>', DeleteAccGroup.as_view()), # id : Account group id
     path('get-account-group/<int:id>', GetAccGroup.as_view()), # id : company_master_id
+    path('get-account-group-name/<int:id>', GetAccGroupName.as_view()), # id : company_master_id
 
     path('add-ledger-master', AddLedgerMaster.as_view()),
     path('edit-ledger-master/<int:id>', EditLedgerMaster.as_view()), # id : ledger master id

@@ -16,7 +16,7 @@ urlpatterns = [
     path('add-lc-amend', AddLCAmend.as_view()),
     path('edit-lc-amend/<int:id>', EditLCAmend.as_view()), # id : lc id
     path('delete-lc-amend/<int:id>', DeleteLCAmend.as_view()), # id : lc id
-    path('get-lc-amend', GetLCAmend.as_view()) # id : lc id
+    path('get-lc-amend/<int:id>', GetLCAmend.as_view()) # id : lc id
     
     
 ]

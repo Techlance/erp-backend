@@ -7,6 +7,8 @@ from .models import *
 import jwt
 from django.http import JsonResponse
 from .serializers import *
+from Company.models import *
+from Users.models import User, transaction_right, user_group, user_right
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 import PIL
@@ -67,7 +69,9 @@ def check_user_company_right(transaction_rights, user_company_id, user_id, need_
         user_group_instance = user_group.objects.get(id=check_user_group)
         # Query-3 : check user right 
         check_user_right = user_right.objects.get(user_group_id=user_group_instance, transaction_id=transaction_right_instance)
+        
     except:
+        # print('debug')
         return False
     
     # check condition for user permission
@@ -148,12 +152,14 @@ class EditBudget(APIView):
             return payload
         # check user permission
         user_permission=False
-        if request.data['authoriser']==user.id:
+        # print(int(request.data['authoriser']),int(user.id))
+        if int(request.data['authoriser'])==int(user.id):
             if request.data['budget_type']=='P&L':
                 user_permission = check_user_company_right("Budget-P&L", request.data['company_master_id'], user.id, "can_edit")
+                
             elif request.data['budget_type']=='Cashflow':
                 user_permission = check_user_company_right("Budget-Cash flow", request.data['company_master_id'], user.id, "can_edit")
-        
+        # print(user_permission)
         if user_permission:
             budget_instance = budget.objects.get(id=id)
             serializer = BudgetSerializer(budget_instance, data = request.data)
@@ -186,7 +192,7 @@ class EditBudget(APIView):
 # API For deleting budget
 # request : DELETE
 # endpoint : delete-budget/<int:id> 
-class DeleteBudget(APIView):  
+class DeleteBudget(APIView):
     def delete(self, request, id):
         # verify token for authorization
         payload = verify_token(request)
@@ -195,7 +201,7 @@ class DeleteBudget(APIView):
         except:
             return payload
         user_permission=False
-        if request.data['authoriser']==user.id:
+        if int(request.data['authoriser'])==int(user.id):
             if request.data['budget_type']=='P&L':
                 user_permission = check_user_company_right("Budget-P&L", request.data['company_master_id'], user.id, "can_delete")
             elif request.data['budget_type']=='Cashflow':
@@ -284,7 +290,7 @@ class CreateBudgetDetails(APIView):
 
 # API For editing budget
 # request : PUT
-# endpoint : edit-budget/id
+# endpoint : edit-budget-details/id
 class EditBudgetDetails(APIView):
     def put(self, request, id):
         payload = verify_token(request)
@@ -293,9 +299,9 @@ class EditBudgetDetails(APIView):
         except:
             return payload
         # check user permission
-        budget_instance = budget.objects.get(id=id)
+        budget_instance = budget.objects.get(id=request.data['budget_id'])
         user_permission=False
-        if budget_instance.authoriser==user.id:
+        if budget_instance.authoriser.id==user.id:
             user_permission = check_user_company_right("Budget-P&L", request.data['company_master_id'], user.id, "can_edit")
         
         if user_permission:
@@ -338,9 +344,9 @@ class DeleteBudgetDetails(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        budget_instance = budget.objects.get(id=id)
+        budget_instance = budget.objects.get(id=request.data['budget_id'])
         user_permission=False
-        if budget_instance.authoriser==user.id:
+        if budget_instance.authoriser.id==user.id:
             user_permission = check_user_company_right("Budget-P&L", request.data['company_master_id'], user.id, "can_delete")
 
         if user_permission:

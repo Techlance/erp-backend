@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import *
+from .models import lc, lc_docs, lc_amend
 
 class LCSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,7 +9,8 @@ class LCSerializer(serializers.ModelSerializer):
             
             'id':{'read_only': True},
             'created_on':{'read_only': True},
-            'lc_no': {'read_only': True}
+            'lc_no': {'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
     def create(self, validated_data): 
@@ -32,6 +33,7 @@ class LCDocsSerializer(serializers.ModelSerializer):
             
             'id':{'read_only': True},
             'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
     def create(self, validated_data): 
@@ -52,7 +54,8 @@ class GetLCDocsSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 class LCAmendSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,6 +65,7 @@ class LCAmendSerializer(serializers.ModelSerializer):
             
             'id':{'read_only': True},
             'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
     def create(self, validated_data): 

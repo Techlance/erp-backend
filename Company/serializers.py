@@ -51,7 +51,8 @@ class GetCompanySerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+             'altered_by': {'write_only': True}
         }
 
 
@@ -61,7 +62,8 @@ class CompanyDocumentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
     
     def create(self, validated_data): 
@@ -84,7 +86,8 @@ class GetCompanyDocumentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
 class UserCompanySerializer(serializers.ModelSerializer):
@@ -93,7 +96,8 @@ class UserCompanySerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
     def create(self, validated_data): 
         instance = self.Meta.model(**validated_data)
@@ -114,17 +118,10 @@ class GetUserCompanySerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+             'altered_by': {'write_only': True}
         }
 
-# class CurrencySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = currency
-#         fields = '__all__'
-#         extra_kwargs = {
-#             'id':{'read_only': True},
-#             'created_on':{'read_only': True}
-#         }
 
 class GetVoucherTypeSerializer(serializers.ModelSerializer):
     authorization_id = UsernamesSerializer()
@@ -134,7 +131,8 @@ class GetVoucherTypeSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+             'altered_by': {'write_only': True}
         }
 
 class VoucherTypeSerializer(serializers.ModelSerializer):
@@ -144,7 +142,8 @@ class VoucherTypeSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+             'altered_by': {'write_only': True}
         }
 
          
@@ -161,6 +160,7 @@ class VoucherTypeSerializer(serializers.ModelSerializer):
 
 
 class AccGroupSerializer(serializers.ModelSerializer):
+   
     class Meta:
         model = acc_group
         fields = '__all__'
@@ -168,7 +168,8 @@ class AccGroupSerializer(serializers.ModelSerializer):
             
             'id':{'read_only': True},
             'created_on':{'read_only': True},
-            'is_fixed': {'write_only': True}
+            'is_fixed': {'write_only': True},
+             'altered_by': {'write_only': True}
         }
 
          
@@ -182,6 +183,8 @@ class AccGroupSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+
 
 
 class AccountHeadSerializer(serializers.ModelSerializer):
@@ -191,6 +194,7 @@ class AccountHeadSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'id':{'read_only': True},
             'created_on':{'read_only': True},
+             'altered_by': {'write_only': True}
         }
 
          
@@ -205,6 +209,18 @@ class AccountHeadSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class GetAccGroupSerializer(serializers.ModelSerializer):
+    acc_head_id = AccountHeadSerializer()
+    class Meta:
+        model = acc_group
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'is_fixed': {'write_only': True},
+            'altered_by': {'write_only': True}
+        }
 
 class LedgerMasterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -213,7 +229,8 @@ class LedgerMasterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
          
@@ -236,7 +253,8 @@ class CostCategorySerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
          
@@ -259,7 +277,8 @@ class GetTransactionSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
 
@@ -270,7 +289,8 @@ class CostCenterSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
 

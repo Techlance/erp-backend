@@ -18,6 +18,7 @@ class ledger_balance(models.Model):
     total_cr = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('ledger_id', 'year_id',)
@@ -40,6 +41,7 @@ class ledger_bal_billwise(models.Model):
     fc_rate = models.DecimalField(max_digits=100, decimal_places=4, default=0, null=False)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('ledger_bal_id', 'ref_no',)
@@ -63,6 +65,7 @@ class op_bal_brs(models.Model):
     reco_date = models.DateField(null=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(default=timezone.now())
+    altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
 
     def __str__(self):

@@ -22,7 +22,8 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'password': {'write_only': True},
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
 
@@ -62,7 +63,8 @@ class UserGroupSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
     
 
@@ -86,7 +88,8 @@ class UserRightSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
 
 
@@ -108,7 +111,8 @@ class TransactionRightSerializer(serializers.ModelSerializer):
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }
     
 
@@ -121,5 +125,6 @@ class GetUserRightSerializer(serializers.ModelSerializer):
         exclude = ('user_group_id', )
         extra_kwargs = {
             'id':{'read_only': True},
-            'created_on':{'read_only': True}
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
         }

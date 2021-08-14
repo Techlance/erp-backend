@@ -106,7 +106,10 @@ class AddLC(APIView):
         # permission
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
-            serializer = LCSerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LCSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -116,12 +119,6 @@ class AddLC(APIView):
                 }
                 })
 
-            # company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            # new_lc_logs = lc_logs(trans_type=request.data['trans_type'], lc_date=request.data['lc_date'], year_id=request.data['year_id'], party_code=request.data['party_code'], cost_center=request.data['cost_center'], applicant_bank=request.data['applicant_bank'],
-            # benificiary_bank=request.data['benificiary_bank'], benificiary_bank_lc_no=request.data['benificiary_bank_lc_no'], applicant_bank_lc_no=request.data['applicant_bank_lc_no'], inspection=request.data['inspection'], bank_ref=request.data['bank_ref'], days_for_submit_to_bank=request.data['days_for_submit_to_bank'], payment_terms=request.data['payment_terms'],
-            # place_of_taking_incharge=request.data['place_of_taking_incharge'], final_destination_of_delivery=request.data['final_destination_of_delivery'], completed=request.data['completed'], shipment_terms=request.data['shipment_terms'], goods_description=request.data['goods_description'], other_lc_terms=request.data['other_lc_terms'], 
-            # bank_ac=request.data['bank_ac'], expiry_date=request.data['expiry_date'], lc_amount=request.data['lc_amount'], company_master_id=company_master_instance, entry="after", is_deleted=False, operation="create", altered_by=user.email,)
-            # new_lc_logs.save()
             serializer.save()
 
             return Response({
@@ -154,7 +151,10 @@ class EditLC(APIView):
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
             lc_instance = lc.objects.get(id=id)
-            serializer = lc(lc_instance, data=request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LCSerializer(lc_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
@@ -162,17 +162,6 @@ class EditLC(APIView):
                     'message': get_error(serializer.errors),
                     })
 
-            # company_master_instance = company_master.objects.get(id=request.data['company_master_id'])
-            # new_lc_logs = lc_logs(trans_type=lc_instance.trans_type, lc_date=lc_instance.lc_date, year_id=lc_instance.year_id, party_code=lc_instance.party_code, cost_center=lc_instance.cost_center, applicant_bank=lc_instance.applicant_bank,
-            # benificiary_bank=lc_instance.benificiary_bank, benificiary_bank_lc_no=lc_instance.benificiary_bank_lc_no, applicant_bank_lc_no=lc_instance.applicant_bank_lc_no, inspection=lc_instance.inspection, bank_ref=lc_instance.bank_ref, days_for_submit_to_bank=lc_instance.days_for_submit_to_bank, payment_terms=lc_instance.payment_terms,
-            # place_of_taking_incharge=lc_instance.place_of_taking_incharge, final_destination_of_delivery=lc_instance.final_destination_of_delivery, completed=lc_instance.completed, shipment_terms=lc_instance.shipment_terms, goods_description=lc_instance.goods_description, other_lc_terms=lc_instance.other_lc_terms, 
-            # bank_ac=lc_instance.bank_ac, expiry_date=lc_instance.expiry_date, lc_amount=lc_instance.lc_amount, company_master_id=lc_instance.company_master_id.company_name, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            # new_lc_logs.save()
-            # new_lc_logs = lc_logs(trans_type=request.data['trans_type'], lc_date=request.data['lc_date'], year_id=request.data['year_id'], party_code=request.data['party_code'], cost_center=request.data['cost_center'], applicant_bank=request.data['applicant_bank'],
-            # benificiary_bank=request.data['benificiary_bank'], benificiary_bank_lc_no=request.data['benificiary_bank_lc_no'], applicant_bank_lc_no=request.data['applicant_bank_lc_no'], inspection=request.data['inspection'], bank_ref=request.data['bank_ref'], days_for_submit_to_bank=request.data['days_for_submit_to_bank'], payment_terms=request.data['payment_terms'],
-            # place_of_taking_incharge=request.data['place_of_taking_incharge'], final_destination_of_delivery=request.data['final_destination_of_delivery'], completed=request.data['completed'], shipment_terms=request.data['shipment_terms'], goods_description=request.data['goods_description'], other_lc_terms=request.data['other_lc_terms'], 
-            # bank_ac=request.data['bank_ac'], expiry_date=request.data['expiry_date'], lc_amount=request.data['lc_amount'], company_master_id=company_master_instance.company_name, entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            # new_lc_logs.save()
             serializer.save()
             return Response({
                 'success': True,
@@ -198,11 +187,7 @@ class DeleteLC(APIView):
         lc_instance = lc.objects.get(id=id)
         user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            # new_lc_logs = lc_logs(trans_type=lc_instance.trans_type, lc_date=lc_instance.lc_date, year_id=lc_instance.year_id, party_code=lc_instance.party_code, cost_center=lc_instance.cost_center, applicant_bank=lc_instance.applicant_bank,
-            # benificiary_bank=lc_instance.benificiary_bank, benificiary_bank_lc_no=lc_instance.benificiary_bank_lc_no, applicant_bank_lc_no=lc_instance.applicant_bank_lc_no, inspection=lc_instance.inspection, bank_ref=lc_instance.bank_ref, days_for_submit_to_bank=lc_instance.days_for_submit_to_bank, payment_terms=lc_instance.payment_terms,
-            # place_of_taking_incharge=lc_instance.place_of_taking_incharge, final_destination_of_delivery=lc_instance.final_destination_of_delivery, completed=lc_instance.completed, shipment_terms=lc_instance.shipment_terms, goods_description=lc_instance.goods_description, other_lc_terms=lc_instance.other_lc_terms, 
-            # bank_ac=lc_instance.bank_ac, expiry_date=lc_instance.expiry_date, lc_amount=lc_instance.lc_amount, company_master_id=lc_instance.company_master_id.company_name, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            # new_lc_logs.save()
+            lc_instance.altered_by = user.email
             lc_instance.delete()
             return Response({
                 'success': True,
@@ -260,7 +245,10 @@ class AddLCDoc(APIView):
         
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
-            serializer = LCDocsSerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LCDocsSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -305,23 +293,18 @@ class EditLcDoc(APIView):
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
             lc_document_instance = lc_docs.objects.get(id=id)
-            serializer = LCDocsSerializer(lc_document_instance, data=request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LCDocsSerializer(lc_document_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
                     'success': False,
                     'message': get_error(serializer.errors),
                     })
-            
-            # instance_lc = lc.objects.get(id=request.data['lc_id'])
-            # new_lc_docs_logs = lc_docs_logs(doc_name=lc_document_instance.doc_name, file=lc_document_instance.file, lc_id=lc_document_instance.lc_id.lc_no, entry="before", is_deleted=False, operation="edit", altered_by=user.email,)
-            # new_lc_docs_logs.save()
-            
-            
+              
             serializer.save()
-            # lc_document_instance = lc_docs.objects.get(id=id)
-            # new_lc_docs_logs = lc_docs_logs(doc_name=lc_document_instance.doc_name, file=lc_document_instance.file, lc_id=lc_document_instance.lc_id.lc_no, entry="after", is_deleted=False, operation="edit", altered_by=user.email,)
-            # new_lc_docs_logs.save()
             
             return Response({
                 'success': True,
@@ -350,8 +333,7 @@ class DeleteLcDoc(APIView):
         lc_instance = lc.objects.get(id=lc_document.lc_id.id)
         user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            # new_lc_document_logs = lc_docs_logs(doc_name=lc_document.doc_name, file=lc_document.doc_name, lc_id=lc_instance.lc_no, entry="before", is_deleted=True, operation="delete", altered_by=user.email,)
-            # new_lc_document_logs.save()
+            lc_document.altered_by = user.email
             lc_document.delete()
             return Response({
                 'success': True,
@@ -448,7 +430,10 @@ class AddLCAmend(APIView):
         # permission
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
-            serializer = LCAmendSerializer(data = request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LCAmendSerializer(data = context)
             if not serializer.is_valid():
                 return Response({
                 "success":False,
@@ -458,11 +443,6 @@ class AddLCAmend(APIView):
                 }
                 })
 
-
-            # lc_instance = lc.objects.get(id=request.data['lc_id'])
-            # new_lc_amend_logs = lc_amend_logs(lc_id=lc_instance.lc_no, amendment_no=request.data['amendment_no'], issue_date=request.data['issue_date'], LDS=request.data['LDS'], expiry_date=request.data['expiry_date'], lc_amount=request.data['lc_amount'],
-            # remarks=request.data['remarks'], entry="after", is_deleted=False, operation="create", altered_by=user.email)
-            # new_lc_amend_logs.save()
             serializer.save()
 
             return Response({
@@ -495,7 +475,10 @@ class EditLCAmend(APIView):
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
             lc_amend_instance = lc_amend.objects.get(id=id)
-            serializer = LCAmendSerializer(lc_amend_instance, data=request.data)
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            serializer = LCAmendSerializer(lc_amend_instance, data=context)
 
             if not serializer.is_valid():
                 return Response({
@@ -503,13 +486,6 @@ class EditLCAmend(APIView):
                     'message': get_error(serializer.errors),
                     })
 
-            # lc_instance = lc.objects.get(id=request.data['lc_id'])
-            # new_lc_amend_logs = lc_amend_logs(lc_id=lc_amend_instance.lc_id, amendment_no=lc_amend_instance.amendment_no, issue_date=lc_amend_instance.issue_date, LDS=lc_amend_instance.LDS, expiry_date=lc_amend_instance.expiry_date, lc_amount=lc_amend_instance.lc_amount,
-            # remarks=lc_amend_instance.remarks, entry="before", is_deleted=False, operation="edit", altered_by=user.email)
-            # new_lc_amend_logs.save()
-            # new_lc_amend_logs = lc_amend_logs(lc_id=lc_instance.lc_no, amendment_no=request.data['amendment_no'], issue_date=request.data['issue_date'], LDS=request.data['LDS'], expiry_date=request.data['expiry_date'], lc_amount=request.data['lc_amount'],
-            # remarks=request.data['remarks'], entry="after", is_deleted=False, operation="create", altered_by=user.email)
-            # new_lc_amend_logs.save()
             serializer.save()
             return Response({
                 'success': True,
@@ -533,9 +509,7 @@ class DeleteLCAmend(APIView):
             return payload
         
         lc_amend_instance = lc_amend.objects.get(id=id)
-        # new_lc_amend_logs = lc_amend_logs(lc_id=lc_amend_instance.lc_id, amendment_no=lc_amend_instance.amendment_no, issue_date=lc_amend_instance.issue_date, LDS=lc_amend_instance.LDS, expiry_date=lc_amend_instance.expiry_date, lc_amount=lc_amend_instance.lc_amount,
-        # remarks=lc_amend_instance.remarks, entry="before", is_deleted=True, operation="delete", altered_by=user.email)
-        # new_lc_amend_logs.save()
+        lc_amend_instance.altered_by = user.email
         lc_amend_instance.delete()
         return Response({
             'success': True,

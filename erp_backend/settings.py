@@ -192,3 +192,6 @@ AWS_ACCESS_KEY_ID = 'AKIAZLRYZL7UB4JNRVI5'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'roofingstorage'
 AWS_QUERYSTRING_AUTH = False
+
+# import warnings
+# warnings.filterwarnings("ignore")

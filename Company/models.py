@@ -1,7 +1,7 @@
 from re import T
 from django.db import models
 from django.utils import timezone
-from Users.models import *
+from Users.models import User, user_group
 from simple_history.models import HistoricalRecords
 # Create your models here.
 
@@ -134,6 +134,7 @@ class acc_group(models.Model):
     group_code = models.TextField(max_length=4, null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     child_of = models.TextField(max_length=1000, null=True)
+    #child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
     is_fixed = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)

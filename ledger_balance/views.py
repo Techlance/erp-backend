@@ -142,7 +142,6 @@ class AddLedgerBalance(APIView):
             #request.data.update({'fc_rate': fc_rate})
             context['fc_rate'] = fc_rate
            
-
             serializer = LedgerBalanceSerializer(data = context)
 
             if not serializer.is_valid():
@@ -263,7 +262,7 @@ class DeleteLedgerBalance(APIView):
         ledger_balance_instance = ledger_balance.objects.get(id=id)
         user_permission = check_user_company_right("Opening Balance", ledger_balance_instance.company_master_id, user.id, "can_delete")
         if user_permission:
-            
+            ledger_balance_instance.altered_by = user.email
             ledger_balance_instance.delete()
             return Response({
                 'success': True,
@@ -395,6 +394,7 @@ class DeleteLedgerBalBillwise(APIView):
         ledger_balance_billwise_instance = ledger_bal_billwise.objects.get(id=id)
         user_permission = check_user_company_right("Opening Balance", ledger_balance_billwise_instance.company_master_id, user.id, "can_delete")
         if user_permission:
+            ledger_balance_billwise_instance.altered_by = user.email
             ledger_balance_billwise_instance.delete()
             return Response({
                 'success': True,
@@ -530,6 +530,7 @@ class DeleteOpBalBrs(APIView):
         op_bal_brs_instance = op_bal_brs.objects.get(id=id)
         user_permission = check_user_company_right("Opening Balance", op_bal_brs_instance.company_master_id, user.id, "can_delete")
         if user_permission:
+            op_bal_brs_instance.altered_by = user.email
             op_bal_brs_instance.delete()
             return Response({
                 'success': True,
