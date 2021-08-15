@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from .models import currency, company_master, user_company, company_master_docs, year_master, voucher_type, acc_head, acc_group, ledger_master, cost_category, cost_center, fixed_vouchertype, fixed_account_head, fixed_account_group, fixed_ledger_master
 import jwt
 from django.http import JsonResponse
-from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupSerializer,  AccountHeadSerializer, LedgerMasterSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer
+from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupSerializer,  AccountHeadSerializer, LedgerMasterSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer, GetCostCenterSerializer
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from Users.models import User, transaction_right, user_group, user_right
@@ -1834,7 +1834,7 @@ class GetCostCenter(APIView):
         user_permission = check_user_company_right("Cost center", id, user.id, "can_view")
         if user_permission:
             cost_center_record = cost_center.objects.filter(company_master_id=id)
-            serializer = CostCenterSerializer(cost_center_record, many=True)
+            serializer = GetCostCenterSerializer(cost_center_record, many=True)
             return Response({
             'success': True,
             'message':'',

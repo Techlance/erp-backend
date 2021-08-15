@@ -306,3 +306,14 @@ class CostCenterSerializer(serializers.ModelSerializer):
         }
 
 
+class GetCostCenterSerializer(serializers.ModelSerializer):
+    child_of = CostCenterSerializer()
+    class Meta:
+        model = cost_center
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
