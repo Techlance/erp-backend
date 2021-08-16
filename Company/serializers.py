@@ -221,6 +221,9 @@ class GetAccGroupSerializer(serializers.ModelSerializer):
             'created_on':{'read_only': True},
             'altered_by': {'write_only': True}
         }
+    def to_representation(self, instance):
+        self.fields['child_of'] = GetAccGroupSerializer(read_only=True)
+        return super(GetAccGroupSerializer, self).to_representation(instance)
 
 class LedgerMasterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -306,8 +309,9 @@ class CostCenterSerializer(serializers.ModelSerializer):
         }
 
 
-class GetCostCenterSerializer(serializers.ModelSerializer):
-    child_of = CostCenterSerializer()
+
+class DummyGetCostCenterSerializer(serializers.ModelSerializer):
+    cost_category_id = CostCategorySerializer()
     class Meta:
         model = cost_center
         fields = '__all__'
@@ -317,3 +321,22 @@ class GetCostCenterSerializer(serializers.ModelSerializer):
             'created_on':{'read_only': True},
             'altered_by': {'write_only': True}
         }
+
+
+class GetCostCenterSerializer(serializers.ModelSerializer):
+    # child_of = DummyGetCostCenterSerializer()
+    
+    cost_category_id = CostCategorySerializer()
+    class Meta:
+        model = cost_center
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+
+    def to_representation(self, instance):
+        self.fields['child_of'] = GetCostCenterSerializer(read_only=True)
+        return super(GetCostCenterSerializer, self).to_representation(instance)

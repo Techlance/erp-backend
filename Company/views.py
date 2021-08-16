@@ -26,6 +26,7 @@ import json
 # Function to verify token for authorization
 def verify_token(request):
     try:
+        
         if not (request.headers['Authorization'] == "null"):
             token = request.headers['Authorization']
     except:
