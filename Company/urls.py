@@ -60,7 +60,8 @@ urlpatterns = [
     path('edit-ledger-master/<int:id>', EditLedgerMaster.as_view()), # id : ledger master id
     path('delete-ledger-master/<int:id>', DeleteLedgerMaster.as_view()), # id : ledger master id
     path('get-ledger-master/<int:id>', GetLedgerMaster.as_view()), # id : company master id
-     path('get-detail-ledger-master/<int:id>', GetDetailLedgerMaster.as_view()), # id : ledger id
+    path('get-detail-ledger-master/<int:id>', GetDetailLedgerMaster.as_view()), # id : ledger id
+    path('get-acc-ledger-master/<int:id>', GetAccLedgerMaster.as_view()), # id : company id
 
     path('add-cost-center', AddCostCenter.as_view()),
     path('edit-cost-center/<int:id>', EditCostCenter.as_view()), # id : cost center id

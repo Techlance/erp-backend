@@ -214,6 +214,7 @@ class AccountHeadSerializer(serializers.ModelSerializer):
 class GetAccGroupNestedSerializer(serializers.ModelSerializer):
     acc_head_id = AccountHeadSerializer()
     ledger_master = serializers.StringRelatedField(many=True)
+    child = serializers.StringRelatedField(many=True)
     class Meta:
         model = acc_group
         fields = '__all__'

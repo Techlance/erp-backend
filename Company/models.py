@@ -45,7 +45,7 @@ class company_master(models.Model):
 
 class user_company(models.Model):
     user = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
-    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.Case)
+    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
@@ -134,7 +134,7 @@ class acc_group(models.Model):
     group_code = models.TextField(max_length=4, null=False)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     #child_of = models.TextField(max_length=1000, null=True)
-    child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE, blank=True)
+    child_of = models.ForeignKey('self', related_name='child', null=True, on_delete=models.PROTECT, blank=True)
     is_fixed = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
@@ -152,7 +152,7 @@ class acc_group(models.Model):
 
 
 class ledger_master(models.Model):
-    acc_group_id = models.ForeignKey(to=acc_group, related_name="ledger_master", null=False, on_delete=models.CASCADE)
+    acc_group_id = models.ForeignKey(to=acc_group, related_name="ledger_master", null=False, on_delete=models.PROTECT)
     ledger_id = models.TextField(max_length=200, null=False)
     old_ledger_id = models.TextField(max_length=200, null=True)
     ledger_name = models.TextField(max_length=200, null=False)
@@ -192,7 +192,7 @@ class ledger_master(models.Model):
 
 class cost_category(models.Model):
     name = models.TextField(max_length=200, null=False, unique=True)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -204,10 +204,10 @@ class cost_category(models.Model):
 
 class cost_center(models.Model):
     cost_center_name = models.TextField(max_length=500, null=False)
-    cost_category_id = models.ForeignKey(to=cost_category, related_name="cost_center", null=False, on_delete=models.CASCADE)
+    cost_category_id = models.ForeignKey(to=cost_category, related_name="cost_center", null=False, on_delete=models.PROTECT)
     # child_of = models.TextField(max_length=500, default="primary")
-    child_of = models.ForeignKey('self', null=True, on_delete=models.CASCADE, blank=True)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
+    child_of = models.ForeignKey('self', null=True, on_delete=models.PROTECT, blank=True)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(auto_now_add=True)
