@@ -209,7 +209,9 @@ class AccountHeadSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class GetAccGroupSerializer(serializers.ModelSerializer):
+
+
+class GetAccGroupNestedSerializer(serializers.ModelSerializer):
     acc_head_id = AccountHeadSerializer()
     ledger_master = serializers.StringRelatedField(many=True)
     class Meta:
@@ -222,8 +224,29 @@ class GetAccGroupSerializer(serializers.ModelSerializer):
             'altered_by': {'write_only': True}
         }
     def to_representation(self, instance):
-        self.fields['child_of'] = GetAccGroupSerializer(read_only=True)
-        return super(GetAccGroupSerializer, self).to_representation(instance)
+        self.fields['child_of'] = GetAccGroupNestedSerializer(read_only=True)
+        return super(GetAccGroupNestedSerializer, self).to_representation(instance)
+
+class GetAccGroupNotNestedSerializer(serializers.ModelSerializer):
+    #acc_head_id = GetAccountHeadNameSerializer()
+    acc_head_id = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='acc_head_name'
+     )
+    child_of = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='group_name'
+     )
+    class Meta:
+        model = acc_group
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+
 
 class LedgerMasterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -247,7 +270,36 @@ class LedgerMasterSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
-        
+
+class GetLedgerMasterNestedSerializer(serializers.ModelSerializer):
+    acc_group_id = GetAccGroupNotNestedSerializer()
+    class Meta:
+        model = ledger_master
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+
+class GetLedgerMasterNotNestedSerializer(serializers.ModelSerializer):
+    acc_group_id = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='group_name'
+     )
+   
+    class Meta:
+        model = ledger_master
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+
+      
 
 class CostCategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -310,21 +362,7 @@ class CostCenterSerializer(serializers.ModelSerializer):
 
 
 
-class DummyGetCostCenterSerializer(serializers.ModelSerializer):
-    cost_category_id = CostCategorySerializer()
-    class Meta:
-        model = cost_center
-        fields = '__all__'
-        extra_kwargs = {
-            
-            'id':{'read_only': True},
-            'created_on':{'read_only': True},
-            'altered_by': {'write_only': True}
-        }
-
-
 class GetCostCenterSerializer(serializers.ModelSerializer):
-    # child_of = DummyGetCostCenterSerializer()
     
     cost_category_id = CostCategorySerializer()
     class Meta:
@@ -340,3 +378,23 @@ class GetCostCenterSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         self.fields['child_of'] = GetCostCenterSerializer(read_only=True)
         return super(GetCostCenterSerializer, self).to_representation(instance)
+
+class GetCostCenterNotNestedSerializer(serializers.ModelSerializer):
+   
+    cost_category_id = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='name'
+     )
+    child_of = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='cost_center_name'
+     )
+    class Meta:
+        model = cost_center
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }

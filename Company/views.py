@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from .models import currency, company_master, user_company, company_master_docs, year_master, voucher_type, acc_head, acc_group, ledger_master, cost_category, cost_center, fixed_vouchertype, fixed_account_head, fixed_account_group, fixed_ledger_master
 import jwt
 from django.http import JsonResponse
-from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupSerializer,  AccountHeadSerializer, LedgerMasterSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer, GetCostCenterSerializer
+from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupNestedSerializer, GetAccGroupNotNestedSerializer,  AccountHeadSerializer, LedgerMasterSerializer,GetLedgerMasterNotNestedSerializer, GetLedgerMasterNestedSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer, GetCostCenterSerializer,GetCostCenterNotNestedSerializer
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from Users.models import User, transaction_right, user_group, user_right
@@ -26,7 +26,7 @@ import json
 # Function to verify token for authorization
 def verify_token(request):
     try:
-        
+
         if not (request.headers['Authorization'] == "null"):
             token = request.headers['Authorization']
     except:
@@ -1506,8 +1506,8 @@ class DeleteAccGroup(APIView):
 
 # API For getting account group
 # request : GET
-# endpoint: get-account-group/id(company-id required)
-class GetAccGroup(APIView):
+# endpoint: get-detail-account-group/id(acc group id required)
+class GetDetailAccGroup(APIView):
     def get(self, request, id):
         payload = verify_token(request)
         try:
@@ -1515,10 +1515,11 @@ class GetAccGroup(APIView):
         except:
             return payload
         # id is company id
-        user_permission = check_user_company_right("Account Group", id, user.id, "can_view")
+        acc_group_record = acc_group.objects.get(id=id)
+        user_permission = check_user_company_right("Account Group", acc_group_record.company_master_id, user.id, "can_view")
         if user_permission:
-            acc_group_record = acc_group.objects.filter(company_master_id=id)
-            serializer = GetAccGroupSerializer(acc_group_record, many=True)
+            
+            serializer = GetAccGroupNestedSerializer(acc_group_record)
             return Response({
             'success': True,
             'message':'',
@@ -1533,7 +1534,7 @@ class GetAccGroup(APIView):
 
 # API For getting account group name
 # request : GET
-# endpoint: get-account-group-name/id(acc head id required)
+# endpoint: get-account-group/id(acc head id required)
 class GetAccGroupName(APIView):
     def get(self, request, id):
         payload = verify_token(request)
@@ -1562,6 +1563,33 @@ class GetAccGroupName(APIView):
                 'data': []
                 }) 
 
+# API For getting account group not nested
+# request : GET
+# endpoint: get-account-group/id(company id id required)
+class GetAccGroup(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is acc head id
+        user_permission = check_user_company_right("Account Group",id, user.id, "can_view")
+        if user_permission:
+            acc_group_record = acc_group.objects.filter(company_master_id=id)
+            serializer = GetAccGroupNotNestedSerializer(acc_group_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Account group name',
+                'data': []
+                }) 
+        
 
 ############################################################################################################################
 ################################################## Account LEDGER (CRUD) ###################################################
@@ -1613,32 +1641,7 @@ class AddLedgerMaster(APIView):
                 'message': 'You are not allowed to Add Ledger Master',
             })
 
-# API For getting ledger master
-# request : GET
-# endpoint: get-ledger-master/id(company-id required)
-class GetLedgerMaster(APIView):
-    def get(self, request, id):
-        payload = verify_token(request)
-        try:
-            user = User.objects.filter(id=payload['id']).first()
-        except:
-            return payload
-        # id is company id
-        user_permission = check_user_company_right("Ledger Master", id, user.id, "can_view")
-        if user_permission:
-            ledger_master_record = ledger_master.objects.filter(company_master_id=id)
-            serializer = LedgerMasterSerializer(ledger_master_record, many=True)
-            return Response({
-            'success': True,
-            'message':'',
-            'data': serializer.data
-            })
-        else:
-            return Response({
-                'success': False,
-                'message': 'You are not allowed to view Ledger master',
-                'data': []
-                }) 
+
 
 
 # API For editing Ledger Master
@@ -1713,6 +1716,60 @@ class DeleteLedgerMaster(APIView):
                 'message': 'You are not allowed to delete this Ledger Master',
                 }) 
 
+# API For getting ledger master
+# request : GET
+# endpoint: get-ledger-master/id(company-id required)
+class GetLedgerMaster(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        user_permission = check_user_company_right("Ledger Master", id, user.id, "can_view")
+        if user_permission:
+            ledger_master_record = ledger_master.objects.filter(company_master_id=id)
+            serializer = GetLedgerMasterNotNestedSerializer(ledger_master_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Ledger master',
+                'data': []
+                }) 
+
+
+# API For getting ledger master
+# request : GET
+# endpoint: get-detailledger-master/id(ledger id required)
+class GetDetailLedgerMaster(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        ledger_master_record = ledger_master.objects.get(id=id)
+        user_permission = check_user_company_right("Ledger Master", ledger_master_record.company_master_id, user.id, "can_view")
+        if user_permission:
+            serializer = GetLedgerMasterNestedSerializer(ledger_master_record)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Ledger master',
+                'data': []
+                }) 
 
 ############################################################################################################################
 ################################################## Cost Center (CRUD) ######################################################
@@ -1823,8 +1880,8 @@ class DeleteCostCenter(APIView):
 
 # API For getting account group
 # request : GET
-# endpoint: get-cost-center/id(company-id required)
-class GetCostCenter(APIView):
+# endpoint: get-detail-cost-center/id(cost center id required)
+class GetDetailCostCenter(APIView):
     def get(self, request, id):
         payload = verify_token(request)
         try:
@@ -1832,10 +1889,11 @@ class GetCostCenter(APIView):
         except:
             return payload
         # id is company id
-        user_permission = check_user_company_right("Cost center", id, user.id, "can_view")
+        cost_center_record = cost_center.objects.get(id=id)
+        user_permission = check_user_company_right("Cost center", cost_center_record.company_master_id, user.id, "can_view")
         if user_permission:
-            cost_center_record = cost_center.objects.filter(company_master_id=id)
-            serializer = GetCostCenterSerializer(cost_center_record, many=True)
+            
+            serializer = GetCostCenterSerializer(cost_center_record)
             return Response({
             'success': True,
             'message':'',
@@ -1879,3 +1937,34 @@ class GetCostCenterName(APIView):
                 'message': 'You are not allowed to view Cost Center Names',
                 'data': []
                 }) 
+
+
+# API For getting cost center
+# request : GET
+# endpoint: get-cost-center/id(company id required)
+class GetCostCenter(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        
+        user_permission = check_user_company_right("Cost center",id, user.id, "can_view")
+        if user_permission:
+
+            cost_center_record = cost_center.objects.filter(company_master_id=id)
+            serializer = GetCostCenterNotNestedSerializer(cost_center_record, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Account group name',
+                'data': []
+                }) 
+             
