@@ -1780,44 +1780,70 @@ class GetAccLedgerMaster(APIView):
             return payload
         all_receivables = acc_group.objects.get(group_name="Receivables", company_master_id=id)
         all_payables = acc_group.objects.get(group_name="Payables", company_master_id=id)
-        all_child_of_receivables = acc_group.objects.filter(child_of=all_receivables.id, company_master_id=id)
-        all_child_of_payables = acc_group.objects.filter(child_of=all_payables.id, company_master_id=id)
-        
-        context = []
-        for i in all_child_of_receivables:
+        # all_child_of_receivables = acc_group.objects.filter(child_of=all_receivables.id, company_master_id=id)
+        # all_child_of_payables = acc_group.objects.filter(child_of=all_payables.id, company_master_id=id)
+        all_acc_grp =  acc_group.objects.filter(company_master_id=id)
+        acc_grp = []
+        for i in all_acc_grp:
             d = {}
-            d["id"] = i.id
-            d["group_name"] = i.group_name
-            d["is_Receivables"] = True
-            d["is_payables"] = False
-            context.append(d)
         
-        for i in all_child_of_payables:
-            d = {}
-            d["id"] = i.id
-            d["group_name"] = i.group_name
-            d["is_Receivables"] = False
-            d["is_payables"] = True
-            context.append(d)
-        
-        d = {}
-        d["id"] = all_receivables.id
-        d["group_name"] = all_receivables.group_name
-        d["is_Receivables"] = True
-        d["is_payables"] = False
-        context.append(d)
 
-        d = {}
-        d["id"] = all_payables.id
-        d["group_name"] = all_payables.group_name
-        d["is_Receivables"] = False
-        d["is_payables"] = True
-        context.append(d)
+            if(i.id==all_receivables.id or str(i.child_of)==str(all_receivables.group_name)):
+                d["id"] = i.id
+                d["group_name"] = i.group_name
+                d["is_Receivables"] = True
+                d["is_payables"] = False
+                acc_grp.append(d)
+            elif(i.id==all_payables.id or str(i.child_of)==str(all_payables.group_name)):
+                d["id"] = i.id
+                d["group_name"] = i.group_name
+                d["is_Receivables"] = False
+                d["is_payables"] = True
+                acc_grp.append(d)
+            else:
+                d["id"] = i.id
+                d["group_name"] = i.group_name
+                d["is_Receivables"] = False
+                d["is_payables"] = False
+                acc_grp.append(d)
+
+
+
+        # context = []
+        # for i in all_child_of_receivables:
+        #     d = {}
+        #     d["id"] = i.id
+        #     d["group_name"] = i.group_name
+        #     d["is_Receivables"] = True
+        #     d["is_payables"] = False
+        #     context.append(d)
+        
+        # for i in all_child_of_payables:
+        #     d = {}
+        #     d["id"] = i.id
+        #     d["group_name"] = i.group_name
+        #     d["is_Receivables"] = False
+        #     d["is_payables"] = True
+        #     context.append(d)
+        
+        # d = {}
+        # d["id"] = all_receivables.id
+        # d["group_name"] = all_receivables.group_name
+        # d["is_Receivables"] = True
+        # d["is_payables"] = False
+        # context.append(d)
+
+        # d = {}
+        # d["id"] = all_payables.id
+        # d["group_name"] = all_payables.group_name
+        # d["is_Receivables"] = False
+        # d["is_payables"] = True
+        # context.append(d)
         
         return Response({
                 'success': True,
                 'message': '',
-                'data': context
+                'data': acc_grp
                 })
 
 
