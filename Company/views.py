@@ -1121,6 +1121,7 @@ class AddAccountHead(APIView):
             # validate serialize
             print(request.data['schedule_no'])
             if not serializer.is_valid():
+                print(serializer.errors)
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
@@ -1620,10 +1621,12 @@ class AddLedgerMaster(APIView):
             context = temp.dict()
             context['altered_by'] = user.email
             context['ledger_id'] = new_ledger_id
-            #request.data.update({'altered_by': user.email})
+           
             serializer = LedgerMasterSerializer(data = context)
             # validate serialize
+            
             if not serializer.is_valid():
+                print(serializer.errors)
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
@@ -1780,13 +1783,11 @@ class GetAccLedgerMaster(APIView):
             return payload
         all_receivables = acc_group.objects.get(group_name="Receivables", company_master_id=id)
         all_payables = acc_group.objects.get(group_name="Payables", company_master_id=id)
-        # all_child_of_receivables = acc_group.objects.filter(child_of=all_receivables.id, company_master_id=id)
-        # all_child_of_payables = acc_group.objects.filter(child_of=all_payables.id, company_master_id=id)
+
         all_acc_grp =  acc_group.objects.filter(company_master_id=id)
         acc_grp = []
         for i in all_acc_grp:
             d = {}
-        
 
             if(i.id==all_receivables.id or str(i.child_of)==str(all_receivables.group_name)):
                 d["id"] = i.id
@@ -1807,38 +1808,6 @@ class GetAccLedgerMaster(APIView):
                 d["is_payables"] = False
                 acc_grp.append(d)
 
-
-
-        # context = []
-        # for i in all_child_of_receivables:
-        #     d = {}
-        #     d["id"] = i.id
-        #     d["group_name"] = i.group_name
-        #     d["is_Receivables"] = True
-        #     d["is_payables"] = False
-        #     context.append(d)
-        
-        # for i in all_child_of_payables:
-        #     d = {}
-        #     d["id"] = i.id
-        #     d["group_name"] = i.group_name
-        #     d["is_Receivables"] = False
-        #     d["is_payables"] = True
-        #     context.append(d)
-        
-        # d = {}
-        # d["id"] = all_receivables.id
-        # d["group_name"] = all_receivables.group_name
-        # d["is_Receivables"] = True
-        # d["is_payables"] = False
-        # context.append(d)
-
-        # d = {}
-        # d["id"] = all_payables.id
-        # d["group_name"] = all_payables.group_name
-        # d["is_Receivables"] = False
-        # d["is_payables"] = True
-        # context.append(d)
         
         return Response({
                 'success': True,

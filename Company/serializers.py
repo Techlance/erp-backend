@@ -187,14 +187,15 @@ class AccGroupSerializer(serializers.ModelSerializer):
 
 
 class AccountHeadSerializer(serializers.ModelSerializer):
-    acc_group = serializers.StringRelatedField(many=True)
+    acc_group = serializers.StringRelatedField(many=True,read_only=True)
     class Meta:
         model = acc_head
         fields = '__all__'
         extra_kwargs = {
             'id':{'read_only': True},
             'created_on':{'read_only': True},
-             'altered_by': {'write_only': True}
+            'altered_by': {'write_only': True},
+
         }
 
          

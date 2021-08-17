@@ -173,7 +173,7 @@ class ledger_master(models.Model):
     tax_reg_no = models.TextField(max_length=250, null=True)
     cr_no = models.TextField(max_length=250, null=True)
     cr_exp_date = models.DateField(null=True)
-    id_no = models.TextField(max_length=250)
+    id_no = models.TextField(max_length=250, null=True)
     id_exp_date = models.DateField(null=True)
     cc_no = models.TextField(null=True)
     cc_exp_date = models.DateField(null=True)
