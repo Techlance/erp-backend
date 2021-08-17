@@ -206,7 +206,7 @@ class cost_center(models.Model):
     cost_center_name = models.TextField(max_length=500, null=False)
     cost_category_id = models.ForeignKey(to=cost_category, related_name="cost_center", null=False, on_delete=models.PROTECT)
     # child_of = models.TextField(max_length=500, default="primary")
-    child_of = models.ForeignKey('self', null=True, on_delete=models.PROTECT, blank=True)
+    child_of = models.ForeignKey('self', related_name='child', null=True, on_delete=models.PROTECT, blank=True)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_by = models.TextField(max_length=200, null=False)

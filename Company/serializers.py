@@ -215,7 +215,7 @@ class AccountHeadSerializer(serializers.ModelSerializer):
 class GetAccGroupNestedSerializer(serializers.ModelSerializer):
     acc_head_id = AccountHeadSerializer()
     ledger_master = serializers.StringRelatedField(many=True)
-    child = serializers.StringRelatedField(many=True)
+    child = serializers.StringRelatedField(many=True, read_only=True)
     class Meta:
         model = acc_group
         fields = '__all__'
@@ -327,7 +327,7 @@ class CostCategorySerializer(serializers.ModelSerializer):
         return instance
 
 class GetCostCategorySerializer(serializers.ModelSerializer):
-    cost_center = serializers.StringRelatedField(many=True)
+    cost_center = serializers.StringRelatedField(many=True, read_only=True)
     class Meta:
         model = cost_category
         fields = '__all__'
@@ -352,6 +352,7 @@ class GetTransactionSerializer(serializers.ModelSerializer):
 
 
 class CostCenterSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = cost_center
         fields = '__all__'
@@ -365,7 +366,7 @@ class CostCenterSerializer(serializers.ModelSerializer):
 
 
 class GetCostCenterSerializer(serializers.ModelSerializer):
-    
+    child = serializers.StringRelatedField(many=True, read_only=True)
     cost_category_id = CostCategorySerializer()
     class Meta:
         model = cost_center
