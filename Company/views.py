@@ -12,10 +12,10 @@ Status : {
 from django.db import reset_queries
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import currency, company_master, user_company, company_master_docs, year_master, voucher_type, acc_head, acc_group, ledger_master, cost_category, cost_center, fixed_vouchertype, fixed_account_head, fixed_account_group, fixed_ledger_master
+from .models import currency, company_master, user_company, company_master_docs, year_master, voucher_type, acc_head, acc_group, ledger_master, cost_category, cost_center, fixed_vouchertype, fixed_account_head, fixed_account_group, fixed_ledger_master, ledger_master_docs
 import jwt
 from django.http import JsonResponse
-from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupNestedSerializer, GetAccGroupNotNestedSerializer,  AccountHeadSerializer, LedgerMasterSerializer,GetLedgerMasterNotNestedSerializer, GetLedgerMasterNestedSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer, GetCostCenterSerializer,GetCostCenterNotNestedSerializer
+from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupNestedSerializer, GetAccGroupNotNestedSerializer,  AccountHeadSerializer, LedgerMasterSerializer,GetLedgerMasterNotNestedSerializer, GetLedgerMasterNestedSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer, GetCostCenterSerializer,GetCostCenterNotNestedSerializer, LedgerDocumentSerializer
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from Users.models import User, transaction_right, user_group, user_right
@@ -1815,6 +1815,194 @@ class GetAccLedgerMaster(APIView):
                 'data': acc_grp
                 })
 
+
+############################################################################################################################
+################################################## LEDGER MASTER DOCUMENT (CRUD) #################################################
+############################################################################################################################
+
+
+# API For adding ledger document
+# request : POST
+# endpoint : add-ledger-document
+class AddLedgerDocument(APIView):
+    def post(self, request):
+        # Verify Token for authorization 
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        user_permission = check_user_company_right("Ledger Master", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            # request.data.update({'altered_by': user.email})
+            serializer = LedgerDocumentSerializer(data = context)
+            if not serializer.is_valid():
+                return Response({
+                "success":False,
+                "message": get_error(serializer.errors),
+                "data": {
+                    "email":user.email
+                }
+                })
+
+            serializer.save()
+            return Response({
+                "success":True,
+                "message":"Ledger Document added successfully",
+                "data":serializer.data
+                })
+        else:
+            return Response({
+                "success":False,
+                "message":"Not authorized to Add Ledger Documents",
+                "data":{
+                    "email":user.email
+                }
+            })
+
+
+# API For editing ledger document
+# request : PUT
+# endpoint : edit-ledger-document/<int:id>
+class EditLedgerDocument(APIView):
+    
+    
+    def put(self, request, id):
+        payload = verify_token(request)
+        
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        
+        user_permission = check_user_company_right("Ledger Master", request.data['company_master_id'], user.id, "can_edit")
+        ledger_master_doc_instance = ledger_master_docs.objects.get(id=id)
+        if user_permission:
+            temp = request.data
+            context = temp.dict()
+            context['altered_by'] = user.email
+            
+            serializer = LedgerDocumentSerializer(ledger_master_doc_instance, data=context)
+
+            if not serializer.is_valid():
+                return Response({
+                    'success': False,
+                    'message': get_error(serializer.errors),
+                    })
+           
+            serializer.save()
+            return Response({
+                'success': True,
+                'message': 'Ledger document Edited successfully'})
+                
+        else:
+            
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to edit ledger Document',
+                })
+
+
+# API For deleting Ledger Documents
+# request : DELETE
+# endpoint : delete-ledger-document/id(ledger master required)
+class DeleteLedgerDocument(APIView):
+    def delete(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        ledger_master_doc_instance = ledger_master_docs.objects.get(id=id)
+        ledger_master_instance = ledger_master.objects.get(id=ledger_master_doc_instance.ledger_master_id.id)
+        
+        if(ledger_master_instance.is_fixed):
+            return Response({
+            'success': False,
+            'message': 'You cannot delete this field',
+            })
+        user_permission = check_user_company_right("Ledger Master", ledger_master_doc_instance.company_master_id, user.id, "can_delete")
+        if user_permission:
+            ledger_master_doc_instance.altered_by = user.email
+            ledger_master_doc_instance.delete()
+            return Response({
+                'success': True,
+                'message': 'Ledger Document deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to delete this Ledger Document',
+                }) 
+
+# API For getting ledger master docs
+# request : GET
+# endpoint: get-ledger-document/id(ledger-id required)
+class GetLedgerDocument(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        ledger_master_record = ledger_master.objects.get(id=id)
+        user_permission = check_user_company_right("Ledger Master", ledger_master_record.company_master_id, user.id, "can_view")
+        if user_permission:
+            ledger_document_instance = ledger_master_docs.objects.filter(ledger_master_id=id, company_master_id=ledger_master_record.company_master_id)
+            serializer = LedgerDocumentSerializer(ledger_document_instance, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Ledger master document',
+                'data': []
+                }) 
+
+#API for downloading company document
+class DownloadLedgerDocument(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()  
+        except:
+            return payload
+        ledger_document = ledger_master_docs.objects.get(id=id) 
+        user_permission = check_user_company_right("Ledger Master", ledger_document.company_master_id, user.id, "can_view")
+        if user_permission:
+     
+            temp = ledger_document.file
+            im = str(ledger_document.file)
+            
+            files = temp.read()
+            ext = ""
+            im = im[::-1]
+            for i in im:
+                if i==".":
+                    break 
+                else:
+                    ext += i
+            ext = ext[::-1]
+            im = im[::-1]
+            print(im)
+            file_name = im[6:]
+            response = HttpResponse(files, content_type='application/'+ext)
+            response['Content-Disposition'] = "attachment; filename="+file_name
+            return response
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to download ledger Document',
+              
+            }) 
 
 ############################################################################################################################
 ################################################## Cost Center (CRUD) ######################################################

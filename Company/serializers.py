@@ -3,7 +3,7 @@ from Users.models import transaction_right
 from django.db import models
 from django.db.models import fields
 from rest_framework import serializers
-from .models import company_master, company_master_docs, cost_center, currency, ledger_master,voucher_type, acc_group, acc_head, cost_category,user_company
+from .models import company_master, company_master_docs, cost_center, currency, ledger_master,voucher_type, acc_group, acc_head, cost_category,user_company, ledger_master_docs
 from Users.serializers import UserSerializer,UsernamesSerializer, UserGroupSerializer
 
 
@@ -275,6 +275,7 @@ class LedgerMasterSerializer(serializers.ModelSerializer):
 
 class GetLedgerMasterNestedSerializer(serializers.ModelSerializer):
     acc_group_id = GetAccGroupNotNestedSerializer()
+    ledger_docs = serializers.StringRelatedField(many=True, read_only=True)
     class Meta:
         model = ledger_master
         fields = '__all__'
@@ -301,7 +302,26 @@ class GetLedgerMasterNotNestedSerializer(serializers.ModelSerializer):
             'altered_by': {'write_only': True}
         }
 
-      
+class LedgerDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ledger_master_docs
+        fields = '__all__'
+        extra_kwargs = {
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+    
+    def create(self, validated_data): 
+        instance = self.Meta.model(**validated_data)
+        instance.save()
+        return instance
+    
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
 
 class CostCategorySerializer(serializers.ModelSerializer):
     class Meta:

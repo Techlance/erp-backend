@@ -189,6 +189,19 @@ class ledger_master(models.Model):
     def __str__(self):
         return self.ledger_name
 
+class ledger_master_docs(models.Model): 
+    doc_name = models.TextField(max_length=500, null=False)
+    file = models.FileField(upload_to="ledgerFiles", null=False)
+    ledger_master_id = models.ForeignKey(to=ledger_master, related_name="ledger_docs", null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    created_by = models.TextField(max_length=200, null=False)
+    altered_by = models.TextField(max_length=200, null=True, blank=True)
+    created_on = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        return self.doc_name
+
 
 class cost_category(models.Model):
     name = models.TextField(max_length=200, null=False, unique=True)

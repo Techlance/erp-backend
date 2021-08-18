@@ -63,6 +63,11 @@ urlpatterns = [
     path('get-detail-ledger-master/<int:id>', GetDetailLedgerMaster.as_view()), # id : ledger id
     path('get-acc-ledger-master/<int:id>', GetAccLedgerMaster.as_view()), # id : company id
 
+    path('add-ledger-document', AddLedgerDocument.as_view()),
+    path('delete-ledger-document/<int:id>', DeleteLedgerDocument.as_view()), # id : ledger document id
+    path('get-ledger-document/<int:id>', GetLedgerDocument.as_view()), # id : ledger id
+    path('download-ledger-document/<int:id>', DownloadLedgerDocument.as_view()), #id : doc id
+
     path('add-cost-center', AddCostCenter.as_view()),
     path('edit-cost-center/<int:id>', EditCostCenter.as_view()), # id : cost center id
     path('delete-cost-center/<int:id>', DeleteCostCenter.as_view()), # id : delete cost center id
