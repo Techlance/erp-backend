@@ -6,7 +6,7 @@ from .serializers import LedgerBalanceSerializer, LedgerBalanceBillwiseSerialize
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from .models import ledger_balance,op_bal_brs,ledger_bal_billwise
-from Company.models import ledger_master, user_company, year_master
+from Company.models import ledger_master, user_company, year_master, company_master
 from Users.models import transaction_right, user_group, user_right, User
 import jwt
 from decimal import Decimal as D
@@ -569,3 +569,94 @@ class GetOpBalBrs(APIView):
                 'message': 'You are not allowed to view Op balance brs',
                 'data': []
             })
+
+
+# API For adding Ledger balance billwise together
+# request : POST
+# endpoint : add-all-ledger-bal-billwise
+class AddAllLedgerBalBillwise(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
+        if user_permission:
+            year_id = year_master.objects.get(company_master_id=request.data['company_master_id'], year_no=0).id
+            ledger_id = request.data['ledger_master_id']
+            #ledger_id = ledger_master.objects.get(id=request.data['ledger_master_id'])
+            dr = 0
+            cr = 0
+            balance = 0
+            fc_amt = 0
+            print(request.data['billwise'])
+            for i in request.data['billwise']:
+                if i['dr']:
+                    dr += D(i['dr'])
+                    balance += D(i['dr'])
+                    curr_add = D(i['dr'])
+                    fc_amt += D(i['fc_amount'])
+
+                if i['cr']:
+                    cr += i['cr']
+                    balance -= D(i['cr']) 
+                    curr_add = D(i['cr'])
+                    fc_amt -= D(i['fc_amount'])
+                
+            
+            fc_rate = str(balance/fc_amt)
+            if request.data['fc_name']:
+                fc_name = request.data['fc_name']
+            else:
+                fc_name = company_master.objects.get(id=request.data['company_master_id']).base_currency.id
+
+            if fc_rate[0] == "-":
+                fc_rate = fc_rate[1:]
+            fc_rate = D(fc_rate)
+            ledger_bal = ledger_balance(ledger_id_id=ledger_id, year_id_id=year_id, dr=dr, cr=cr, balance=balance, fc_amount= fc_amt, fc_name_id=fc_name, fc_rate=fc_rate, created_by=user.email, company_master_id_id=request.data['company_master_id'])
+            ledger_bal.save()
+            print("hello motto")
+            ledger_bal_id = ledger_balance.objects.latest('id').id
+            for i in request.data['billwise']:
+                temp =i
+                temp.update({"fc_name":fc_name})
+                temp.update({"ledger_bal_id": ledger_bal_id})
+                temp.update({"company_master_id":request.data['company_master_id']})
+                fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+                if fc_rate[0] == "-":
+                    fc_rate = fc_rate[1:]
+                fc_rate = D(fc_rate)
+                temp.update({"fc_rate": fc_rate})
+                # print("cr",temp['cr'])
+                # print("dr",temp['dr'])
+                if temp['cr'] is None:
+                    temp['cr'] = 0
+                if temp['dr'] is None:
+                    temp['dr'] = 0
+                print("cr",temp['cr'])
+                print("dr",temp['dr'])
+                serializer = LedgerBalanceBillwiseSerializer(data=temp)
+                if not serializer.is_valid():
+                    return Response({
+                        'success': False,
+                        'message': serializer.errors,
+                        })
+
+                serializer.save()
+            return Response({
+                'success': True,
+                'message': 'ledger balance billwise added successfully'
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to Add ledger balance billwise',
+            })
+
+
+
+
+
+                
