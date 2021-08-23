@@ -1,22 +1,18 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import *
+from .models import lc, lc_docs, lc_amend
 from Company.models import user_company
 from Company.models import user_group
 import jwt
 from django.http import JsonResponse
 from django.http.response import HttpResponse
-from .serializers import *
-from Company.models import *
-from Users.models import *
+from .serializers import LCAmendSerializer, GetLCDocsSerializer, LCDocsSerializer, LCSerializer
+from Company.models import company_master, company_master_docs
+from Users.models import User, transaction_right, user_right
 
 
 
 # Create your views here.
-
-
-
-
 
 def verify_token(request):
     try:

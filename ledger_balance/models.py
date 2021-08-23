@@ -5,14 +5,14 @@ from simple_history.models import HistoricalRecords
 # Create your models here.
 
 class ledger_balance(models.Model):
-    ledger_id = models.ForeignKey(to=ledger_master, null=False, on_delete=models.CASCADE)
-    year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.CASCADE)
+    ledger_id = models.ForeignKey(to=ledger_master, null=False, on_delete=models.PROTECT)
+    year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.PROTECT)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     balance = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     dr = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     cr = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     fc_amount = models.DecimalField(max_digits=100, decimal_places=4, default=0)
-    fc_name = models.ForeignKey(to=currency, null=False, on_delete=models.CASCADE)
+    fc_name = models.ForeignKey(to=currency, null=False, on_delete=models.PROTECT)
     fc_rate = models.DecimalField(max_digits=100, decimal_places=4, default=0, null=False)
     total_dr = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     total_cr = models.DecimalField(max_digits=100, decimal_places=4, default=0)
@@ -28,7 +28,7 @@ class ledger_balance(models.Model):
 
 
 class ledger_bal_billwise(models.Model):
-    ledger_bal_id = models.ForeignKey(to=ledger_balance, null=False, on_delete=models.CASCADE)
+    ledger_bal_id = models.ForeignKey(to=ledger_balance,related_name="ledger_bal_billwise", null=False, on_delete=models.PROTECT)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     ref_no = models.TextField(max_length=100, null=False)
     bill_date = models.DateField(null=True)
@@ -47,13 +47,13 @@ class ledger_bal_billwise(models.Model):
         unique_together = ('ledger_bal_id', 'ref_no',)
 
     def __str__(self):
-        return self.ledger_bal_id
+        return self.ref_no
 
 class op_bal_brs(models.Model):
-    bank_ledger_id = models.ForeignKey(to=ledger_balance, null=False, on_delete=models.CASCADE)
+    bank_ledger_id = models.ForeignKey(to=ledger_balance, null=False, on_delete=models.PROTECT)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     acc_code = models.TextField(max_length=200, null=False) # check
-    year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.CASCADE, default=0)#remove default
+    year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.PROTECT, default=0)#remove default
     name = models.TextField(max_length=200, null=False)
     chq_date = models.DateField(null=True)
     chq_no = models.IntegerField(max_length=200, null=True)

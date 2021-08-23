@@ -29,6 +29,19 @@ class LedgerBalanceSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class GetLedgerBalanceSerializer(serializers.ModelSerializer):
+    ledger_bal_billwise = serializers.StringRelatedField(many=True, read_only=True)
+    class Meta:
+        model = ledger_balance
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+
+
 class LedgerBalanceBillwiseSerializer(serializers.ModelSerializer):
     
     class Meta:

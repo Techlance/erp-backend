@@ -26,6 +26,8 @@ urlpatterns = [
     path('delete-ledger-bal-billwise/<int:id>', DeleteLedgerBalBillwise.as_view()),
     path('get-ledger-bal-billwise/<int:id>', GetLedgerBalBillwise.as_view()),
     path('add-all-ledger-bal-billwise', AddAllLedgerBalBillwise.as_view()),
+    path('add-existing-ledger-bal-billwise', AddExistingLedgerBalBillwise.as_view()),
+
 
     
     

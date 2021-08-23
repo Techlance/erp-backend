@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import lc, lc_docs, lc_amend
 
 class LCSerializer(serializers.ModelSerializer):
+    #id = serializers.CharField(source='lc_no')
+    id = serializers.SerializerMethodField('get_alternate_name', read_only=True)
     class Meta:
         model = lc
         fields = '__all__'
@@ -23,6 +25,10 @@ class LCSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+    def get_alternate_name(self, obj):
+        return obj.lc_no
+
+
 
 
 class LCDocsSerializer(serializers.ModelSerializer):
