@@ -64,6 +64,7 @@ urlpatterns = [
     path('get-acc-ledger-master/<int:id>', GetAccLedgerMaster.as_view()), # id : company id
     path('get-ledger-receivables/<int:id>', GetLedgerRecievables.as_view()), # id : company id
     path('get-ledger-payables/<int:id>', GetLedgerPayables.as_view()), # id : company id
+    path('get-ledger-cash-bank/<int:id>', GetLedgerCashBank.as_view()), # id : company id
 
     path('add-ledger-document', AddLedgerDocument.as_view()),
     path('delete-ledger-document/<int:id>', DeleteLedgerDocument.as_view()), # id : ledger document id
