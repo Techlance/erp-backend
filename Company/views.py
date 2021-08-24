@@ -1819,6 +1819,56 @@ class GetAccLedgerMaster(APIView):
                 })
 
 
+
+class GetLedgerRecievables(APIView):
+    def get(self, request, id):
+        # verify token for authorization
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()  
+        except:
+            return payload
+    
+        ledgers  = []
+
+        all_ledger_master = ledger_master.objects.filter(company_master_id=id)
+        #rec_acc_group = acc_group.objects.get(group_name="Receivables", company_master_id=id)
+        for instance in all_ledger_master:
+           
+           
+            if instance.acc_group_id.group_name == "Receivables" or str(instance.acc_group_id.child_of) == "Receivables":
+                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name})
+        
+        return Response({
+            'success': True,
+            'message':'',
+            'data':ledgers
+        })
+
+class GetLedgerPayables(APIView):
+    def get(self, request, id):
+        # verify token for authorization
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()  
+        except:
+            return payload
+    
+        ledgers  = []
+
+        all_ledger_master = ledger_master.objects.filter(company_master_id=id)
+        #rec_acc_group = acc_group.objects.get(group_name="Payables", company_master_id=id)
+        for instance in all_ledger_master:
+         
+           
+            if instance.acc_group_id.group_name == "Payables" or str(instance.acc_group_id.child_of) == "Payables":
+                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name})
+        
+        return Response({
+            'success': True,
+            'message':'',
+            'data':ledgers
+        })
 ############################################################################################################################
 ################################################## LEDGER MASTER DOCUMENT (CRUD) #################################################
 ############################################################################################################################

@@ -222,6 +222,34 @@ class GetLC(APIView):
                 'message': 'You are not allowed to view LC',
                 })
 
+
+# API For getting LC data
+# request : GET
+# endpoint : get-detail-lc
+class GetDetailLC(APIView):
+    def get(self, request, id):
+        # verify token
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        lc_instance = lc.objects.get(lc_no=id)
+        user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_view")
+        if user_permission:
+           
+            serializer = LCSerializer(lc_instance)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view LC',
+                })
+
 ############################################################################################################################
 ################################################## LC DOCUMENTS (CRUD) #################################################
 ############################################################################################################################
@@ -326,7 +354,7 @@ class DeleteLcDoc(APIView):
             return payload
 
         lc_document = lc_docs.objects.get(id=id)
-        lc_instance = lc.objects.get(id=lc_document.lc_id.id)
+        lc_instance = lc.objects.get(lc_no=lc_document.lc_id.lc_no)
         user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_delete")
         if user_permission:
             lc_document.altered_by = user.email
@@ -357,10 +385,10 @@ class GetLcDocuments(APIView):
             return payload 
         
         # Fetches lc_docs record corresponding to the document_id
-        lc_instance = lc.objects.get(id=id) 
+        lc_instance = lc.objects.get(lc_no=id) 
         user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_view")
         if user_permission:
-            lc_docs_record = company_master_docs.objects.filter(lc_id=id)
+            lc_docs_record = lc_docs.objects.filter(lc_id=id)
             serializer = GetLCDocsSerializer(lc_docs_record, many=True)
             return Response({
             'success': True,
@@ -384,10 +412,10 @@ class DownloadLcDoc(APIView):
             user = User.objects.filter(id=payload['id']).first()  
         except:
             return payload 
-        lc_instance = lc.objects.get(id=id) 
-        user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_view")
+        lc_doc = lc_docs.objects.get(id=id) 
+        user_permission = check_user_company_right("LC", lc_doc.company_master_id, user.id, "can_view")
         if user_permission:
-            lc_doc = lc_docs.objects.get(id=id)
+            
             temp = lc_doc.file
             im = str(lc_doc.file)
             
@@ -409,7 +437,7 @@ class DownloadLcDoc(APIView):
 
 
 ############################################################################################################################
-################################################## LC AMEND (CRUD) #################################################
+################################################## LC AMEND (CRUD) #########################################################
 ############################################################################################################################
 
 
@@ -503,14 +531,21 @@ class DeleteLCAmend(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        
         lc_amend_instance = lc_amend.objects.get(id=id)
-        lc_amend_instance.altered_by = user.email
-        lc_amend_instance.delete()
-        return Response({
-            'success': True,
-            'message': 'LCAmend deleted Successfully',
-            })
+        user_permission = check_user_company_right("LC", lc_amend_instance.company_master_id, user.id, "can_delete")
+        if user_permission:
+        
+            lc_amend_instance.altered_by = user.email
+            lc_amend_instance.delete()
+            return Response({
+                'success': True,
+                'message': 'LCAmend deleted Successfully',
+                })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to deleteLC Amend',
+                })
 
 
 # API For getting LC-amend data
@@ -524,10 +559,11 @@ class GetLCAmend(APIView):
         except:
             return payload
 
-        lc_instance = lc.objects.get(id=id) 
+        lc_amend_instance = lc_amend.objects.filter(lc_id=id)
+        lc_instance = lc.objects.get(lc_no=id)
         user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_view")
         if user_permission:
-            lc_amend_instance = lc_amend.objects.filter(id=id)
+            
             serializer = LCAmendSerializer(lc_amend_instance, many=True)
             return Response({
                 'success': True,
