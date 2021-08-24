@@ -1050,7 +1050,7 @@ class GetVoucherType(APIView):
         except:
             return payload
         # id is company id
-        user_permission = check_user_company_right("Voucher Type", request.data['company_master_id'], user.id, "can_view")
+        user_permission = check_user_company_right("Voucher Type", id, user.id, "can_view")
         if user_permission:        
             voucher_type_record = voucher_type.objects.filter(company_master_id=id)
             serializer = GetVoucherTypeSerializer(voucher_type_record, many=True)
@@ -1794,18 +1794,21 @@ class GetAccLedgerMaster(APIView):
                 d["group_name"] = i.group_name
                 d["is_Receivables"] = True
                 d["is_payables"] = False
+                d["is_bs"] = i.acc_head_id.bs
                 acc_grp.append(d)
             elif(i.id==all_payables.id or str(i.child_of)==str(all_payables.group_name)):
                 d["id"] = i.id
                 d["group_name"] = i.group_name
                 d["is_Receivables"] = False
                 d["is_payables"] = True
+                d["is_bs"] = i. acc_head_id.bs
                 acc_grp.append(d)
             else:
                 d["id"] = i.id
                 d["group_name"] = i.group_name
                 d["is_Receivables"] = False
                 d["is_payables"] = False
+                d["is_bs"] = i.acc_head_id.bs
                 acc_grp.append(d)
 
         
