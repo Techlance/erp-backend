@@ -182,7 +182,7 @@ class DeleteLC(APIView):
         except:
             return payload
         # permission : inherited from can edit company
-        lc_instance = lc.objects.get(id=id)
+        lc_instance = lc.objects.get(lc_no=id)
         user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_delete")
         if user_permission:
             lc_instance.altered_by = user.email
