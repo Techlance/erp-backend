@@ -154,6 +154,7 @@ class EditLC(APIView):
             serializer = LCSerializer(lc_instance, data=context)
 
             if not serializer.is_valid():
+                print(serializer.errors)
                 return Response({
                     'success': False,
                     'message': get_error(serializer.errors),
