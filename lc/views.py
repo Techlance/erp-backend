@@ -147,7 +147,7 @@ class EditLC(APIView):
         # permission : to edit LC
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
-            lc_instance = lc.objects.get(lc_id=id)
+            lc_instance = lc.objects.get(lc_no=id)
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
