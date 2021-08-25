@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import lc, lc_docs, lc_amend
-
+from Company.models import cost_center, ledger_master
+from Company.serializers import GetLedgerMasterField,GetCostCenterField
 class LCSerializer(serializers.ModelSerializer):
     #id = serializers.CharField(source='lc_no')
     id = serializers.SerializerMethodField('get_alternate_name', read_only=True)
@@ -28,8 +29,24 @@ class LCSerializer(serializers.ModelSerializer):
     def get_alternate_name(self, obj):
         return obj.lc_no
 
-
-
+class GetLCSerializer(serializers.ModelSerializer):
+    #id = serializers.CharField(source='lc_no')
+    id = serializers.SerializerMethodField('get_alternate_name', read_only=True)
+    cost_center = GetCostCenterField()
+    party_code = GetLedgerMasterField()
+    bank_ac = GetLedgerMasterField()
+    class Meta:
+        model = lc
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'lc_no': {'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+    def get_alternate_name(self, obj):
+        return obj.lc_no
 
 class LCDocsSerializer(serializers.ModelSerializer):
     class Meta:

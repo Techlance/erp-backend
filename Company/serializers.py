@@ -302,6 +302,14 @@ class GetLedgerMasterNotNestedSerializer(serializers.ModelSerializer):
             'altered_by': {'write_only': True}
         }
 
+class GetLedgerMasterField(serializers.ModelSerializer):
+   
+   
+    class Meta:
+        model = ledger_master
+        fields = ['id', 'ledger_name']
+        
+
 class LedgerDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = ledger_master_docs
@@ -421,3 +429,9 @@ class GetCostCenterNotNestedSerializer(serializers.ModelSerializer):
             'created_on':{'read_only': True},
             'altered_by': {'write_only': True}
         }
+
+class GetCostCenterField(serializers.ModelSerializer):
+   
+    class Meta:
+        model = cost_center
+        fields = ['id', 'cost_center_name']

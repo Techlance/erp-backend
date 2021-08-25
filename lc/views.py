@@ -6,7 +6,7 @@ from Company.models import user_group
 import jwt
 from django.http import JsonResponse
 from django.http.response import HttpResponse
-from .serializers import LCAmendSerializer, GetLCDocsSerializer, LCDocsSerializer, LCSerializer
+from .serializers import LCAmendSerializer, GetLCDocsSerializer, LCDocsSerializer, LCSerializer, GetLCSerializer
 from Company.models import company_master, company_master_docs
 from Users.models import User, transaction_right, user_right
 
@@ -107,7 +107,7 @@ class AddLC(APIView):
             context['altered_by'] = user.email
             serializer = LCSerializer(data = context)
             if not serializer.is_valid():
-                print(serializer.errors)
+               
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
@@ -212,7 +212,7 @@ class GetLC(APIView):
         user_permission = check_user_company_right("LC", id, user.id, "can_view")
         if user_permission:
             all_lc = lc.objects.filter(company_master_id=id)
-            serializer = LCSerializer(all_lc, many=True)
+            serializer = GetLCSerializer(all_lc, many=True)
             return Response({
             'success': True,
             'message':'',
@@ -240,7 +240,7 @@ class GetDetailLC(APIView):
         user_permission = check_user_company_right("LC", lc_instance.company_master_id, user.id, "can_view")
         if user_permission:
            
-            serializer = LCSerializer(lc_instance)
+            serializer = GetLCSerializer(lc_instance)
             return Response({
             'success': True,
             'message':'',
