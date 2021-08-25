@@ -107,6 +107,7 @@ class AddLC(APIView):
             context['altered_by'] = user.email
             serializer = LCSerializer(data = context)
             if not serializer.is_valid():
+                print(serializer.errors)
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
@@ -146,7 +147,7 @@ class EditLC(APIView):
         # permission : to edit LC
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_alter")
         if user_permission:
-            lc_instance = lc.objects.get(id=id)
+            lc_instance = lc.objects.get(lc_id=id)
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
