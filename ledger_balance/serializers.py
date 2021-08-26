@@ -5,6 +5,7 @@ from django.db.models import fields
 from rest_framework import serializers
 from .models import ledger_balance, op_bal_brs, ledger_bal_billwise
 from Users.serializers import UserSerializer,UsernamesSerializer, UserGroupSerializer
+from Company.serializers import CurrencySerializer
 
 class LedgerBalanceSerializer(serializers.ModelSerializer):
     
@@ -31,6 +32,7 @@ class LedgerBalanceSerializer(serializers.ModelSerializer):
 
 class GetLedgerBalanceSerializer(serializers.ModelSerializer):
     ledger_bal_billwise = serializers.StringRelatedField(many=True, read_only=True)
+    fc_name = CurrencySerializer()
     class Meta:
         model = ledger_balance
         fields = '__all__'
