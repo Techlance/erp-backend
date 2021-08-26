@@ -457,6 +457,7 @@ class AddLCAmend(APIView):
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
             lc_count = int(lc_amend.objects.filter(lc_id=request.data['lc_id']).count()) + 1
+            print(lc_count)
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
