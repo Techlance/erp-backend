@@ -1063,6 +1063,32 @@ class GetVoucherType(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View Voucher Type',
+            })    
+# API For getting voucher type
+# request : GET
+# endpoint : get-detail-vouchertype/<int:id>
+class GetDetailVoucherType(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # id is company id
+        voucher_type_record = voucher_type.objects.get(id=id)
+        user_permission = check_user_company_right("Voucher Type", voucher_type_record.company_master_id, user.id, "can_view")
+        if user_permission:        
+            
+            serializer = GetVoucherTypeSerializer(voucher_type_record)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to View Voucher Type',
             })            
 
 ############################################################################################################################
