@@ -66,6 +66,9 @@ class lc_amend(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
+    class Meta:
+        unique_together = ('lc_id', 'company_master_id', 'amendment_no')
+
     def __str__(self):
         return self.lc_id
 
