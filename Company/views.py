@@ -133,7 +133,7 @@ class GetUserCompanyView(APIView):
             else:
                 logo_str = str(i.company_master_id.logo)
             
-            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "country":i.company_master_id.country, "year_start_date": i.company_master_id.year_start_date, "year_end_date": i.company_master_id.year_end_date, "logo": logo_str, "created_on": i.company_master_id.created_on})
+            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "country":i.company_master_id.country, "year_start_date": i.company_master_id.year_start_date, "year_end_date": i.company_master_id.year_end_date, "logo": logo_str, "created_on": i.company_master_id.created_on,"base_currency":i.company_master_id.base_currency.id})
         # print(companies)
         return Response({
                 "success":True,
