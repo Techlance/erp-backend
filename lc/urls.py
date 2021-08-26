@@ -6,7 +6,9 @@ urlpatterns = [
     path('edit-lc/<int:id>', EditLC.as_view()),  # id : lc id
     path('delete-lc/<int:id>', DeleteLC.as_view()), # id : delete id
     path('get-lc/<int:id>', GetLC.as_view()), # id : company id
-    path('get-detail-lc/<int:id>', GetDetailLC.as_view()), # id : company id
+    path('get-detail-lc/<int:id>', GetDetailLC.as_view()), # id : lc id
+    path('get-import-lc/<int:id>', GetImportLC.as_view()), # id : company id
+    path('get-export-lc/<int:id>', GetExportLC.as_view()), # id : company id
 
     path('add-lc-document', AddLCDoc.as_view()),
     path('edit-lc-document/<int:id>', EditLcDoc.as_view()), # id : lc document id

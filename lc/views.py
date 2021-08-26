@@ -251,6 +251,60 @@ class GetDetailLC(APIView):
                 'success': False,
                 'message': 'You are not allowed to view LC',
                 })
+# API For getting LC data
+# request : GET
+# endpoint : get-import-lc
+class GetImportLC(APIView):
+    def get(self, request, id):
+        # verify token
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        lc_instance = lc.objects.filter(company_master_id=id, trans_type="import")
+        user_permission = check_user_company_right("LC", id, user.id, "can_view")
+        if user_permission:
+           
+            serializer = GetLCSerializer(lc_instance, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view LC',
+                })
+
+# API For getting LC data
+# request : GET
+# endpoint : get-export-lc
+class GetExportLC(APIView):
+    def get(self, request, id):
+        # verify token
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        lc_instance = lc.objects.filter(company_master_id=id, trans_type="export")
+        user_permission = check_user_company_right("LC", id, user.id, "can_view")
+        if user_permission:
+           
+            serializer = GetLCSerializer(lc_instance, many=True)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view LC',
+                })
+             
 
 ############################################################################################################################
 ################################################## LC DOCUMENTS (CRUD) #################################################
