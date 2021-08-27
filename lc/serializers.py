@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import lc, lc_docs, lc_amend
 from Company.models import cost_center, ledger_master
-from Company.serializers import GetLedgerMasterField,GetCostCenterField
+from Company.serializers import GetLedgerMasterField,GetCostCenterField, CurrencySerializer
 class LCSerializer(serializers.ModelSerializer):
     #id = serializers.CharField(source='lc_no')
     id = serializers.SerializerMethodField('get_alternate_name', read_only=True)
@@ -35,6 +35,7 @@ class GetLCSerializer(serializers.ModelSerializer):
     cost_center = GetCostCenterField()
     party_code = GetLedgerMasterField()
     bank_ac = GetLedgerMasterField()
+    base_currency = CurrencySerializer()
     class Meta:
         model = lc
         fields = '__all__'

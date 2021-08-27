@@ -1,5 +1,5 @@
 from django.db import models
-from Company.models import year_master, ledger_master, cost_center, company_master
+from Company.models import year_master, ledger_master, cost_center, company_master, currency
 from django.utils import timezone
 from simple_history.models import HistoricalRecords
 # Create your models here.
@@ -10,6 +10,7 @@ class lc(models.Model):
     lc_date = models.DateField(null=False)
     year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.CASCADE)
     party_code = models.ForeignKey(to=ledger_master, related_name="ledger_master1", null=False, on_delete=models.CASCADE)
+    base_currency = models.ForeignKey(to=currency, null=False,default="1", on_delete=models.CASCADE)
     cost_center = models.ForeignKey(to=cost_center, null=False, on_delete=models.CASCADE)
     applicant_bank = models.TextField(max_length=1000, null=True)
     benificiary_bank = models.TextField(max_length=1000, null=True)
@@ -47,9 +48,9 @@ class lc_docs(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     history = HistoricalRecords()
+
     def __str__(self):
         return self.doc_name
-
 
 
 
@@ -69,12 +70,3 @@ class lc_amend(models.Model):
 
     def __str__(self):
         return self.lc_id
-
-
-
-
-
-
-
-
-
