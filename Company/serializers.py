@@ -123,6 +123,7 @@ class GetUserCompanySerializer(serializers.ModelSerializer):
         }
 
 
+
 class GetVoucherTypeSerializer(serializers.ModelSerializer):
     authorization_id = UsernamesSerializer()
     class Meta:

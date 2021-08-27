@@ -583,9 +583,33 @@ class DeleteUserCompany(APIView):
                 'success': False,
                 'message': 'You are not allowed to Delete User Company',
                 })
-    
 
 
+# API For getting company user
+# request : GET
+# endpoint : get-comapny-user/userid
+class GetCompanyUser(APIView):
+    def get(self, request, id):
+        # verify token for authorization
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        user_company_query = user_company.objects.filter(company_master_id=id)
+        data1 = []
+        for i in user_company_query:
+            data = {}
+            data.update({"id":i.user.id, "email": i.user.email})
+            data1.append(data)
+        #serializer = UserCompanySerializer(user_company_query, many=True)
+        return Response({
+                    "success":True,
+                    "message":"",
+                    "data": data1
+                
+                })
 
 ############################################################################################################################
 ################################################## COMPANY DOCUMENT (CRUD) #################################################
@@ -1089,7 +1113,29 @@ class GetDetailVoucherType(APIView):
             return Response({
                 'success': False,
                 'message': 'You are not allowed to View Voucher Type',
-            })            
+            })   
+
+
+# API For getting voucher type
+# request : GET
+# endpoint : get-voucherclass
+class GetVoucherclass(APIView):
+    def get(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        
+        voucher_record =  fixed_vouchertype.objects.all()
+        data = []
+        for i in voucher_record:
+            data.append(i.voucher_class)
+        return Response({
+            'success': True,
+            'message':'',
+            'data': data
+            })    
 
 ############################################################################################################################
 ################################################## ACCOUNT HEAD (CRUD) #####################################################

@@ -16,6 +16,8 @@ from .views import *
 urlpatterns = [
     path('get-user-company', GetUserCompanyView.as_view()),
     path('get-transaction-right', GetTransaction.as_view()),
+    path('get-company-user/<int:id>', GetCompanyUser.as_view()), #company d
+
 
     path('create-company', CreateCompanyView.as_view()),  
     path('edit-company/<int:id>', EditCompanyView.as_view()), #id : company id
@@ -37,6 +39,7 @@ urlpatterns = [
     path('delete-vouchertype/<int:id>', DeleteVoucherType.as_view()), # id : voucher_type id
     path('get-vouchertype/<int:id>', GetVoucherType.as_view()), # id company_master_id
     path('get-detail-vouchertype/<int:id>', GetDetailVoucherType.as_view()), # id company_master_id
+    path('get-voucherclass', GetVoucherclass.as_view()), # id company_master_id
 
     path('add-account-head', AddAccountHead.as_view()),
     path('edit-account-head/<int:id>', EditAccountHead.as_view()), # id : Account head id
