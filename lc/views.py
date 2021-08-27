@@ -510,8 +510,12 @@ class AddLCAmend(APIView):
         # permission
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
-            lc_count = int(lc_amend.objects.filter(lc_id=request.data['lc_id']).count()) + 1
-            print(lc_count)
+            lc_instance = lc_amend.objects.filter(lc_id=request.data['lc_id'])
+            lc_arr = [0]
+            for i in lc_instance:
+                lc_arr.append(int(i.amendment_no))
+            lc_arr.sort()
+            lc_count = lc_arr[-1]+1
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
@@ -525,6 +529,7 @@ class AddLCAmend(APIView):
                     "email":user.email
                 }
                 })
+
 
             serializer.save()
 
