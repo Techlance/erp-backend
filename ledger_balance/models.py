@@ -50,9 +50,9 @@ class ledger_bal_billwise(models.Model):
         return self.ref_no
 
 class op_bal_brs(models.Model):
-    bank_ledger_id = models.ForeignKey(to=ledger_balance, null=False, on_delete=models.CASCADE)
+    bank_ledger_id = models.ForeignKey(to=ledger_master,related_name="bank_ledger", null=False, on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
-    acc_code = models.TextField(max_length=200, null=False) # check
+    acc_code = models.ForeignKey(to=ledger_master,related_name="acc_code_ledger", null=False, on_delete=models.CASCADE)
     year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.PROTECT, default=0)#remove default
     name = models.TextField(max_length=200, null=False)
     chq_date = models.DateField(null=True)
