@@ -323,6 +323,13 @@ class GetLedgerMasterField(serializers.ModelSerializer):
     class Meta:
         model = ledger_master
         fields = ['id', 'ledger_name']
+
+class GetLedgerMasterCustomField(serializers.ModelSerializer):
+   
+   
+    class Meta:
+        model = ledger_master
+        fields = ['id', 'ledger_name', 'bank_name']
         
 
 class LedgerDocumentSerializer(serializers.ModelSerializer):

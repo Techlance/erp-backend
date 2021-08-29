@@ -601,7 +601,7 @@ class GetCompanyUser(APIView):
         data1 = []
         for i in user_company_query:
             data = {}
-            data.update({"id":i.user.id, "email": i.user.email})
+            data.update({"id":i.user.id, "email": i.user.email, "name": i.name})
             data1.append(data)
         #serializer = UserCompanySerializer(user_company_query, many=True)
         return Response({

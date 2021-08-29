@@ -35,5 +35,6 @@ urlpatterns = [
     path('edit-op-bal-brs/<int:id>', EditOpBalBrs.as_view()),
     path('delete-op-bal-brs/<int:id>', DeleteOpBalBrs.as_view()),
     path('get-op-bal-brs/<int:id>', GetOpBalBrs.as_view()),
+    path('get-detail-op-bal-brs/<int:id>', GetDetailOpBalBrs.as_view()),
 ]
 

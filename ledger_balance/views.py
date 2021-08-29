@@ -600,6 +600,34 @@ class GetOpBalBrs(APIView):
             })
 
 
+
+# API For getting detail op balance brs
+# request : GET
+# endpoint : get-detail-op-bal-brs/id (brs id)
+class GetDetailOpBalBrs(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        op_bal_brs_instance = op_bal_brs.objects.get(id=id)
+        user_permission = check_user_company_right("Opening Balance", op_bal_brs_instance.company_master_id, user.id, "can_view")
+        if user_permission:
+           
+            serializer = OpBalanceBrsSerializer(op_bal_brs_instance)
+            return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Op balance brs',
+                'data': []
+            })
+
 # API For adding Ledger balance billwise together
 # request : POST
 # endpoint : add-all-ledger-bal-billwise
