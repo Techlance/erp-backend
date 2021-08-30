@@ -300,7 +300,7 @@ class AddLedgerBalBillwise(APIView):
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
             temp = request.data
-            context = temp.dict()
+            context = temp
             debit = 0 
             credit = 0
             if request.data['dr'] :
@@ -679,7 +679,9 @@ class AddAllLedgerBalBillwise(APIView):
             
             if balance < 0:
                 dr = 0
-                cr = balance
+                str_bal = str(balance)
+                str_bal = str_bal[1:]
+                cr = str_bal
             else:
                 cr = 0
                 dr = balance
@@ -689,7 +691,7 @@ class AddAllLedgerBalBillwise(APIView):
             fc_rate = round(D(fc_rate), 4)
             ledger_bal = ledger_balance(ledger_id_id=ledger_id, year_id_id=year_id, dr=dr, cr=cr,total_dr=dr, total_cr=cr, balance=balance, fc_amount= fc_amt, fc_name_id=fc_name, fc_rate=fc_rate, created_by=user.email, company_master_id_id=request.data['company_master_id'])
             ledger_bal.save()
-            print("hello motto")
+           
             ledger_bal_id = ledger_balance.objects.latest('id').id
             for i in request.data['billwise']:
                 temp =i
@@ -714,8 +716,8 @@ class AddAllLedgerBalBillwise(APIView):
                 if temp['dr'] is None:
                     temp['dr'] = 0
               
-                print("cr",temp['cr'])
-                print("dr",temp['dr'])
+                # print("cr",temp['cr'])
+                # print("dr",temp['dr'])
                 serializer = LedgerBalanceBillwiseSerializer(data=temp)
                 if not serializer.is_valid():
                     return Response({
