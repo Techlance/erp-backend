@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
-from .serializers import LedgerBalanceSerializer, LedgerBalanceBillwiseSerializer, OpBalanceBrsSerializer, GetLedgerBalanceSerializer
+from .serializers import LedgerBalanceSerializer, LedgerBalanceBillwiseSerializer, OpBalanceBrsSerializer, GetLedgerBalanceSerializer, GetOpBalanceBrsSerializer
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from .models import ledger_balance,op_bal_brs,ledger_bal_billwise
@@ -586,7 +586,7 @@ class GetOpBalBrs(APIView):
         user_permission = check_user_company_right("Opening Balance", id, user.id, "can_view")
         if user_permission:
             op_bal_brs_instance = op_bal_brs.objects.filter(company_master_id=id)
-            serializer = OpBalanceBrsSerializer(op_bal_brs_instance, many=True)
+            serializer = GetOpBalanceBrsSerializer(op_bal_brs_instance, many=True)
             return Response({
             'success': True,
             'message':'',
@@ -615,7 +615,7 @@ class GetDetailOpBalBrs(APIView):
         user_permission = check_user_company_right("Opening Balance", op_bal_brs_instance.company_master_id, user.id, "can_view")
         if user_permission:
            
-            serializer = OpBalanceBrsSerializer(op_bal_brs_instance)
+            serializer = GetOpBalanceBrsSerializer(op_bal_brs_instance)
             return Response({
             'success': True,
             'message':'',

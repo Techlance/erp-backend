@@ -69,8 +69,8 @@ class LedgerBalanceBillwiseSerializer(serializers.ModelSerializer):
         return instance
 
 class OpBalanceBrsSerializer(serializers.ModelSerializer):
-    bank_ledger_id = GetLedgerMasterCustomField(read_only=True)
-    acc_code =  GetLedgerMasterCustomField(read_only=True)
+    # bank_ledger_id = GetLedgerMasterCustomField(read_only=True)
+    # acc_code =  GetLedgerMasterCustomField(read_only=True)
     class Meta:
         model = op_bal_brs
         fields = '__all__'
@@ -91,3 +91,16 @@ class OpBalanceBrsSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+class GetOpBalanceBrsSerializer(serializers.ModelSerializer):
+    bank_ledger_id = GetLedgerMasterCustomField(read_only=True)
+    acc_code =  GetLedgerMasterCustomField(read_only=True)
+    class Meta:
+        model = op_bal_brs
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
