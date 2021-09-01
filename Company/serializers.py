@@ -286,9 +286,23 @@ class GetLedgerBalanceSerializer(serializers.ModelSerializer):
             'altered_by': {'write_only': True}
         }
 
+class GetLedgerBalanceNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ledger_balance
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+
+#  new thing ended
+
 class GetLedgerMasterNestedSerializer(serializers.ModelSerializer):
     acc_group_id = GetAccGroupNotNestedSerializer()
     ledger_docs = serializers.StringRelatedField(many=True, read_only=True)
+    # ledger_balance = GetLedgerBalanceSerializer(many=True, read_only=True)
     ledger_balance = GetLedgerBalanceSerializer(many=True, read_only=True)
 
     class Meta:
@@ -306,7 +320,7 @@ class GetLedgerMasterNotNestedSerializer(serializers.ModelSerializer):
         read_only=True,
         slug_field='group_name'
      )
-   
+    ledger_balance = GetLedgerBalanceNestedSerializer(many=True, read_only=True)
     class Meta:
         model = ledger_master
         fields = '__all__'
