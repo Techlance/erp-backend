@@ -23,7 +23,7 @@ class budget(models.Model):
         return self.budget_name
 
 class budget_details(models.Model):
-    budget_id = models.ForeignKey(to=budget,null=False,on_delete=models.CASCADE)
+    budget_id = models.ForeignKey(to=budget,related_name="budget_detail",null=False,on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
     ledger_id = models.ForeignKey(to=ledger_master,null=False, on_delete=models.CASCADE)
     jan = models.DecimalField(max_digits=100, decimal_places=4, default=0)

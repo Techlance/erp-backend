@@ -41,7 +41,6 @@ class BudgetSerializer(serializers.ModelSerializer):
 #         }
 
 class BudgetDetailsSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = budget_details
         fields = '__all__'
@@ -62,6 +61,18 @@ class BudgetDetailsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
     
+
+class GetBudgetDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = budget_details
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by': {'write_only': True}
+        }
+
 
 class RevisedBudgetDetailsSerializer(serializers.ModelSerializer):
     
