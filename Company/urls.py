@@ -88,5 +88,7 @@ urlpatterns = [
     path('edit-user-company/<int:id>', EditUserCompany.as_view()), # id : user company id
     path('delete-user-company/<int:id>', DeleteUserCompany.as_view()), # id : user company id
     path('get-user-company-group/<int:id>', GetUserCompany.as_view()), # id : user id
+
+    path('get-year-master/<int:id>', GetYearMaster.as_view()), # id : company master id
     
 ]

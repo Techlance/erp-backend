@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from .models import currency, company_master, user_company, company_master_docs, year_master, voucher_type, acc_head, acc_group, ledger_master, cost_category, cost_center, fixed_vouchertype, fixed_account_head, fixed_account_group, fixed_ledger_master, ledger_master_docs
 import jwt
 from django.http import JsonResponse
-from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupNestedSerializer, GetAccGroupNotNestedSerializer,  AccountHeadSerializer, LedgerMasterSerializer,GetLedgerMasterNotNestedSerializer, GetLedgerMasterNestedSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer, GetCostCenterSerializer,GetCostCenterNotNestedSerializer, LedgerDocumentSerializer
+from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySerializer, CompanyDocumentSerializer, GetCompanyDocumentSerializer, UserCompanySerializer, GetUserCompanySerializer, GetVoucherTypeSerializer, VoucherTypeSerializer, AccGroupSerializer, GetAccGroupNestedSerializer, GetAccGroupNotNestedSerializer,  AccountHeadSerializer, LedgerMasterSerializer,GetLedgerMasterNotNestedSerializer, GetLedgerMasterNestedSerializer, CostCategorySerializer, GetTransactionSerializer, CostCenterSerializer, GetCostCategorySerializer, GetCostCenterSerializer,GetCostCenterNotNestedSerializer, LedgerDocumentSerializer, YearSerializer
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from Users.models import User, transaction_right, user_group, user_right
@@ -601,7 +601,7 @@ class GetCompanyUser(APIView):
         data1 = []
         for i in user_company_query:
             data = {}
-            data.update({"id":i.user.id, "email": i.user.email, "name": i.name})
+            data.update({"id":i.user.id, "email": i.user.email})
             data1.append(data)
         #serializer = UserCompanySerializer(user_company_query, many=True)
         return Response({
@@ -2349,3 +2349,29 @@ class GetCostCenter(APIView):
                 'data': []
                 }) 
              
+
+
+############################################################################################################################
+################################################## Year Master (CRUD) ######################################################
+############################################################################################################################
+
+# API For getting year master
+# request : GET
+# endpoint: get-year-master/id (company id)
+class GetYearMaster(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        year_master_record = year_master.objects.filter(company_master_id=id).exclude(year_no="0")
+
+        serializer = YearSerializer(year_master_record, many=True)
+        return Response({
+            'success': True,
+            'message':'',
+            'data': serializer.data
+        })
+        

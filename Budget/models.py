@@ -49,7 +49,7 @@ class budget_details(models.Model):
 class revised_budget_details(models.Model):
     budget_id = models.ForeignKey(to=budget,null=False, on_delete=models.CASCADE)
     ledger_id = models.ForeignKey(to=ledger_master,null=False, on_delete=models.CASCADE)
-    # company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master,default=11, null=False, on_delete=models.CASCADE)
     jan = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     feb = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     mar = models.DecimalField(max_digits=100, decimal_places=4, default=0)
@@ -68,13 +68,16 @@ class revised_budget_details(models.Model):
     class Meta:
         unique_together = ('budget_id', 'ledger_id',)
 
-    
+class cashflow_heads(models.Model):
+    head=models.TextField(max_length=100, unique=True)
+    created_by = models.TextField(max_length=200, null=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()    
 
 
 class budget_cashflow_details(models.Model):
     budget_id = models.ForeignKey(to=budget,null=False, on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
-    ledger_id = models.ForeignKey(to=ledger_master,null=False, on_delete=models.CASCADE)
     jan = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     feb = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     mar = models.DecimalField(max_digits=100, decimal_places=4, default=0)
@@ -88,7 +91,7 @@ class budget_cashflow_details(models.Model):
     nov = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     dec = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     budget_type = models.TextField(max_length=100)
-    cashflow_head = models.TextField(max_length=100)
+    cashflow_head = models.ForeignKey(to=cashflow_heads, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
@@ -98,7 +101,6 @@ class budget_cashflow_details(models.Model):
 class revised_budget_cashflow_details(models.Model):
     budget_id = models.ForeignKey(to=budget,null=False, on_delete=models.CASCADE)
     company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
-    ledger_id = models.ForeignKey(to=ledger_master,null=False, on_delete=models.CASCADE)
     jan = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     feb = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     mar = models.DecimalField(max_digits=100, decimal_places=4, default=0)
@@ -112,9 +114,11 @@ class revised_budget_cashflow_details(models.Model):
     nov = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     dec = models.DecimalField(max_digits=100, decimal_places=4, default=0)
     budget_type = models.TextField(max_length=100)
-    cashflow_head = models.TextField(max_length=100)
+    cashflow_head = models.ForeignKey(to=cashflow_heads, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     class Meta:
         unique_together = ('budget_id', 'cashflow_head',)
+
+

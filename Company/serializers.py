@@ -3,7 +3,7 @@ from Users.models import transaction_right
 from django.db import models
 from django.db.models import fields
 from rest_framework import serializers
-from .models import company_master, company_master_docs, cost_center, currency, ledger_master,voucher_type, acc_group, acc_head, cost_category,user_company, ledger_master_docs
+from .models import company_master, company_master_docs, cost_center, currency, ledger_master,voucher_type, acc_group, acc_head, cost_category,user_company, ledger_master_docs, year_master
 from Users.serializers import UserSerializer,UsernamesSerializer, UserGroupSerializer
 from ledger_balance.models import ledger_balance, ledger_bal_billwise
 
@@ -12,6 +12,16 @@ class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = currency
         fields = '__all__'
+        extra_kwargs = {
+            'id':{'read_only': True},
+            'created_on':{'read_only': True},
+            'altered_by':{'write_only': True}
+        }
+
+class YearSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = year_master
+        fields = ['id', 'start_date', 'end_date']
         extra_kwargs = {
             'id':{'read_only': True},
             'created_on':{'read_only': True},
