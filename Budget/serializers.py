@@ -106,12 +106,18 @@ class RevisedBudgetDetailsSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class CashflowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = cashflow_heads
+        fields = '__all__'
+        extra_kwargs = {
+            'id':{'read_only':True},
+            'created_on':{'read_only': True},
+            'altered_by':{'write_only': True}
+        }
 
 class BudgetCashflowSerializer(serializers.ModelSerializer):
-    cashflow_head = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='head'
-     )      
+    cashflow_head = CashflowSerializer()
     class Meta:
         model = budget_cashflow_details
         fields = '__all__'
@@ -134,7 +140,7 @@ class BudgetCashflowSerializer(serializers.ModelSerializer):
 
 
 class RevisedBudgetCashflowSerializer(serializers.ModelSerializer):
-    
+    cashflow_head = CashflowSerializer()
     class Meta:
         model = revised_budget_cashflow_details
         fields = '__all__'
@@ -155,12 +161,3 @@ class RevisedBudgetCashflowSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
-class CashflowSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = cashflow_heads
-        fields = '__all__'
-        extra_kwargs = {
-            'id':{'read_only':True},
-            'created_on':{'read_only': True},
-            'altered_by':{'write_only': True}
-        }
