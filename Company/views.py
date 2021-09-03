@@ -98,10 +98,10 @@ class GetTransaction(APIView):
         # verify token for authorization
         payload = verify_token(request)
         try:
-            user = User.objects.filter(id=payload['id']).first()  
+            user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-            
+
         
         all_transaction_right = transaction_right.objects.all()
         serializer = GetTransactionSerializer(all_transaction_right, many=True)
@@ -111,8 +111,7 @@ class GetTransaction(APIView):
             'data':serializer.data
         })
 
-       
-    
+
 # API For getting user company in which user is included
 # request : GET
 # endpoint : get-user-company

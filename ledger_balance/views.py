@@ -138,7 +138,10 @@ class AddLedgerBalance(APIView):
             balance = debit-credit
             #request.data.update({'balance':balance})
             context['balance'] = balance
-            fc_rate = str(balance/D(context['fc_amount']))
+            if context['fc_amount'] == 0:
+                fc_rate = "0"
+            else:
+                fc_rate = str(balance/D(context['fc_amount']))
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = round(D(fc_rate), 4)
@@ -228,7 +231,11 @@ class EditLedgerBalance(APIView):
             balance = debit+credit
             #request.data.update({"balance":balance})
             context['balance'] = balance
-            fc_rate = str(balance/D(request.data['fc_amount']))
+            if context['fc_amount'] == 0:
+                fc_rate = "0"
+            else:
+                fc_rate = str(balance/D(context['fc_amount']))
+
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = round(D(fc_rate), 4)
@@ -310,7 +317,11 @@ class AddLedgerBalBillwise(APIView):
             balance = debit+credit
             #request.data.update({"amount":balance})
             context['amount'] = balance
-            fc_rate = str(balance/D(request.data['fc_amount']))
+            if D(context['fc_amount']) == 0:
+                fc_rate = "0"
+            else:
+                fc_rate = str(balance/D(context['fc_amount']))
+            
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = round(D(fc_rate), 4)
@@ -362,7 +373,11 @@ class EditLedgerBalBillwise(APIView):
             balance = debit+credit
             #request.data.update({"balance":balance})
             context['amount'] = balance
-            fc_rate = str(balance/D(request.data['fc_amount']))
+            if D(context['fc_amount']) == 0:
+                fc_rate = "0"
+            else:
+                fc_rate = str(balance/D(context['fc_amount']))
+            # fc_rate = str(balance/D(request.data['fc_amount']))
             if fc_rate[0] == "-":
                 fc_rate = fc_rate[1:]
             fc_rate = round(D(fc_rate), 4)
@@ -670,8 +685,10 @@ class AddAllLedgerBalBillwise(APIView):
                     curr_add = D(i['cr'])
                     fc_amt -= D(i['fc_amount'])
                 
-            
-            fc_rate = str(balance/fc_amt)
+            if fc_amt == 0:
+                fc_rate = "0"
+            else:
+                fc_rate = str(balance/fc_amt)
             if request.data['fc_name']:
                 fc_name = request.data['fc_name']
             else:
@@ -698,7 +715,10 @@ class AddAllLedgerBalBillwise(APIView):
                 temp.update({"fc_name":fc_name})
                 temp.update({"ledger_bal_id": ledger_bal_id})
                 temp.update({"company_master_id":request.data['company_master_id']})
-                fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+                if D(i['fc_amount']) == 0:
+                    fc_rate = "0"
+                else:
+                    fc_rate = str(D(i['amount'])/D(i['fc_amount']))
                 if fc_rate[0] == "-":
                     fc_rate = fc_rate[1:]
                 fc_rate = round(D(fc_rate), 4)
@@ -761,7 +781,10 @@ class AddExistingLedgerBalBillwise(APIView):
                     temp.update({"fc_name":fc_name})
                     temp.update({"ledger_bal_id": ledger_bal_id})
                     temp.update({"company_master_id":request.data['company_master_id']})
-                    fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+                    if D(i['fc_amount']) == 0:
+                        fc_rate = "0"
+                    else:
+                        fc_rate = str(D(i['amount'])/D(i['fc_amount']))
                     if fc_rate[0] == "-":
                         fc_rate = fc_rate[1:]
                     fc_rate = round(D(fc_rate), 4)
@@ -796,7 +819,10 @@ class AddExistingLedgerBalBillwise(APIView):
                 ledger_bal_instance.balance = D(ledger_bal_instance.balance) + total_bal
                 ledger_bal_instance.fc_amount = D(ledger_bal_instance.fc_amount) + fc_amt
                 ledger_bal = D(ledger_bal_instance.balance) + total_bal
-                fcrate = str(ledger_bal/ledger_bal_instance.fc_amount)
+                if ledger_bal_instance.fc_amount == 0:
+                    fcrate = "0"
+                else:
+                    fcrate = str(ledger_bal/ledger_bal_instance.fc_amount)
                 if fcrate[0] == "-":
                         fcrate = fcrate[1:]
                 ledger_bal_instance.fc_rate = round(D(fcrate), 4)

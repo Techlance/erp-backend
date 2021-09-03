@@ -277,11 +277,16 @@ class GetBudgetDetails(APIView):
         user_permission = check_user_company_right("Budget-P&L", company_id, user.id, "can_view")
 
         if user_permission:
+            budget_instance = budget.objects.get(id=id)
+            budget_serializer = GetBudgetSerializer(budget_instance)   
+
             budget_details_instances = budget_details.objects.filter(budget_id=id)
             serializer = GetBudgetDetailsSerializer(budget_details_instances, many=True)
+
             return Response({
             'success': True,
             'message':'',
+            'budget':budget_serializer.data,
             'data': serializer.data
             })
         else:
@@ -529,8 +534,43 @@ class DeleteBudgetDetails(APIView):
 
 
 ############################################################################################################################
-################################################## REVISED BUDGET DETAILS (U) #################################################
+################################################## REVISED BUDGET DETAILS (RU) #################################################
 ############################################################################################################################
+
+# API For getting revised budget details for a budget id
+# request : GET
+# endpoint : get-revised-budget-details/id (budget id)
+class GetRevisedBudgetDetails(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        user_permission=False
+        company_id=budget.objects.get(id=id).company_master_id.id
+        user_permission = check_user_company_right("Budget-P&L", company_id, user.id, "can_view")
+
+        if user_permission:
+            budget_instance = budget.objects.get(id=id)
+            budget_serializer = GetBudgetSerializer(budget_instance)   
+
+            rev_budget_details_instances = revised_budget_details.objects.filter(budget_id=id)
+            serializer = RevisedBudgetDetailsSerializer(rev_budget_details_instances, many=True)
+
+            return Response({
+            'success': True,
+            'message':'',
+            'budget':budget_serializer.data,
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Revised Budget details',
+                'data': []
+            })
 
 
 # API For editing budget
@@ -557,7 +597,7 @@ class EditRevisedBudgetDetails(APIView):
             return_data=[]
             for i in changed_budget_details:
                 revised_budget_details_instance = revised_budget_details.objects.get(id=i.get('id'))
-                print(revised_budget_details_instance)
+                # print(revised_budget_details_instance)
                 changed_revised_budget_details_instance=revised_budget_details.objects.filter(id=i.get('id')).values()[0]
                 # print(budget_details_instance)
                 
@@ -634,7 +674,7 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             if not revised_serializer.is_valid():
                 return Response({
                 "success":False,
-                "message":(serializer.errors),
+                "message":(revised_serializer.errors),
                 "data": {
                     "email":user.email
                 }
@@ -725,9 +765,12 @@ class GetBudgetCashflowDetails(APIView):
         if user_permission:
             budget_cashflow_details_instances = budget_cashflow_details.objects.filter(budget_id=id)
             serializer = BudgetCashflowSerializer(budget_cashflow_details_instances, many=True)
+            budget_instance = budget.objects.get(id=id)
+            budget_serializer = GetBudgetSerializer(budget_instance)  
             return Response({
             'success': True,
             'message':'',
+            'budget':budget_serializer.data,
             'data': serializer.data
             })
         else:
@@ -861,6 +904,133 @@ class DeleteBudgetCashflowDetails(APIView):
 ################################################## REVISED BUDGET CASHFLOW DETAILS (U) #################################################
 ############################################################################################################################
 
+def EditRevisedBudgetChilds(changed_data,revised,user):
+    save_instances_budget=[]
+    save_instances_revised=[]
+    return_data=[]
+
+    for i in changed_data:
+        if i.get('id')==None:
+
+            revised_serializer = RevisedBudgetCashflowSerializer(data = i)
+            if not revised_serializer.is_valid():
+                return Response({
+                "success":False,
+                "message":(revised_serializer.errors),
+                "data": {
+                    "email":user.email
+                }
+                })
+            save_instances_revised.append(revised_serializer)
+        else:
+            
+            revised_instance = revised.objects.get(id=i.get('id'))
+            changed_revised_instance = revised.objects.filter(id=i.get('id')).values()[0]
+
+            for key,val in i.items():
+                if key!='id':
+                    changed_revised_instance[key]=D(val)
+
+            changed_revised_instance['budget_id']=changed_revised_instance['budget_id_id']
+            del changed_revised_instance['budget_id_id']
+            changed_revised_instance['company_master_id']=changed_revised_instance['company_master_id_id']
+            del changed_revised_instance['company_master_id_id']
+            changed_revised_instance['cashflow_head']=changed_revised_instance['cashflow_head_id']
+            del changed_revised_instance['cashflow_head_id']
+            
+            del changed_revised_instance['id']
+            del changed_revised_instance['created_on']
+
+            revised_serializer = RevisedBudgetCashflowSerializer(revised_instance, data = changed_revised_instance)
+            # print(budget_details_serializer)
+
+            if not revised_serializer.is_valid():
+                return Response({
+                "success":False,
+                "message":get_error(revised_serializer.errors),
+                "data": {
+                    "email":user.email
+                } 
+                })
+            
+            save_instances_revised.append(revised_serializer)
+        
+    for i in save_instances_revised:
+        i.save()
+        return_data.append(i.data)
+
+    return Response({
+        "success":True,
+        "message":"Revised Budget Cashflow details has been updated successfully",
+        "data": return_data
+        })      
+# API For adding revised budget cashflow details
+# request : POST
+# endpoint : create-edit-revised-budget-cashflow-detail
+class CreateEditRevisedBudgetCashflowDetails(APIView):
+    def post(self, request):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+        # check user permission
+
+        user_permission=False
+        creating=False
+        for i in request.data['changed_budget_details']:
+            if i.get('id')==None:
+                creating=True
+                break
+        if creating:
+            user_permission = check_user_company_right("Budget-Cash flow", request.data['company_master_id'], user.id, "can_create")
+        else:
+            user_permission = check_user_company_right("Budget-Cash flow", request.data['company_master_id'], user.id, "can_edit")
+        # budget_cashflow_details
+        if user_permission :
+            return EditRevisedBudgetChilds(changed_data=request.data['changed_budget_details'],revised=revised_budget_cashflow_details,user=user)
+        else:
+            return Response({
+            "success":False,
+            "message":"Not Allowed to add revised budget cashflow",
+            "data": {
+                    "email":user.email
+                }
+            })
+
+# API For getting revised budget cashflow details for a budget id
+# request : GET
+# endpoint : get-revised-budget-cashflow-details/id (budget id)
+class GetRevisedBudgetCashflowDetails(APIView):
+    def get(self, request, id):
+        payload = verify_token(request)
+        try:
+            user = User.objects.filter(id=payload['id']).first()
+        except:
+            return payload
+
+        user_permission=False
+        company_id=budget.objects.get(id=id).company_master_id.id
+        user_permission = check_user_company_right("Budget-Cash flow", company_id, user.id, "can_view")
+
+        if user_permission:
+            budget_cashflow_details_instances = revised_budget_cashflow_details.objects.filter(budget_id=id)
+            serializer = RevisedBudgetCashflowSerializer(budget_cashflow_details_instances, many=True)
+            budget_instance = budget.objects.get(id=id)
+            budget_serializer = GetBudgetSerializer(budget_instance)  
+            return Response({
+            'success': True,
+            'message':'',
+            'budget':budget_serializer.data,
+            'data': serializer.data
+            })
+        else:
+            return Response({
+                'success': False,
+                'message': 'You are not allowed to view Revised Budget Cashflow details',
+                'data': []
+            })
+
 
 # API For editing budget cashflow details
 # request : PUT
@@ -880,11 +1050,12 @@ class EditRevisedBudgetCashflowDetails(APIView):
         
         if user_permission:
             revised_budget_cashflow_details_instance = revised_budget_cashflow_details.objects.get(id=id)
-            serializer = RevisedBudgetCashflowSerializer(revised_budget_cashflow_details_instance, data = request.data)
+            serializer = RevisedBudgetCashflowSerializer(revised_budget_cashflow_details_instance, data = request.data)          
             if not serializer.is_valid():
                 return Response({
                 "success":False,
                 "message":get_error(serializer.errors),
+                
                 "data": {
                     "email":user.email
                 } 

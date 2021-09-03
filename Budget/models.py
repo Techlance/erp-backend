@@ -72,7 +72,7 @@ class cashflow_heads(models.Model):
     head=models.TextField(max_length=100, unique=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(auto_now_add=True)
-    history = HistoricalRecords()    
+    history = HistoricalRecords()
 
 
 class budget_cashflow_details(models.Model):

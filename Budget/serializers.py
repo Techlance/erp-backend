@@ -66,7 +66,10 @@ class BudgetDetailsSerializer(serializers.ModelSerializer):
     
 
 class GetBudgetDetailsSerializer(serializers.ModelSerializer):
-    
+    ledger_id = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='ledger_name'
+     )    
     class Meta:
         model = budget_details
         fields = '__all__'
@@ -79,7 +82,10 @@ class GetBudgetDetailsSerializer(serializers.ModelSerializer):
 
 
 class RevisedBudgetDetailsSerializer(serializers.ModelSerializer):
-    
+    ledger_id = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='ledger_name'
+     )  
     class Meta:
         model = revised_budget_details
         fields = '__all__'
@@ -101,9 +107,11 @@ class RevisedBudgetDetailsSerializer(serializers.ModelSerializer):
         return instance
 
 
-
 class BudgetCashflowSerializer(serializers.ModelSerializer):
-    
+    cashflow_head = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='head'
+     )      
     class Meta:
         model = budget_cashflow_details
         fields = '__all__'

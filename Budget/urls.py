@@ -15,6 +15,7 @@ urlpatterns = [
     path('delete-budget-details/<int:id>', DeleteBudgetDetails.as_view()), # id : budget detail id
 
     path('edit-revised-budget-details/<int:id>', EditRevisedBudgetDetails.as_view()), # id : budget id
+    path('get-revised-budget-details/<int:id>', GetRevisedBudgetDetails.as_view()), # id : budget id
     
     path('get-cashflow-head/', GetCashflowHead.as_view()),
     path('create-cashflow-head', AddCashflowHead.as_view()),
@@ -23,5 +24,8 @@ urlpatterns = [
     
     path('create-edit-budget-cashflow-detail/', CreateEditBudgetCashflowDetails.as_view()),
     path('get-budget-cashflow-details/<int:id>', GetBudgetCashflowDetails.as_view()),
+    
+    path('create-edit-revised-budget-cashflow-detail/', CreateEditRevisedBudgetCashflowDetails.as_view()),
+    path('get-revised-budget-cashflow-details/<int:id>', GetRevisedBudgetCashflowDetails.as_view()),
     
 ]
