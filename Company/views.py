@@ -1007,11 +1007,11 @@ class EditVoucherType(APIView):
         # Query : Getting Voucher Type Instace
         voucher_type_instance = voucher_type.objects.get(id=id)
         # if account head instance is fixed user cannot delete that instance as it is auto trigged at company creation
-        if voucher_type_instance.is_fixed:
-             return Response({
-                'success': False,
-                'message': 'You are not allowed to Edit Account Head',
-            })
+        # if voucher_type_instance.is_fixed:
+        #      return Response({
+        #         'success': False,
+        #         'message': 'You are not allowed to Edit Account Head',
+        #     })
 
         temp = request.data
         context = temp.dict()
