@@ -344,6 +344,36 @@ class AddLedgerBalBillwise(APIView):
                 'message': 'You are not allowed to Add ledger balance billwise',
             })
 
+def update_ledger_balance(id):
+    balance = 0
+    fc_amt = 0
+    ledger_bal_instance = ledger_balance.objects.get(id=id)
+    ledger_bal_billwise_instance = ledger_bal_billwise.objects.filter(ledger_bal_id = id)
+    for i in ledger_bal_billwise_instance:
+        balance += i.amount
+        fc_amt += i.fc_amount
+    ledger_bal_instance.balance = balance
+    if(balance < 0):
+        ledger_bal_instance.cr = D(str(balance[1:]))
+        ledger_bal_instance.dr = 0 
+        ledger_bal_instance.total_cr = D(str(balance[1:]))
+        ledger_bal_instance.total_dr = 0
+    else:
+        ledger_bal_instance.dr = balance
+        ledger_bal_instance.cr = 0 
+        ledger_bal_instance.total_dr = balance
+        ledger_bal_instance.total_cr = 0
+    if fc_amt == 0:
+        fc_rate = "0"
+    else:
+        fc_rate = str(balance/fc_amt)   
+        if fc_rate[0] == "-":
+                fc_rate = fc_rate[1:]
+        fc_rate = round(D(fc_rate), 4)
+    ledger_bal_instance.fc_rate = fc_rate
+    ledger_bal_instance.save()
+    return 
+
 
         
 # API For editing Ledger Balance Billwise
@@ -370,7 +400,7 @@ class EditLedgerBalBillwise(APIView):
                 debit = D(request.data['dr'])
             if request.data['cr'] :
                 credit = D(request.data['cr'])
-            balance = debit+credit
+            balance = debit-credit
             #request.data.update({"balance":balance})
             context['amount'] = balance
             if D(context['fc_amount']) == 0:
@@ -391,6 +421,7 @@ class EditLedgerBalBillwise(APIView):
                     })
 
             serializer.save()
+            update_ledger_balance(ledger_balance_billwise_instance.ledger_bal_id)
             return Response({
                 'success': True,
                 'message': 'ledger balance billwise edited successfully'})
@@ -399,6 +430,13 @@ class EditLedgerBalBillwise(APIView):
                 'success': False,
                 'message': 'You are not allowed to edit ledger balance billwise',
             })
+
+
+
+
+
+
+
 
 
 # API For deleting ledger balance billwise
@@ -416,28 +454,30 @@ class DeleteLedgerBalBillwise(APIView):
         user_permission = check_user_company_right("Opening Balance", ledger_balance_billwise_instance.company_master_id, user.id, "can_delete")
         if user_permission:
             
-            ledger_balance_instance = ledger_balance.objects.get(id=ledger_balance_billwise_instance.ledger_bal_id.id)
-            ledger_balance_instance.balance += D(ledger_balance_billwise_instance.amount)
-            ledger_balance_instance.fc_amount +=  D(ledger_balance_billwise_instance.fc_amount)
-            calc_dr = D(ledger_balance_instance.dr)
-            calc_cr = D(ledger_balance_instance.cr)
-            calc_dr -= D(ledger_balance_billwise_instance.dr)
-            calc_cr -= D(ledger_balance_billwise_instance.cr)
-            tot_cr_dr = calc_cr+calc_dr
-            if tot_cr_dr<0:
-                ledger_balance_instance.cr = tot_cr_dr
-                ledger_balance_instance.dr = 0
-                ledger_balance_instance.total_dr = 0
-                ledger_balance_instance.total_cr  = tot_cr_dr
-            else:
-                ledger_balance_instance.dr = tot_cr_dr
-                ledger_balance_instance.cr = 0
-                ledger_balance_instance.total_cr = 0
-                ledger_balance_instance.total_dr  = tot_cr_dr
+            # ledger_balance_instance = ledger_balance.objects.get(id=ledger_balance_billwise_instance.ledger_bal_id.id)
+            # ledger_balance_instance.balance += D(ledger_balance_billwise_instance.amount)
+            # ledger_balance_instance.fc_amount +=  D(ledger_balance_billwise_instance.fc_amount)
+            # calc_dr = D(ledger_balance_instance.dr)
+            # calc_cr = D(ledger_balance_instance.cr)
+            # calc_dr -= D(ledger_balance_billwise_instance.dr)
+            # calc_cr -= D(ledger_balance_billwise_instance.cr)
+            # tot_cr_dr = calc_cr+calc_dr
+            # if tot_cr_dr<0:
+            #     ledger_balance_instance.cr = tot_cr_dr
+            #     ledger_balance_instance.dr = 0
+            #     ledger_balance_instance.total_dr = 0
+            #     ledger_balance_instance.total_cr  = tot_cr_dr
+            # else:
+            #     ledger_balance_instance.dr = tot_cr_dr
+            #     ledger_balance_instance.cr = 0
+            #     ledger_balance_instance.total_cr = 0
+            #     ledger_balance_instance.total_dr  = tot_cr_dr
 
-            ledger_balance_instance.save()
-            ledger_balance_billwise_instance.altered_by = user.email
+            # ledger_balance_instance.save()
+            # ledger_balance_billwise_instance.altered_by = user.email
+            update_ledger_balance(ledger_balance_billwise_instance.ledger_bal_id)
             ledger_balance_billwise_instance.delete()
+
             return Response({
                 'success': True,
                 'message': 'Ledger Balance Billwie deleted Successfully',
@@ -646,6 +686,121 @@ class GetDetailOpBalBrs(APIView):
 # API For adding Ledger balance billwise together
 # request : POST
 # endpoint : add-all-ledger-bal-billwise
+# class AddAllLedgerBalBillwise(APIView):
+#     def post(self, request):
+#         payload = verify_token(request)
+#         try:
+#             user = User.objects.filter(id=payload['id']).first()
+#         except:
+#             return payload
+
+#         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
+#         if user_permission:
+#             year_id = year_master.objects.get(company_master_id=request.data['company_master_id'], year_no=0).id
+#             ledger_id = request.data['ledger_master_id']
+#             try:
+#                 if ledger_balance.objects.get(ledger_id_id=ledger_id):
+#                     return Response({
+#                     'success': False,
+#                     'message': 'Ledger balance is already added',
+#                 })
+#             except:
+#                 pass
+#             #ledger_id = ledger_master.objects.get(id=request.data['ledger_master_id'])
+#             dr = 0
+#             cr = 0
+#             balance = 0
+#             fc_amt = 0
+#             # print(request.data['billwise'])
+#             for i in request.data['billwise']:
+#                 if i['dr']:
+#                     dr += D(i['dr'])
+#                     balance += D(i['dr'])
+#                     curr_add = D(i['dr'])
+#                     fc_amt += D(i['fc_amount'])
+
+#                 if i['cr']:
+#                     cr += i['cr']
+#                     balance -= D(i['cr']) 
+#                     curr_add = D(i['cr'])
+#                     fc_amt -= D(i['fc_amount'])
+                
+#             if fc_amt == 0:
+#                 fc_rate = "0"
+#             else:
+#                 fc_rate = str(balance/fc_amt)
+#             if request.data['fc_name']:
+#                 fc_name = request.data['fc_name']
+#             else:
+#                 fc_name = company_master.objects.get(id=request.data['company_master_id']).base_currency.id
+            
+#             if balance < 0:
+#                 dr = 0
+#                 str_bal = str(balance)
+#                 str_bal = str_bal[1:]
+#                 cr = str_bal
+#             else:
+#                 cr = 0
+#                 dr = balance
+
+#             if fc_rate[0] == "-":
+#                 fc_rate = fc_rate[1:]
+#             fc_rate = round(D(fc_rate), 4)
+#             ledger_bal = ledger_balance(ledger_id_id=ledger_id, year_id_id=year_id, dr=dr, cr=cr,total_dr=dr, total_cr=cr, balance=balance, fc_amount= fc_amt, fc_name_id=fc_name, fc_rate=fc_rate, created_by=user.email, company_master_id_id=request.data['company_master_id'])
+#             ledger_bal.save()
+           
+#             ledger_bal_id = ledger_balance.objects.latest('id').id
+#             for i in request.data['billwise']:
+#                 temp =i
+#                 temp.update({"fc_name":fc_name})
+#                 temp.update({"ledger_bal_id": ledger_bal_id})
+#                 temp.update({"company_master_id":request.data['company_master_id']})
+#                 if D(i['fc_amount']) == 0:
+#                     fc_rate = "0"
+#                 else:
+#                     fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+#                 if fc_rate[0] == "-":
+#                     fc_rate = fc_rate[1:]
+#                 fc_rate = round(D(fc_rate), 4)
+#                 temp.update({"fc_rate": fc_rate})
+#                 i['amount'] = D(i['amount'])
+#                 i['fc_amount'] = D(i['fc_amount'])
+#                 # print("cr",temp['cr'])
+#                 # print("dr",temp['dr'])
+#                 if temp['cr'] is None:
+#                     temp['cr'] = 0
+#                 else:
+#                      i['amount'] = (-1)*D(i['amount'])
+#                      i['fc_amount'] = (-1)*D(i['fc_amount'])
+
+#                 if temp['dr'] is None:
+#                     temp['dr'] = 0
+              
+#                 # print("cr",temp['cr'])
+#                 # print("dr",temp['dr'])
+#                 serializer = LedgerBalanceBillwiseSerializer(data=temp)
+#                 if not serializer.is_valid():
+#                     return Response({
+#                         'success': False,
+#                         'message': serializer.errors,
+#                         })
+
+#                 serializer.save()
+#             return Response({
+#                 'success': True,
+#                 'message': 'ledger balance billwise added successfully'
+#                 })
+#         else:
+#             return Response({
+#                 'success': False,
+#                 'message': 'You are not allowed to Add ledger balance billwise',
+#             })
+
+
+# new ledger balance
+# API For adding Ledger balance billwise together
+# request : POST
+# endpoint : add-all-ledger-bal-billwise
 class AddAllLedgerBalBillwise(APIView):
     def post(self, request):
         payload = verify_token(request)
@@ -666,7 +821,7 @@ class AddAllLedgerBalBillwise(APIView):
                 })
             except:
                 pass
-            #ledger_id = ledger_master.objects.get(id=request.data['ledger_master_id'])
+
             dr = 0
             cr = 0
             balance = 0
@@ -708,8 +863,9 @@ class AddAllLedgerBalBillwise(APIView):
             fc_rate = round(D(fc_rate), 4)
             ledger_bal = ledger_balance(ledger_id_id=ledger_id, year_id_id=year_id, dr=dr, cr=cr,total_dr=dr, total_cr=cr, balance=balance, fc_amount= fc_amt, fc_name_id=fc_name, fc_rate=fc_rate, created_by=user.email, company_master_id_id=request.data['company_master_id'])
             ledger_bal.save()
-           
+            
             ledger_bal_id = ledger_balance.objects.latest('id').id
+            ledger_bal_instance = ledger_balance.objects.latest('id')
             for i in request.data['billwise']:
                 temp =i
                 temp.update({"fc_name":fc_name})
@@ -723,29 +879,128 @@ class AddAllLedgerBalBillwise(APIView):
                     fc_rate = fc_rate[1:]
                 fc_rate = round(D(fc_rate), 4)
                 temp.update({"fc_rate": fc_rate})
-                i['amount'] = D(i['amount'])
-                i['fc_amount'] = D(i['fc_amount'])
-                # print("cr",temp['cr'])
-                # print("dr",temp['dr'])
+               
+
                 if temp['cr'] is None:
                     temp['cr'] = 0
-                else:
-                     i['amount'] = (-1)*D(i['amount'])
-                     i['fc_amount'] = (-1)*D(i['fc_amount'])
+                
 
                 if temp['dr'] is None:
                     temp['dr'] = 0
-              
-                # print("cr",temp['cr'])
-                # print("dr",temp['dr'])
+                # else:
+                #      i['amount'] = (-1)*D(i['amount'])
+                #      i['fc_amount'] = (-1)*D(i['fc_amount'])
+
                 serializer = LedgerBalanceBillwiseSerializer(data=temp)
                 if not serializer.is_valid():
+                    ledger_bal_instance.dr = 0
+                    ledger_bal_instance.cr = 0
+                    ledger_bal_instance.total_dr = 0
+                    ledger_bal_instance.total_cr = 0
+                    ledger_bal_instance.balance = 0
+                    ledger_bal_instance.fc_amount = 0
+                    ledger_bal_instance.fc_rate = 0
+                    ledger_bal_instance.save()
                     return Response({
                         'success': False,
                         'message': serializer.errors,
                         })
+            dr_led = 0
+            balance_led = 0
+            curr_add_led = 0
+            fc_amt_led = 0
+            cr_led = 0
+            
+            for i in request.data['billwise']:
+                
+                temp1 =i
+                temp1.update({"fc_name":fc_name})
+                temp1.update({"ledger_bal_id": ledger_bal_id})
+                temp1.update({"company_master_id":request.data['company_master_id']})
+                if D(i['fc_amount']) == 0:
+                    fc_rate = "0"
+                else:
+                    fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+                if fc_rate[0] == "-":
+                    fc_rate = fc_rate[1:]
+                fc_rate = round(D(fc_rate), 4)
+                temp1.update({"fc_rate": fc_rate})
+                temp1['amount'] = D(i['amount'])
+                temp1['fc_amount'] = D(i['fc_amount'])
+                
+                if i['cr'] == 0:
+                    temp1['cr'] = 0
+        
+                if i['dr'] == 0:
+                    temp1['dr'] = 0
+                    print("hello", temp1['amount'])
+                    temp1['amount'] = -temp1['amount']
+                    temp1['fc_amount'] = -temp1['fc_amount']
+             
+                    
+                   
 
+                print(temp1['amount'], temp1['fc_amount'])  
+                
+                #ledger balance
+               
+                if D(i['dr']) != None:
+                    dr_led += D(i['dr'])
+                    balance_led += D(i['dr'])
+                    curr_add_led = D(i['dr'])
+                    fc_amt_led += D(i['fc_amount'])
+
+                if D(i['cr']) != None:
+                    cr_led += i['cr']
+                    balance_led -= D(i['cr']) 
+                    curr_add_led = D(i['cr'])
+                    fc_amt_led -= D(i['fc_amount'])
+                
+                #ledger balance finished
+
+
+                serializer = LedgerBalanceBillwiseSerializer(data=temp1)
+                if not serializer.is_valid():
+                    ledger_bal_instance.dr = 0
+                    ledger_bal_instance.cr = 0
+                    ledger_bal_instance.total_dr = 0
+                    ledger_bal_instance.total_cr = 0
+                    ledger_bal_instance.balance = 0
+                    ledger_bal_instance.fc_amount = 0
+                    ledger_bal_instance.fc_rate = 0
+                    ledger_bal_instance.save()
+                    return Response({
+                        'success': False,
+                        'message': serializer.errors,
+                        })
                 serializer.save()
+            
+            if fc_amt_led == 0:
+                fc_rate_led = "0"
+            else:
+                fc_rate_led = str(balance_led/fc_amt_led)
+                
+                
+            if balance_led < 0:
+                dr_led = 0
+                str_bal = str(balance_led)
+                str_bal = str_bal[1:]
+                cr_led = str_bal
+            else:
+                cr_led = 0
+                dr_led = balance_led
+
+            if fc_rate_led[0] == "-":
+                fc_rate_led = fc_rate_led[1:]
+                fc_rate_led = round(D(fc_rate_led), 4)
+            ledger_bal_instance.dr = dr_led
+            ledger_bal_instance.cr = cr_led
+            ledger_bal_instance.total_dr = dr_led
+            ledger_bal_instance.total_cr = cr_led
+            ledger_bal_instance.balance = balance_led
+            ledger_bal_instance.fc_amount = fc_amt_led
+            ledger_bal_instance.fc_rate = fc_rate_led
+            ledger_bal_instance.save()
             return Response({
                 'success': True,
                 'message': 'ledger balance billwise added successfully'
@@ -755,7 +1010,98 @@ class AddAllLedgerBalBillwise(APIView):
                 'success': False,
                 'message': 'You are not allowed to Add ledger balance billwise',
             })
+                
 
+
+
+
+# API For adding existing Ledger balance billwise together
+# request : POST
+# endpoint : add-all-ledger-bal-billwise
+# class AddExistingLedgerBalBillwise(APIView):
+#     def post(self, request):
+#         payload = verify_token(request)
+#         try:
+#             user = User.objects.filter(id=payload['id']).first()
+#         except:
+#             return payload
+
+#         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
+#         if user_permission:
+#                 ledger_bal_id = request.data['ledger_bal_id']
+#                 fc_name = request.data['fc_name']
+#                 total_bal = 0
+#                 fc_amt = 0
+#                 for i in request.data['billwise']:
+#                     temp =i
+#                     temp.update({"fc_name":fc_name})
+#                     temp.update({"ledger_bal_id": ledger_bal_id})
+#                     temp.update({"company_master_id":request.data['company_master_id']})
+#                     if D(i['fc_amount']) == 0:
+#                         fc_rate = "0"
+#                     else:
+#                         fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+#                     if fc_rate[0] == "-":
+#                         fc_rate = fc_rate[1:]
+#                     fc_rate = round(D(fc_rate), 4)
+#                     temp.update({"fc_rate": fc_rate})
+#                     # print("cr",temp['cr'])
+#                     # print("dr",temp['dr'])
+
+#                     if temp['cr'] is None:
+#                         temp['cr'] = 0
+#                     else:
+#                         total_bal -= D(temp['cr'])
+#                         fc_amt -= D(i['fc_amount'])
+#                         i['fc_amount'] = (-1)*D(i['fc_amount'])
+#                         i['amount'] = (-1)*D(i['amount'])
+#                     if temp['dr'] is None:
+#                         temp['dr'] = 0
+#                     else:
+#                         total_bal += D(temp['dr'])
+#                         fc_amt += D(i['fc_amount'])
+#                         i['fc_amount'] = D(i['fc_amount'])
+#                         i['amount'] = D(i['amount'])
+            
+#                     serializer = LedgerBalanceBillwiseSerializer(data=temp)
+#                     if not serializer.is_valid():
+#                         return Response({
+#                             'success': False,
+#                             'message': serializer.errors,
+#                             })
+
+#                     serializer.save()
+#                 ledger_bal_instance = ledger_balance.objects.get(id=request.data['ledger_bal_id'])
+#                 ledger_bal_instance.balance = D(ledger_bal_instance.balance) + total_bal
+#                 ledger_bal_instance.fc_amount = D(ledger_bal_instance.fc_amount) + fc_amt
+#                 ledger_bal = D(ledger_bal_instance.balance) + total_bal
+#                 if ledger_bal_instance.fc_amount == 0:
+#                     fcrate = "0"
+#                 else:
+#                     fcrate = str(ledger_bal/ledger_bal_instance.fc_amount)
+#                 if fcrate[0] == "-":
+#                         fcrate = fcrate[1:]
+#                 ledger_bal_instance.fc_rate = round(D(fcrate), 4)
+#                 if(ledger_bal < 0):
+#                     ledger_bal_instance.cr = ledger_bal
+#                     ledger_bal_instance.dr = 0 
+#                     ledger_bal_instance.total_cr = ledger_bal
+#                     ledger_bal_instance.total_dr = 0
+#                 else:
+#                     ledger_bal_instance.dr = ledger_bal
+#                     ledger_bal_instance.cr = 0 
+#                     ledger_bal_instance.total_dr = ledger_bal
+#                     ledger_bal_instance.total_cr = 0
+#                 ledger_bal_instance.save()
+#                 return Response({
+#                     'success': True,
+#                     'message': 'ledger balance billwise added successfully'
+#                     })
+#         else:
+#             return Response({
+#                 'success': False,
+#                 'message': 'You are not allowed to Add ledger balance billwise',
+#             })
 
 
 
@@ -772,79 +1118,116 @@ class AddExistingLedgerBalBillwise(APIView):
 
         user_permission = check_user_company_right("Opening Balance", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
-                ledger_bal_id = request.data['ledger_bal_id']
-                fc_name = request.data['fc_name']
-                total_bal = 0
-                fc_amt = 0
-                for i in request.data['billwise']:
-                    temp =i
-                    temp.update({"fc_name":fc_name})
-                    temp.update({"ledger_bal_id": ledger_bal_id})
-                    temp.update({"company_master_id":request.data['company_master_id']})
-                    if D(i['fc_amount']) == 0:
-                        fc_rate = "0"
-                    else:
-                        fc_rate = str(D(i['amount'])/D(i['fc_amount']))
-                    if fc_rate[0] == "-":
-                        fc_rate = fc_rate[1:]
-                    fc_rate = round(D(fc_rate), 4)
-                    temp.update({"fc_rate": fc_rate})
-                    # print("cr",temp['cr'])
-                    # print("dr",temp['dr'])
-
-                    if temp['cr'] is None:
-                        temp['cr'] = 0
-                    else:
-                        total_bal -= D(temp['cr'])
-                        fc_amt -= D(i['fc_amount'])
-                        i['fc_amount'] = (-1)*D(i['fc_amount'])
-                        i['amount'] = (-1)*D(i['amount'])
-                    if temp['dr'] is None:
-                        temp['dr'] = 0
-                    else:
-                        total_bal += D(temp['dr'])
-                        fc_amt += D(i['fc_amount'])
-                        i['fc_amount'] = D(i['fc_amount'])
-                        i['amount'] = D(i['amount'])
+            ledger_bal_id = request.data['ledger_bal_id']
+            fc_name = request.data['fc_name']
             
-                    serializer = LedgerBalanceBillwiseSerializer(data=temp)
-                    if not serializer.is_valid():
-                        return Response({
-                            'success': False,
-                            'message': serializer.errors,
-                            })
+            for i in request.data['billwise']:
+                temp =i
+                temp.update({"fc_name":fc_name})
+                temp.update({"ledger_bal_id": ledger_bal_id})
+                temp.update({"company_master_id":request.data['company_master_id']})
+                if D(i['fc_amount']) == 0:
+                    fc_rate = "0"
+                else:
+                    fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+                if fc_rate[0] == "-":
+                    fc_rate = fc_rate[1:]
+                fc_rate = round(D(fc_rate), 4)
+                temp.update({"fc_rate": fc_rate})
 
-                    serializer.save()
-                ledger_bal_instance = ledger_balance.objects.get(id=request.data['ledger_bal_id'])
-                ledger_bal_instance.balance = D(ledger_bal_instance.balance) + total_bal
-                ledger_bal_instance.fc_amount = D(ledger_bal_instance.fc_amount) + fc_amt
-                ledger_bal = D(ledger_bal_instance.balance) + total_bal
-                if ledger_bal_instance.fc_amount == 0:
-                    fcrate = "0"
+                if temp['cr'] is None:
+                    temp['cr'] = 0
+                # else:
+                #     temp['fc_amount'] = D(i['fc_amount'])
+                #     temp['amount'] = D(i['amount'])
+                
+                if temp['dr'] is None:
+                    temp['dr'] = 0
+                
+                # else:
+                #     i['fc_amount'] = (-1)*D(i['fc_amount'])
+                #     i['amount'] = (-1)*D(i['amount'])
+                
+                serializer = LedgerBalanceBillwiseSerializer(data=temp)
+                if not serializer.is_valid():
+                    return Response({
+                        'success': False,
+                        'message': serializer.errors,
+                        })
+            total_bal_led = 0
+            fc_amt_led = 0
+            led_dr = 0
+            led_cr = 0
+            for i in request.data['billwise']:
+                temp =i
+                temp.update({"fc_name":fc_name})
+                temp.update({"ledger_bal_id": ledger_bal_id})
+                temp.update({"company_master_id":request.data['company_master_id']})
+                if D(i['fc_amount']) == 0:
+                    fc_rate = "0"
                 else:
-                    fcrate = str(ledger_bal/ledger_bal_instance.fc_amount)
-                if fcrate[0] == "-":
-                        fcrate = fcrate[1:]
-                ledger_bal_instance.fc_rate = round(D(fcrate), 4)
-                if(ledger_bal < 0):
-                    ledger_bal_instance.cr = ledger_bal
-                    ledger_bal_instance.dr = 0 
-                    ledger_bal_instance.total_cr = ledger_bal
-                    ledger_bal_instance.total_dr = 0
-                else:
-                    ledger_bal_instance.dr = ledger_bal
-                    ledger_bal_instance.cr = 0 
-                    ledger_bal_instance.total_dr = ledger_bal
-                    ledger_bal_instance.total_cr = 0
-                ledger_bal_instance.save()
-                return Response({
-                    'success': True,
-                    'message': 'ledger balance billwise added successfully'
-                    })
+                    fc_rate = str(D(i['amount'])/D(i['fc_amount']))
+                if fc_rate[0] == "-":
+                    fc_rate = fc_rate[1:]
+                fc_rate = round(D(fc_rate), 4)
+                temp.update({"fc_rate": fc_rate})
+                
+                if temp['cr'] == 0:
+                    temp['cr'] = 0
+                    temp['fc_amount'] = D(i['fc_amount'])
+                    temp['amount'] = D(i['amount'])
+                    total_bal_led += D(temp['amount'])
+                    fc_amt_led += D(temp['fc_amount'])
+                if temp['dr'] == 0:
+                    temp['dr'] = 0
+                    temp['fc_amount'] = (-1)*D(i['fc_amount'])
+                    temp['amount'] = (-1)*D(i['amount'])
+                    total_bal_led -= D(temp['amount'])
+                    fc_amt_led -= D(temp['fc_amount'])
+                            
+                print(total_bal_led, fc_amt_led)
+                
+                serializer = LedgerBalanceBillwiseSerializer(data=temp)
+                if not serializer.is_valid():
+                    return Response({
+                        'success': False,
+                        'message': serializer.errors,
+                        })
+                serializer.save()
+            print(total_bal_led, fc_amt_led)
+            ledger_bal_instance = ledger_balance.objects.get(id=request.data['ledger_bal_id'])
+            ledger_bal = D(ledger_bal_instance.balance) + total_bal_led
+            ledger_bal_instance.balance = D(ledger_bal_instance.balance) + total_bal_led
+            fc_amt =  D(ledger_bal_instance.fc_amount) + fc_amt_led
+            ledger_bal_instance.fc_amount = D(ledger_bal_instance.fc_amount) + fc_amt_led
+            
+            
+            if fc_amt == 0:
+                fcrate = "0"
+            else:
+                fcrate = str(ledger_bal/fc_amt)
+            if fcrate[0] == "-":
+                    fcrate = fcrate[1:]
+            ledger_bal_instance.fc_rate = round(D(fcrate), 4)
+            if(ledger_bal < 0):
+                ledger_bal_instance.cr =  D(str(ledger_bal[1:]))
+                ledger_bal_instance.dr = 0 
+                ledger_bal_instance.total_cr = D(str(ledger_bal[1:]))
+                ledger_bal_instance.total_dr = 0
+            else:
+                ledger_bal_instance.dr = ledger_bal
+                ledger_bal_instance.cr = 0 
+                ledger_bal_instance.total_dr = ledger_bal
+                ledger_bal_instance.total_cr = 0
+            ledger_bal_instance.save()
+            return Response({
+                'success': True,
+                'message': 'ledger balance billwise added successfully'
+                })
         else:
             return Response({
-                'success': False,
-                'message': 'You are not allowed to Add ledger balance billwise',
+            'success': False,
+            'message': 'You are not allowed to Add ledger balance billwise',
             })
-
-
+            
+                

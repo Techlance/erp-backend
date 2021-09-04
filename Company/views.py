@@ -243,7 +243,10 @@ class CreateCompanyView(APIView):
 
             #! Trigger data to year master
             # year_master_insert(added_company.year_start_date, added_company.year_end_date, added_company, user.email)
-            year_master_insert(year_no=0,start_date=added_company.year_start_date-timedelta(days=366),end_date=added_company.year_end_date-timedelta(days=366),company_id=added_company,status=False,locked=True,user_email=user.email )
+            diff = abs(added_company.year_start_date-added_company.year_end_date)
+            diff = diff.days
+            diff = int(diff)
+            year_master_insert(year_no=0,start_date=added_company.year_start_date-timedelta(days=diff+1),end_date=added_company.year_end_date-timedelta(days=diff+1),company_id=added_company,status=False,locked=True,user_email=user.email )
             year_master_insert(year_no=1,start_date=added_company.year_start_date,end_date=added_company.year_end_date,company_id=added_company,status=True,locked=False,user_email=user.email )
             #! Trigger data to voucher type
             voucher_name=[]
