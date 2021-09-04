@@ -1717,7 +1717,7 @@ class AddLedgerMaster(APIView):
             serializer.save()
 
             latest_ledger = ledger_master.objects.latest('id')
-            if latest_ledger.acc_group_id.acc_head_id.bs==True:
+            if latest_ledger.acc_group_id.acc_head_id.bs==False:
                 all_budget = budget.objects.filter(company_master_id=latest_ledger.company_master_id, budget_type="P&L").values('id')
                 # print(all_budget)
                 for i in all_budget:
