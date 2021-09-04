@@ -178,7 +178,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ORIGIN_WHITELIST = (
-       'http://localhost:3000', 'https://erp-software-frontend.netlify.app'
+       'http://localhost:3000', 'https://erp-software-frontend.netlify.app', 'http://erp-software-frontend.netlify.app',
 )
 
 AUTH_USER_MODEL = 'Users.User'
