@@ -127,12 +127,12 @@ class CreateBudget(APIView):
 
                 all_ledger_master = ledger_master.objects.filter(company_master_id=request.data['company_master_id'])
                 for instance in all_ledger_master:
-                    if instance.acc_group_id.acc_head_id.bs==True:
+                    if instance.acc_group_id.acc_head_id.bs==False:
                         ledgers.append({'id':instance.id,'ledger_id':instance.ledger_id})
-                print(ledgers)
+                # print(ledgers)
 
                 latest_budget = budget.objects.latest('id')
-                print(latest_budget)
+                # print(latest_budget)
                 for i in ledgers:
                     new_budget_details = budget_details(budget_id_id=latest_budget.id,company_master_id_id=latest_budget.company_master_id.id,ledger_id_id = i['id'],
                     jan=0,feb=0,mar=0,apr=0,may=0,jun=0,jul=0,aug=0,sep=0,octo=0,nov=0,dec=0,created_by=user.email)
