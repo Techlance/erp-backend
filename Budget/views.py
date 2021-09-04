@@ -105,6 +105,9 @@ class CreateBudget(APIView):
         elif request.data['budget_type']=='Cashflow':
             user_permission = check_user_company_right("Budget-Cash flow", request.data['company_master_id'], user.id, "can_create")
 
+        # ledger_queryset = ledger_master.objects.all().select_related('acc_group_id').select_related('acc_head_id').filter(bs=True)
+        # print(ledger_queryset)
+
         if user_permission :
             # print(request.data)
             
@@ -117,11 +120,27 @@ class CreateBudget(APIView):
                     "email":user.email
                 }
                 })
-            
             company_name = company_master.objects.get(id=request.data['company_master_id']).company_name
             serializer.save()
-            
-            
+            if request.data['budget_type']=='P&L':
+                ledgers  = []
+
+                all_ledger_master = ledger_master.objects.filter(company_master_id=request.data['company_master_id'])
+                for instance in all_ledger_master:
+                    if instance.acc_group_id.acc_head_id.bs==True:
+                        ledgers.append({'id':instance.id,'ledger_id':instance.ledger_id})
+                print(ledgers)
+
+                latest_budget = budget.objects.latest('id')
+                print(latest_budget)
+                for i in ledgers:
+                    new_budget_details = budget_details(budget_id_id=latest_budget.id,company_master_id_id=latest_budget.company_master_id.id,ledger_id_id = i['id'],
+                    jan=0,feb=0,mar=0,apr=0,may=0,jun=0,jul=0,aug=0,sep=0,octo=0,nov=0,dec=0,created_by=user.email)
+                    new_budget_details.save()
+                    new_rev_budget_details = revised_budget_details(budget_id_id=latest_budget.id,company_master_id_id=latest_budget.company_master_id.id,ledger_id_id = i['id'],
+                    jan=0,feb=0,mar=0,apr=0,may=0,jun=0,jul=0,aug=0,sep=0,octo=0,nov=0,dec=0,created_by=user.email)
+                    new_rev_budget_details.save()
+
             return Response({
                 "success":True,
                 "message":"Budget added to "+company_name+" successfully",

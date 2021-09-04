@@ -186,6 +186,9 @@ class ledger_master(models.Model):
     created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
 
+    class Meta:
+        unique_together = ('ledger_id', 'company_master_id',)
+
     def __str__(self):
         return self.ledger_name
 

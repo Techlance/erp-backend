@@ -180,7 +180,7 @@ CORS_ALLOW_CREDENTIALS = True
 # CORS_ORIGIN_WHITELIST = (
 #        'http://localhost:3000', 'https://erp-software-frontend.netlify.app', 'http://erp-software-frontend.netlify.app',
 # )
-CORS_ALLOWED_ORIGINS = ['*']
+CORS_ALLOWED_ORIGINS = ['https://erp-software-frontend.netlify.app',  'http://localhost:3000' ]
 
 AUTH_USER_MODEL = 'Users.User'
 

@@ -19,6 +19,7 @@ from .serializers import CurrencySerializer, CompanySerializer,  GetCompanySeria
 from datetime import date, timedelta
 from django.http.response import HttpResponse
 from Users.models import User, transaction_right, user_group, user_right
+from Budget.models import budget, budget_details, revised_budget_details
 import PIL
 import json
 
@@ -1679,7 +1680,8 @@ class AddLedgerMaster(APIView):
             user = User.objects.filter(id=payload['id']).first()
         except:
             return payload
-        
+
+      
         # check user permission for Account Head from Transaction
         user_permission = check_user_company_right("Ledger Master", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
@@ -1697,13 +1699,26 @@ class AddLedgerMaster(APIView):
             # validate serialize
             
             if not serializer.is_valid():
-                print(serializer.errors)
+             
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
                 })
 
             serializer.save()
+
+            latest_ledger = ledger_master.objects.latest('id')
+            if latest_ledger.acc_group_id.acc_head_id.bs==True:
+                all_budget = budget.objects.filter(company_master_id=latest_ledger.company_master_id, budget_type="P&L").values('id')
+                # print(all_budget)
+                for i in all_budget:
+                    new_budget_details = budget_details(budget_id_id=i['id'],company_master_id_id=latest_ledger.company_master_id.id,ledger_id_id = latest_ledger.id,
+                    jan=0,feb=0,mar=0,apr=0,may=0,jun=0,jul=0,aug=0,sep=0,octo=0,nov=0,dec=0,created_by=user.email)
+                    new_budget_details.save()
+                    new_rev_budget_details = revised_budget_details(budget_id_id=i['id'],company_master_id_id=latest_ledger.company_master_id.id, ledger_id_id = latest_ledger.id,
+                    jan=0,feb=0,mar=0,apr=0,may=0,jun=0,jul=0,aug=0,sep=0,octo=0,nov=0,dec=0,created_by=user.email)
+                    new_rev_budget_details.save()     
+
             return Response({
                 "success":True,
                 "message":"Ledger Master added successfully",
@@ -1908,7 +1923,7 @@ class GetLedgerRecievables(APIView):
            
            
             if instance.acc_group_id.group_name == "Receivables" or str(instance.acc_group_id.child_of) == "Receivables":
-                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name})
+                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name, "ledger_id": instance.ledger_id})
         
         return Response({
             'success': True,
