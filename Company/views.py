@@ -1932,7 +1932,7 @@ class GetLedgerPayables(APIView):
         for instance in all_ledger_master:
            
             if instance.acc_group_id.group_name == "Payables" or str(instance.acc_group_id.child_of) == "Payables":
-                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name})
+                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name, "ledger_id": instance.ledger_id})
         
         return Response({
             'success': True,
@@ -1956,7 +1956,7 @@ class GetLedgerCashBank(APIView):
         for instance in all_ledger_master:
            
             if instance.acc_group_id.group_name == "Bank OD" or str(instance.acc_group_id.child_of) == "Bank OD" or instance.acc_group_id.group_name == "Cash at Bank" or str(instance.acc_group_id.child_of) == "Cash at Bank":
-                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name})
+                ledgers.append({'id':instance.id,'ledger_name':instance.ledger_name, "ledger_id": instance.ledger_id})
         
         return Response({
             'success': True,
