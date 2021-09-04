@@ -331,8 +331,8 @@ class EditCompanyView(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
-            logo_file = context['logo']
-            if "https://" in logo_file:
+            logo_file = context.get('logo')
+            if logo_file!=None and "https://" in logo_file:
                 context["logo"] = company_instance.logo
             
             
@@ -2289,7 +2289,7 @@ class GetDetailCostCenter(APIView):
 
 # API For getting cost center name
 # request : GET
-# endpoint: get-cost-center-name/id(cost_category_id)
+# endpoint: get-cost-center-name/id (cost category id)
 class GetCostCenterName(APIView):
     def get(self, request, id):
         payload = verify_token(request)

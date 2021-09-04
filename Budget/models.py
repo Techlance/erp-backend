@@ -17,7 +17,7 @@ class budget(models.Model):
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = ('id', 'company_master_id',)
+        unique_together = ('company_master_id', 'year_id', 'budget_type', 'budget_name')
 
     def __str__(self):
         return self.budget_name
