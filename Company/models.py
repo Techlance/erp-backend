@@ -26,7 +26,7 @@ class company_master(models.Model):
     email = models.EmailField(null=True)
     website = models.TextField(max_length=1000, null=True)
     contact_no = models.TextField(max_length=20, null=True)
-    base_currency = models.ForeignKey(to=currency, null=False, on_delete=models.CASCADE)
+    base_currency = models.ForeignKey(to=currency, null=False, on_delete=models.PROTECT)
     cr_no = models.TextField(max_length=500, null=True)
     registration_no = models.TextField(max_length=500, null=True)
     tax_id_no = models.TextField(max_length=500, null=True)
@@ -44,9 +44,9 @@ class company_master(models.Model):
 
 
 class user_company(models.Model):
-    user = models.ForeignKey(to=User, null=False, on_delete=models.CASCADE)
-    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.CASCADE)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=User, null=False, on_delete=models.PROTECT)
+    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.PROTECT)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -58,7 +58,7 @@ class user_company(models.Model):
 class company_master_docs(models.Model): 
     doc_name = models.TextField(max_length=500, null=False)
     file = models.FileField(upload_to="files", null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -72,7 +72,7 @@ class year_master(models.Model):
     year_no = models.IntegerField(null=False, default=0)
     start_date = models.DateField(null=False)
     end_date = models.DateField(null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     status = models.BooleanField(default=True, null=False)
     locked = models.BooleanField(default=True, null=False)
     created_by = models.TextField(max_length=200, null=False)
@@ -90,8 +90,8 @@ class year_master(models.Model):
 class voucher_type(models.Model):
     voucher_name = models.TextField(max_length=500, null=False)
     voucher_class = models.TextField(max_length=500, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
-    authorization_id = models.ForeignKey(to=User, null=True, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
+    authorization_id = models.ForeignKey(to=User, null=True, on_delete=models.PROTECT)
     auto_numbering = models.BooleanField(default=False)
     prefix = models.TextField(max_length=200, null=True)
     restart = models.TextField(max_length=50, null=True)
@@ -112,7 +112,7 @@ class voucher_type(models.Model):
 class acc_head(models.Model):
     acc_head_name = models.TextField(max_length=200, null=False)
     title = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     bs = models.BooleanField(default=True, null=False)
     schedule_no = models.IntegerField(null=False)
     is_fixed = models.BooleanField(default=True)
@@ -132,7 +132,7 @@ class acc_group(models.Model):
     group_name = models.TextField(max_length=1000, null=False)
     acc_head_id = models.ForeignKey(to=acc_head, related_name='acc_group', null=False, on_delete=models.PROTECT)
     group_code = models.TextField(max_length=4, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     #child_of = models.TextField(max_length=1000, null=True)
     child_of = models.ForeignKey('self', related_name='child', null=True, on_delete=models.PROTECT, blank=True)
     is_fixed = models.BooleanField(default=True, null=False)
@@ -156,7 +156,7 @@ class ledger_master(models.Model):
     ledger_id = models.TextField(max_length=200, null=False)
     old_ledger_id = models.TextField(max_length=200, null=True)
     ledger_name = models.TextField(max_length=200, null=False)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     maintain_billwise = models.BooleanField(default=True, null=False)
     address = models.TextField(max_length=1000, null=True)
     tel = models.TextField(max_length=15, null=True)
@@ -195,8 +195,8 @@ class ledger_master(models.Model):
 class ledger_master_docs(models.Model): 
     doc_name = models.TextField(max_length=500, null=False)
     file = models.FileField(upload_to="ledgerFiles", null=False)
-    ledger_master_id = models.ForeignKey(to=ledger_master, related_name="ledger_docs", null=False, on_delete=models.CASCADE)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    ledger_master_id = models.ForeignKey(to=ledger_master, related_name="ledger_docs", null=False, on_delete=models.PROTECT)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -207,12 +207,15 @@ class ledger_master_docs(models.Model):
 
 
 class cost_category(models.Model):
-    name = models.TextField(max_length=200, null=False, unique=True)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    name = models.TextField(max_length=200, null=False)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     created_by = models.TextField(max_length=200, null=False)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_on = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
+
+    class Meta:
+        unique_together = ('name', 'company_master_id',)
 
     def __str__(self):
         return self.name
@@ -223,7 +226,7 @@ class cost_center(models.Model):
     cost_category_id = models.ForeignKey(to=cost_category, related_name="cost_center", null=False, on_delete=models.PROTECT)
     # child_of = models.TextField(max_length=500, default="primary")
     child_of = models.ForeignKey('self', related_name='child', null=True, on_delete=models.PROTECT, blank=True)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     altered_by = models.TextField(max_length=200, null=True, blank=True)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(auto_now_add=True)

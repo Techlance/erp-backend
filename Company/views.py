@@ -376,14 +376,20 @@ class DeleteCompanyView(APIView):
         if user.is_superuser:
 
             # Find company record with id above
-            company_instance = company_master.objects.get(id=id)
-            company_instance.altered_by = user.email         
-            company_instance.delete()
-            
-            return Response({
-                'success': True,
-                'message': 'Company deleted Successfully',
-                })
+            try:
+                company_instance = company_master.objects.get(id=id)
+                company_instance.altered_by = user.email       
+                company_instance.delete()
+                
+                return Response({
+                    'success': True,
+                    'message': 'Company deleted Successfully',
+                    })
+            except:
+                return Response({
+                    'success': False,
+                    'message': 'Please delete all related data with this company',
+                    })
 
         else:
             

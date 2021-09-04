@@ -46,8 +46,8 @@ class transaction_right(models.Model):
 
 
 class user_right(models.Model):
-    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.CASCADE)
-    transaction_id = models.ForeignKey(to=transaction_right, null=False, on_delete=models.CASCADE)
+    user_group_id = models.ForeignKey(to=user_group, null=False, on_delete=models.PROTECT)
+    transaction_id = models.ForeignKey(to=transaction_right, null=False, on_delete=models.PROTECT)
     can_create = models.BooleanField(default=False)
     can_alter = models.BooleanField(default=False)
     can_delete = models.BooleanField(default=False)

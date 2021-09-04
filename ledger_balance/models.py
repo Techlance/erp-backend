@@ -7,7 +7,7 @@ from simple_history.models import HistoricalRecords
 class ledger_balance(models.Model):
     ledger_id = models.ForeignKey(to=ledger_master,related_name="ledger_balance", null=False, on_delete=models.PROTECT)
     year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.PROTECT)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     balance = models.DecimalField(max_digits=100, decimal_places=2, default=0)
     dr = models.DecimalField(max_digits=100, decimal_places=2, default=0)
     cr = models.DecimalField(max_digits=100, decimal_places=2, default=0)
@@ -29,7 +29,7 @@ class ledger_balance(models.Model):
 
 class ledger_bal_billwise(models.Model):
     ledger_bal_id = models.ForeignKey(to=ledger_balance,related_name="ledger_bal_billwise", null=False, on_delete=models.CASCADE)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     ref_no = models.TextField(max_length=100, null=False)
     bill_date = models.DateField(null=True)
     dr = models.DecimalField(max_digits=100, decimal_places=2, default=0)
@@ -37,7 +37,7 @@ class ledger_bal_billwise(models.Model):
     due_date = models.DateField(null=True)
     amount = models.DecimalField(max_digits=100, decimal_places=2, default=0)
     fc_amount = models.DecimalField(max_digits=100, decimal_places=2, default=0)
-    fc_name = models.ForeignKey(to=currency, null=False, on_delete=models.CASCADE)
+    fc_name = models.ForeignKey(to=currency, null=False, on_delete=models.PROTECT)
     fc_rate = models.DecimalField(max_digits=100, decimal_places=4, default=0, null=False)
     created_by = models.TextField(max_length=200, null=False)
     created_on = models.DateTimeField(auto_now_add=True)
@@ -51,7 +51,7 @@ class ledger_bal_billwise(models.Model):
 
 class op_bal_brs(models.Model):
     bank_ledger_id = models.ForeignKey(to=ledger_master,related_name="bank_ledger", null=False, on_delete=models.PROTECT)
-    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.CASCADE)
+    company_master_id = models.ForeignKey(to=company_master, null=False, on_delete=models.PROTECT)
     acc_code = models.ForeignKey(to=ledger_master,related_name="acc_code_ledger", null=False, on_delete=models.PROTECT)
     year_id = models.ForeignKey(to=year_master, null=False, on_delete=models.PROTECT, default=0)#remove default
     name = models.TextField(max_length=200, null=False)

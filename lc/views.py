@@ -7,8 +7,9 @@ import jwt
 from django.http import JsonResponse
 from django.http.response import HttpResponse
 from .serializers import LCAmendSerializer, GetLCDocsSerializer, LCDocsSerializer, LCSerializer, GetLCSerializer
-from Company.models import company_master, company_master_docs
+from Company.models import company_master, company_master_docs, year_master
 from Users.models import User, transaction_right, user_right
+import datetime
 
 
 
@@ -100,14 +101,30 @@ class AddLC(APIView):
             return payload
         
         # permission
+        
+        
+        
+        
         user_permission = check_user_company_right("LC", request.data['company_master_id'], user.id, "can_create")
         if user_permission:
+            query_date = datetime.date(int(request.data['lc_date'][:4]), int(request.data['lc_date'][5:7]), int(request.data['lc_date'][8:]))
+            year_master_instance = year_master.objects.filter(company_master_id=request.data['company_master_id'])
+            year_id = -1
+            for i in year_master_instance:
+                if i.start_date<=query_date and i.end_date>=query_date:
+                    year_id = i.id 
+
+            if year_id == -1:
+                return Response({
+                    "success":True,
+                    "message":"Please choose appropriate date",
+                    })
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
+            context['year_id'] = year_id
             serializer = LCSerializer(data = context)
             if not serializer.is_valid():
-               
                 return Response({
                 "success":False,
                 "message": get_error(serializer.errors),
