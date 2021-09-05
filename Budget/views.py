@@ -684,7 +684,7 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             if not serializer.is_valid():
                 return Response({
                 "success":False,
-                "message":get_error(serializer.errors),
+                "message":serializer.errors,
                 "data": {
                     "email":user.email
                 }
@@ -783,7 +783,7 @@ class GetBudgetCashflowDetails(APIView):
 
         if user_permission:
             budget_cashflow_details_instances = budget_cashflow_details.objects.filter(budget_id=id)
-            serializer = BudgetCashflowSerializer(budget_cashflow_details_instances, many=True)
+            serializer = GetBudgetCashflowSerializer(budget_cashflow_details_instances, many=True)
             budget_instance = budget.objects.get(id=id)
             budget_serializer = GetBudgetSerializer(budget_instance)  
             return Response({
@@ -1034,7 +1034,7 @@ class GetRevisedBudgetCashflowDetails(APIView):
 
         if user_permission:
             budget_cashflow_details_instances = revised_budget_cashflow_details.objects.filter(budget_id=id)
-            serializer = RevisedBudgetCashflowSerializer(budget_cashflow_details_instances, many=True)
+            serializer = GetRevisedBudgetCashflowSerializer(budget_cashflow_details_instances, many=True)
             budget_instance = budget.objects.get(id=id)
             budget_serializer = GetBudgetSerializer(budget_instance)  
             return Response({

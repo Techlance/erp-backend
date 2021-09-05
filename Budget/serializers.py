@@ -116,7 +116,7 @@ class CashflowSerializer(serializers.ModelSerializer):
             'altered_by':{'write_only': True}
         }
 
-class BudgetCashflowSerializer(serializers.ModelSerializer):
+class GetBudgetCashflowSerializer(serializers.ModelSerializer):
     cashflow_head = CashflowSerializer()
     class Meta:
         model = budget_cashflow_details
@@ -127,6 +127,17 @@ class BudgetCashflowSerializer(serializers.ModelSerializer):
             'created_on':{'read_only': True}
         }
 
+    
+
+class BudgetCashflowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = budget_cashflow_details
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True}
+        }
     def create(self, validated_data): 
         instance = self.Meta.model(**validated_data)
         instance.save()
@@ -140,7 +151,7 @@ class BudgetCashflowSerializer(serializers.ModelSerializer):
 
 
 class RevisedBudgetCashflowSerializer(serializers.ModelSerializer):
-    cashflow_head = CashflowSerializer()
+    
     class Meta:
         model = revised_budget_cashflow_details
         fields = '__all__'
@@ -161,3 +172,13 @@ class RevisedBudgetCashflowSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class GetRevisedBudgetCashflowSerializer(serializers.ModelSerializer):
+    cashflow_head = CashflowSerializer(read_only=True)
+    class Meta:
+        model = revised_budget_cashflow_details
+        fields = '__all__'
+        extra_kwargs = {
+            
+            'id':{'read_only': True},
+            'created_on':{'read_only': True}
+        }
