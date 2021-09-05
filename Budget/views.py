@@ -345,7 +345,7 @@ class CreateBudgetDetails(APIView):
             if not revised_serializer.is_valid():
                 return Response({
                 "success":False,
-                "message":(serializer.errors),
+                "message":get_error(serializer.errors),
                 "data": {
                     "email":user.email
                 }
@@ -478,7 +478,7 @@ class EditChangedBudgetDetails(APIView):
                 if not budget_details_serializer.is_valid():
                     return Response({
                     "success":False,
-                    "message":budget_details_serializer.errors,
+                    "message":get_error(budget_details_serializer.errors),
                     "data": {
                         "email":user.email
                     } 
@@ -684,7 +684,7 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             if not serializer.is_valid():
                 return Response({
                 "success":False,
-                "message":serializer.errors,
+                "message":get_error(serializer.errors),
                 "data": {
                     "email":user.email
                 }
@@ -693,7 +693,7 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             if not revised_serializer.is_valid():
                 return Response({
                 "success":False,
-                "message":(revised_serializer.errors),
+                "message":get_error(revised_serializer.errors),
                 "data": {
                     "email":user.email
                 }
@@ -935,7 +935,7 @@ def EditRevisedBudgetChilds(changed_data,revised,user):
             if not revised_serializer.is_valid():
                 return Response({
                 "success":False,
-                "message":(revised_serializer.errors),
+                "message":get_error(revised_serializer.errors),
                 "data": {
                     "email":user.email
                 }
