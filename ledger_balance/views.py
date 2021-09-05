@@ -779,7 +779,7 @@ class AddAllLedgerBalBillwise(APIView):
                             if not serializer.is_valid():
                                 return Response({
                                     'success': False,
-                                    'message': serializer.errors,
+                                    'message': get_error(serializer.errors),
                                     })
 
                         else:
@@ -825,7 +825,7 @@ class AddAllLedgerBalBillwise(APIView):
                             if not serializer.is_valid():
                                 return Response({
                                     'success': False,
-                                    'message': serializer.errors,
+                                    'message': get_error(serializer.errors),
                                     })
                             serializer.save()
 
@@ -864,7 +864,7 @@ class AddAllLedgerBalBillwise(APIView):
                             if not serializer.is_valid():
                                 return Response({
                                     'success': False,
-                                    'message': serializer.errors,
+                                    'message': get_error(serializer.errors),
                                     })
                             serializer.save()
                         else:
@@ -965,7 +965,7 @@ class AddAllLedgerBalBillwise(APIView):
                         ledger_bal_instance.save()
                         return Response({
                             'success': False,
-                            'message': serializer.errors,
+                            'message': get_error(serializer.errors),
                             })
                 dr_led = 0
                 balance_led = 0
@@ -1026,7 +1026,7 @@ class AddAllLedgerBalBillwise(APIView):
                         
                         return Response({
                             'success': False,
-                            'message': serializer.errors,
+                            'message':get_error(serializer.errors),
                             })
                     serializer.save()
                 update_ledger_balance(ledger_bal_id)
