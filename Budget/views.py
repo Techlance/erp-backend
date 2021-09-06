@@ -718,6 +718,8 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             changed_parent_instance['company_master_id']=changed_parent_instance['company_master_id_id']
             del changed_parent_instance['company_master_id_id']
             # changed_parent_instance['cashflow_head']=changed_parent_instance['cashflow_head_id']
+            if changed_parent_instance.get('cashflow_head')==None:
+                changed_parent_instance['cashflow_head']=changed_parent_instance['cashflow_head_id']
             del changed_parent_instance['cashflow_head_id']
 
             changed_revised_instance['budget_id']=changed_revised_instance['budget_id_id']
@@ -725,6 +727,8 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             changed_revised_instance['company_master_id']=changed_revised_instance['company_master_id_id']
             del changed_revised_instance['company_master_id_id']
             # changed_revised_instance['cashflow_head']=changed_revised_instance['cashflow_head_id']
+            if changed_revised_instance.get('cashflow_head')==None:
+                changed_revised_instance['cashflow_head']=changed_revised_instance['cashflow_head_id']            
             del changed_revised_instance['cashflow_head_id']
             
             del changed_revised_instance['id']
