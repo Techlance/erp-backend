@@ -707,21 +707,24 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             changed_revised_instance = revised.objects.filter(id=i.get('id')).values()[0]
 
             for key,val in i.items():
-                if key!='id':
+                if key=="budget_type":
+                    changed_parent_instance[key]=val
+                elif key!='id':
                     changed_parent_instance[key]=D(val)
                     changed_revised_instance[key]=D(val)
+                
             changed_parent_instance['budget_id']=changed_parent_instance['budget_id_id']
             del changed_parent_instance['budget_id_id']
             changed_parent_instance['company_master_id']=changed_parent_instance['company_master_id_id']
             del changed_parent_instance['company_master_id_id']
-            changed_parent_instance['cashflow_head']=changed_parent_instance['cashflow_head_id']
+            # changed_parent_instance['cashflow_head']=changed_parent_instance['cashflow_head_id']
             del changed_parent_instance['cashflow_head_id']
 
             changed_revised_instance['budget_id']=changed_revised_instance['budget_id_id']
             del changed_revised_instance['budget_id_id']
             changed_revised_instance['company_master_id']=changed_revised_instance['company_master_id_id']
             del changed_revised_instance['company_master_id_id']
-            changed_revised_instance['cashflow_head']=changed_revised_instance['cashflow_head_id']
+            # changed_revised_instance['cashflow_head']=changed_revised_instance['cashflow_head_id']
             del changed_revised_instance['cashflow_head_id']
             
             del changed_revised_instance['id']
@@ -729,7 +732,7 @@ def EditBudgetChilds(changed_data,budget_parent,revised,user):
             del changed_parent_instance['id']
             del changed_parent_instance['created_on']
 
-            # print(changed_budget_details_instance)
+            # print(changed_parent_instance)
 
             parent_serializer = BudgetCashflowSerializer(parent_instance, data = changed_parent_instance)
             revised_serializer = RevisedBudgetCashflowSerializer(revised_instance, data = changed_revised_instance)
@@ -947,7 +950,7 @@ def EditRevisedBudgetChilds(changed_data,revised,user):
             changed_revised_instance = revised.objects.filter(id=i.get('id')).values()[0]
 
             for key,val in i.items():
-                if key!='id':
+                if key!="budget_type" and key!='id':
                     changed_revised_instance[key]=D(val)
 
             changed_revised_instance['budget_id']=changed_revised_instance['budget_id_id']
