@@ -132,8 +132,14 @@ class GetUserCompanyView(APIView):
                 logo_str = None
             else:
                 logo_str = str(i.company_master_id.logo)
-            
-            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "country":i.company_master_id.country, "year_start_date": i.company_master_id.year_start_date, "year_end_date": i.company_master_id.year_end_date, "logo": logo_str, "created_on": i.company_master_id.created_on,"base_currency":i.company_master_id.base_currency.id})
+            company_year = year_master.objects.filter(company_master_id=i.company_master_id.id)
+            all_year = []
+            for j in company_year:
+                all_year.append({
+                    "start_date":j.start_date,
+                    "end_date": j.end_date
+                })
+            companies.append({"company_id":i.company_master_id.id,"company_name":i.company_master_id.company_name, "country":i.company_master_id.country, "year_start_date": i.company_master_id.year_start_date, "year_end_date": i.company_master_id.year_end_date, "logo": logo_str, "created_on": i.company_master_id.created_on,"base_currency":i.company_master_id.base_currency.id, "years": all_year})
         # print(companies)
         return Response({
                 "success":True,
