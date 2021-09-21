@@ -168,7 +168,7 @@ class EditLC(APIView):
             temp = request.data
             context = temp.dict()
             context['altered_by'] = user.email
-            context['year_id'] = lc_instance.year_id
+            #context['year_id'] = lc_instance.year_id
             serializer = LCSerializer(lc_instance, data=context)
 
             if not serializer.is_valid():
