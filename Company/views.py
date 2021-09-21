@@ -136,6 +136,7 @@ class GetUserCompanyView(APIView):
             all_year = []
             for j in company_year:
                 all_year.append({
+                    "year_id": j.id,
                     "start_date":j.start_date,
                     "end_date": j.end_date
                 })
