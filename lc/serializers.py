@@ -4,7 +4,7 @@ from Company.models import cost_center, ledger_master
 from Company.serializers import GetLedgerMasterField,GetCostCenterField, CurrencySerializer
 class LCSerializer(serializers.ModelSerializer):
     #id = serializers.CharField(source='lc_no')
-    id = serializers.SerializerMethodField('get_alternate_name', read_only=True)
+    #id = serializers.SerializerMethodField('get_alternate_name', read_only=True)
     class Meta:
         model = lc
         fields = '__all__'
@@ -26,8 +26,8 @@ class LCSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
         return instance
-    def get_alternate_name(self, obj):
-        return obj.lc_no
+    # def get_alternate_name(self, obj):
+    #     return obj.lc_no
 
 class GetLCSerializer(serializers.ModelSerializer):
     #id = serializers.CharField(source='lc_no')
