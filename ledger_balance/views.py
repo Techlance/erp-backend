@@ -535,11 +535,11 @@ class AddOpBalBrs(APIView):
             serializer.save()
             return Response({
                 'success': True,
-                'message': 'op bal brs added successfully'})
+                'message': 'Opening balance BRS added successfully'})
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to add op balance brs',
+                'message': 'You are not allowed to add Opening balance BRS',
             })
 
 
@@ -573,11 +573,11 @@ class EditOpBalBrs(APIView):
             serializer.save()
             return Response({
                 'success': True,
-                'message': 'op bal brs edited successfully'})
+                'message': 'Opening balance BRS edited successfully'})
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to edit op balance brs',
+                'message': 'You are not allowed to edit Opening balance BRS',
             })
 
 
@@ -600,12 +600,12 @@ class DeleteOpBalBrs(APIView):
             op_bal_brs_instance.delete()
             return Response({
                 'success': True,
-                'message': 'op Balance brs deleted Successfully',
+                'message': 'Opening balance BRS deleted Successfully',
                 })
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to delete op balance brs',
+                'message': 'You are not allowed to delete Opening balance BRS',
             })
 
 
@@ -632,7 +632,7 @@ class GetOpBalBrs(APIView):
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to view Op balance brs',
+                'message': 'You are not allowed to view Opening balance BRS',
                 'data': []
             })
 
@@ -661,7 +661,7 @@ class GetDetailOpBalBrs(APIView):
         else:
             return Response({
                 'success': False,
-                'message': 'You are not allowed to view Op balance brs',
+                'message': 'You are not allowed to view Opening balance BRS',
                 'data': []
             })
 
