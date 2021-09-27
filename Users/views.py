@@ -16,7 +16,7 @@ from .models import User, user_group, user_right, transaction_right
 import jwt, datetime
 from django.http import JsonResponse
 from .serializers import UserGroupSerializer, UserSerializer, UserGroupSerializer, UserRightSerializer, TransactionRightSerializer, GetUserRightSerializer
-
+from django.db.models import ProtectedError
 
 # Function to verify the accessToken
 def verify_token(request):
@@ -478,12 +478,19 @@ class DeleteUserGroup(APIView):
             # Fetch user group with a specific id = "id"
             selected_group = user_group.objects.get(id=id)
             selected_group.altered_by = user.email
-            selected_group.delete()
+            try:
+                selected_group.delete()
+                return Response({
+                    'success': True,
+                    'message': 'User Group deleted Successfully',
+                    })
+            except ProtectedError as e:
+                return Response({
+                    'success': True,
+                    'message': 'Please delete all related rights of '+str(selected_group.user_group_name)+' from user rights first',
+                    
+                    })
 
-            return Response({
-                'success': True,
-                'message': 'User Group deleted Successfully',
-                })
     
         else:
             return Response({
