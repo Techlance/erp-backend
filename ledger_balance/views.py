@@ -10,6 +10,7 @@ from Company.models import ledger_master, user_company, year_master, company_mas
 from Users.models import transaction_right, user_group, user_right, User
 import jwt
 from decimal import Decimal as D
+
 # Create your views here.
 # Function to verify token for authorization
 def verify_token(request):

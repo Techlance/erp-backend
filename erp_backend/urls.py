@@ -25,7 +25,8 @@ urlpatterns = [
     path('api/company/', include('Company.urls')),
     path('api/lc/', include('lc.urls')),
     path('api/ledger-balance/', include('ledger_balance.urls')),
-    path('api/budget/', include('Budget.urls'))
+    path('api/budget/', include('Budget.urls')),
+    path('api/transaction/', include('transactions.urls'))
 ]
 
 if settings.DEBUG:

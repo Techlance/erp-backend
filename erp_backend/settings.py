@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'ledger_balance',
     'simple_history',
     'import_export',
-    'Budget'
+    'Budget',
+    'transactions'
 ]
 
 

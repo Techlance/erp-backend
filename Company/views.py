@@ -132,7 +132,7 @@ class GetUserCompanyView(APIView):
                 logo_str = None
             else:
                 logo_str = str(i.company_master_id.logo)
-            company_year = year_master.objects.filter(company_master_id=i.company_master_id.id)
+            company_year = year_master.objects.filter(company_master_id=i.company_master_id.id).exclude(year_no=0)
             all_year = []
             for j in company_year:
                 all_year.append({
