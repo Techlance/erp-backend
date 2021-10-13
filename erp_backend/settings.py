@@ -115,9 +115,9 @@ WSGI_APPLICATION = 'erp_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'd4fjsk81n6r81b',
-        'USER': 'tcoqukkknoxxvq',
-        'PASSWORD': 'fd19bea255224a72c2768cdac2a37999ae59e340fd40990b6af3d41f795e2a96',
+        'NAME': '',
+        'USER': '',
+        'PASSWORD': '',
         'HOST': 'ec2-44-195-209-130.compute-1.amazonaws.com',
         'PORT': 5432
     }
@@ -190,8 +190,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID = 'AKIAQIOMWPL3E6KQYLPH'
-AWS_SECRET_ACCESS_KEY = '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'
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = 'erp-project'
 AWS_QUERYSTRING_AUTH = False
 
