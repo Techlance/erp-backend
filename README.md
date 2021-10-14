@@ -4,6 +4,8 @@
 ### How to install PostgreSQL?
 ##### Download postgreSQL from following link and install 
 ##### https://www.enterprisedb.com/downloads/postgres-postgresql-downloads
+##### Download pgAdmin from following link
+##### https://www.pgadmin.org/download/
 
 ## STEP-2 : Set Up Database 
 ##### Open PgAdmin and Create a database with name erp_software in PgAdmin.
